@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arizona Geological Survey Webtools</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #f4f4f4;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* UA Wordmark Bar */
+        .ua-bar {
+            background-color: #0C234B;
+            padding: 10px 24px;
+        }
+
+        .ua-wordmark {
+            color: white;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 1.5px;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        /* AZGS Header */
+        .azgs-header {
+            background-color: white;
+            padding: 16px 24px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .header-logo {
+            height: 60px;
+            width: auto;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 24px;
+        }
+
+        /* Tool Buttons Container */
+        .tools-container {
+            display: flex;
+            gap: 32px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* Tool Card/Button */
+        .tool-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 40px 48px;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            width: 320px;
+            border: 2px solid transparent;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            border-color: #AB0520;
+        }
+
+        .tool-card .icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background-color: #0C234B;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tool-card .icon svg {
+            width: 40px;
+            height: 40px;
+            fill: white;
+        }
+
+        .tool-card h3 {
+            color: #0C234B;
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .tool-card p {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .tool-card .btn-text {
+            display: inline-block;
+            margin-top: 20px;
+            background-color: #AB0520;
+            color: white;
+            padding: 12px 32px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .tool-card:hover .btn-text {
+            background-color: #8B0015;
+        }
+
+        /* Explore Our Data Section */
+        .data-section {
+            margin-top: 60px;
+            text-align: center;
+        }
+
+        .data-section h2 {
+            color: #0C234B;
+            font-size: 1.5rem;
+            margin-bottom: 24px;
+            font-weight: 600;
+        }
+
+        .data-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .data-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background-color: #0C234B;
+            color: white;
+            padding: 14px 24px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            border: 2px solid #0C234B;
+            min-width: 220px;
+        }
+
+        .data-btn:hover {
+            background-color: white;
+            color: #0C234B;
+        }
+
+        .data-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        /* Other AZGS Resources Section */
+        .resources-section {
+            margin-top: 60px;
+            text-align: center;
+        }
+
+        .resources-section h2 {
+            color: #0C234B;
+            font-size: 1.5rem;
+            margin-bottom: 24px;
+            font-weight: 600;
+        }
+
+        .resources-links {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .resource-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #0C234B;
+            padding: 14px 24px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            border: 2px solid #0C234B;
+            background-color: transparent;
+            min-width: 260px;
+        }
+
+        .resource-link:hover {
+            background-color: #0C234B;
+            color: white;
+        }
+
+        .resource-link svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #0C234B;
+            color: white;
+            text-align: center;
+            padding: 24px;
+            font-size: 0.85rem;
+        }
+
+        footer a {
+            color: #ADD8E6;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .header-logo {
+                height: 48px;
+            }
+
+            .tools-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .tool-card {
+                width: 100%;
+                max-width: 320px;
+                padding: 32px 24px;
+            }
+
+            .data-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .data-btn {
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
+            }
+
+            .resources-links {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .resource-link {
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- University of Arizona Wordmark Bar -->
+    <div class="ua-bar">
+        <span class="ua-wordmark">THE UNIVERSITY OF ARIZONA</span>
+    </div>
+
+    <!-- Arizona Geological Survey Header -->
+    <header class="azgs-header">
+        <img src="data:image/webp;base64,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" alt="UA Science - Arizona Geological Survey - Geosciences serving Arizona since 1887" class="header-logo">
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="tools-container">
+            <!-- Stratigraphy Tool -->
+            <a href="StratigraphyTool/WellStratigraphyGenerator_ExternalPatterns.html" class="tool-card">
+                <div class="icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 3h18v4H3V3zm0 6h18v4H3V9zm0 6h18v4H3v-4zm0 6h18v2H3v-2z"/>
+                    </svg>
+                </div>
+                <h3>Stratigraphy</h3>
+                <p>Generate stratigraphic columns from well data with USGS lithology patterns and geologic age colors.</p>
+                <span class="btn-text">Launch Tool</span>
+            </a>
+
+            <!-- Geochemistry Tool -->
+            <a href="GeochemTool/Geochem_Generator_V2.html" class="tool-card">
+                <div class="icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7 2v2h1v6.17l-5.07 8.39A2 2 0 0 0 4.63 22h14.74a2 2 0 0 0 1.7-3.44L16 10.17V4h1V2H7zm2 2h6v6.53l4.83 8.01a.5.5 0 0 1-.43.96H4.6a.5.5 0 0 1-.43-.96L9 10.53V4z"/>
+                        <circle cx="9" cy="16" r="1.5"/>
+                        <circle cx="14" cy="14" r="1"/>
+                        <circle cx="12" cy="17" r="1.25"/>
+                    </svg>
+                </div>
+                <h3>Geochemistry</h3>
+                <p>Create geochemical diagrams with rock classification and sample series visualization.</p>
+                <span class="btn-text">Launch Tool</span>
+            </a>
+        </div>
+
+        <!-- Explore Our Data Section -->
+        <div class="data-section">
+            <h2>Explore Our Data</h2>
+            <div class="data-buttons">
+                <a href="OurData/WellStratigraphyExamples.html" class="data-btn">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 3h18v4H3V3zm0 6h18v4H3V9zm0 6h18v4H3v-4zm0 6h18v2H3v-2z"/>
+                    </svg>
+                    Stratigraphy Data
+                </a>
+                <a href="OurData/Geochem_Generator_VolcanicOnly.html" class="data-btn">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7 2v2h1v6.17l-5.07 8.39A2 2 0 0 0 4.63 22h14.74a2 2 0 0 0 1.7-3.44L16 10.17V4h1V2H7zm2 2h6v6.53l4.83 8.01a.5.5 0 0 1-.43.96H4.6a.5.5 0 0 1-.43-.96L9 10.53V4z"/>
+                        <circle cx="9" cy="16" r="1.5"/>
+                        <circle cx="14" cy="14" r="1"/>
+                        <circle cx="12" cy="17" r="1.25"/>
+                    </svg>
+                    Geochemistry Data
+                </a>
+            </div>
+        </div>
+
+        <!-- Other AZGS Resources Section -->
+        <div class="resources-section">
+            <h2>Other AZGS Resources</h2>
+            <div class="resources-links">
+                <a href="https://library.azgs.arizona.edu/" target="_blank" class="resource-link">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9h-4v4h-2v-4H9V9h4V5h2v4h4v2z"/>
+                    </svg>
+                    AZGS Document Repository
+                </a>
+                <a href="https://azgs.arizona.edu/" target="_blank" class="resource-link">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                    </svg>
+                    AZGS Main Website
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>Arizona Geological Survey · <a href="https://azgs.arizona.edu" target="_blank">azgs.arizona.edu</a></p>
+        <p style="margin-top: 8px; opacity: 0.8;">© 2025 The Arizona Board of Regents on behalf of The University of Arizona</p>
+    </footer>
+</body>
+</html>
