@@ -1,0 +1,3135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive geochemistry diagram generator for TAS, AFM, and K2O-SiO2 classification diagrams. Upload and visualize major element data for volcanic rocks.">
+  <meta name="author" content="Arizona Geological Survey">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#0C234B">
+  <title>Geochemistry Diagram Generator | Arizona Geological Survey</title>
+  
+  <!-- Preload font for better performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --ua-red: #AB0520;
+            --ua-blue: #0C234B;
+            --ua-red-dark: #8B0015;
+            --ua-blue-light: #1E5288;
+            --bg-light: #f5f5f5;
+            --border-color: #ddd;
+        }
+        
+        body {
+            font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-light);
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--ua-blue) 0%, var(--ua-blue-light) 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .main-container {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            min-height: calc(100vh - 92px);
+        }
+        
+        .sidebar {
+            background: white;
+            border-right: 1px solid var(--border-color);
+            padding: 1rem;
+            overflow-y: auto;
+            max-height: calc(100vh - 92px);
+        }
+        
+        .sidebar h2 {
+            color: var(--ua-blue);
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--ua-red);
+        }
+        
+        .diagram-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .diagram-tab {
+            padding: 0.5rem 0.85rem;
+            background: var(--bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            word-spacing: 0.1em;
+            transition: all 0.2s;
+        }
+        
+        .diagram-tab:hover {
+            background: #e0e0e0;
+        }
+        
+        .diagram-tab.active {
+            background: var(--ua-red);
+            color: white;
+            border-color: var(--ua-red);
+        }
+        
+        .series-list {
+            margin-bottom: 1rem;
+        }
+        
+        .series-item {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .series-header {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            background: var(--bg-light);
+            cursor: pointer;
+            gap: 0.5rem;
+        }
+        
+        .series-header:hover {
+            background: #e8e8e8;
+        }
+        
+        .series-symbol {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+        
+        .series-name {
+            flex: 1;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .series-count {
+            font-size: 0.75rem;
+            color: #666;
+            background: white;
+            padding: 0.1rem 0.4rem;
+            border-radius: 10px;
+        }
+        
+        .series-toggle {
+            width: 20px;
+            text-align: center;
+            color: #666;
+        }
+        
+        .series-samples {
+            display: none;
+            padding: 0.5rem;
+            background: white;
+            border-top: 1px solid var(--border-color);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .series-samples.expanded {
+            display: block;
+        }
+        
+        .sample-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .sample-controls button {
+            flex: 1;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            background: var(--ua-blue);
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        
+        .sample-controls button:hover {
+            background: var(--ua-blue-light);
+        }
+        
+        .sample-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0;
+            font-size: 0.8rem;
+        }
+        
+        .sample-item input {
+            cursor: pointer;
+        }
+        
+        .sample-item label {
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .visibility-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-left: auto;
+        }
+        
+        .visibility-toggle input {
+            cursor: pointer;
+        }
+        
+        .content-area {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .diagram-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 850px;
+        }
+        
+        .diagram-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .download-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .download-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.4rem 0.75rem;
+            background: var(--ua-blue);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        
+        .download-btn:hover {
+            background: var(--ua-blue-light);
+        }
+        
+        .download-btn svg {
+            flex-shrink: 0;
+        }
+        
+        .diagram-title {
+            text-align: center;
+            color: var(--ua-blue);
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .diagram-subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 0.85rem;
+            margin-top: -0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        svg.diagram {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .tooltip {
+            position: fixed;
+            background: var(--ua-blue);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            pointer-events: none;
+            z-index: 1000;
+            max-width: 280px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: none;
+        }
+        
+        .tooltip-title {
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            color: #fff;
+        }
+        
+        .tooltip-series {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tooltip-rock {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0.5rem;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding-top: 0.4rem;
+        }
+        
+        .tooltip-rock-label {
+            opacity: 0.7;
+            font-weight: 400;
+        }
+        
+        .tooltip-data {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.25rem 1rem;
+            font-size: 0.75rem;
+        }
+        
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.8rem;
+        }
+        
+        .legend-symbol {
+            width: 14px;
+            height: 14px;
+        }
+        
+        .upload-section {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: var(--bg-light);
+            border-radius: 6px;
+            border: 1px dashed var(--border-color);
+        }
+        
+        .upload-section.drag-over {
+            border-color: var(--ua-red);
+            background: rgba(171, 5, 32, 0.05);
+        }
+        
+        .upload-section h3 {
+            font-size: 0.85rem;
+            color: var(--ua-blue);
+            margin-bottom: 0.5rem;
+        }
+        
+        .upload-section p {
+            font-size: 0.75rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        
+        .upload-btn {
+            display: block;
+            width: 100%;
+            padding: 0.5rem;
+            background: var(--ua-red);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        
+        .upload-btn:hover {
+            background: var(--ua-red-dark);
+        }
+        
+        .upload-input {
+            display: none;
+        }
+        
+        .upload-status {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            display: none;
+        }
+        
+        .upload-status.success {
+            display: block;
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .upload-status.error {
+            display: block;
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .series-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .series-actions button {
+            flex: 1;
+            padding: 0.35rem 0.5rem;
+            font-size: 0.75rem;
+            border: 1px solid var(--border-color);
+            background: white;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        
+        .series-actions button:hover {
+            background: var(--bg-light);
+        }
+        
+        .series-actions button.danger {
+            color: #dc3545;
+            border-color: #dc3545;
+        }
+        
+        .series-actions button.danger:hover {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        .modal h3 {
+            color: var(--ua-blue);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--ua-red);
+        }
+        
+        .modal-field {
+            margin-bottom: 1rem;
+        }
+        
+        .modal-field label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .modal-field select,
+        .modal-field input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .modal-field .hint {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+        
+        .modal-buttons button {
+            padding: 0.5rem 1.25rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        .modal-buttons .btn-cancel {
+            background: white;
+            border: 1px solid var(--border-color);
+        }
+        
+        .modal-buttons .btn-primary {
+            background: var(--ua-red);
+            color: white;
+            border: none;
+        }
+        
+        .column-mapping {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+        
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+            margin-top: 1rem;
+        }
+        
+        .preview-table th,
+        .preview-table td {
+            border: 1px solid var(--border-color);
+            padding: 0.35rem 0.5rem;
+            text-align: left;
+        }
+        
+        .preview-table th {
+            background: var(--ua-blue);
+            color: white;
+        }
+        
+        .preview-table tr:nth-child(even) {
+            background: var(--bg-light);
+        }
+        
+        .color-picker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .color-picker-wrapper input[type="color"] {
+            width: 40px;
+            height: 30px;
+            padding: 0;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .symbol-select {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .symbol-option {
+            width: 30px;
+            height: 30px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+        }
+        
+        .symbol-option:hover {
+            border-color: var(--ua-blue);
+        }
+        
+        .symbol-option.selected {
+            border-color: var(--ua-red);
+            background: rgba(171, 5, 32, 0.1);
+        }
+        
+        .uploaded-badge {
+            background: var(--ua-red);
+            color: white;
+            font-size: 0.6rem;
+            padding: 0.1rem 0.3rem;
+            border-radius: 3px;
+            margin-left: 0.25rem;
+        }
+        
+        .delete-series-btn {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            padding: 0.1rem 0.3rem;
+            font-size: 0.8rem;
+        }
+        
+        .delete-series-btn:hover {
+            color: #dc3545;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 1rem;
+            color: #666;
+            font-size: 0.8rem;
+            background: white;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .field-label {
+            font-size: 9px;
+            fill: #444;
+            pointer-events: none;
+        }
+        
+        .axis-label {
+            font-size: 12px;
+            fill: #333;
+            font-weight: 600;
+        }
+        
+        .grid-line {
+            stroke: #e0e0e0;
+            stroke-width: 0.5;
+        }
+        
+        .field-boundary {
+            fill: none;
+            stroke: #666;
+            stroke-width: 0.75;
+        }
+        
+        .sample-point {
+            cursor: pointer;
+        }
+        
+        .sample-point:hover circle,
+        .sample-point:hover rect,
+        .sample-point:hover polygon,
+        .sample-point:hover path {
+            filter: brightness(1.2);
+            stroke-width: 1.5;
+            stroke: #333;
+        }
+        
+        @media (max-width: 900px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                max-height: none;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header role="banner">
+        <div>
+            <h1>Geochemistry Diagram Generator</h1>
+            <p>Arizona Geological Survey • Major Element Classification Diagrams</p>
+        </div>
+    </header>
+    
+    <noscript>
+        <p style="padding: 2rem; text-align: center; color: #AB0520;">This application requires JavaScript to function. Please enable JavaScript in your browser.</p>
+    </noscript>
+    
+    <div class="main-container" role="main">
+        <aside class="sidebar" role="complementary">
+            <h2>Select Diagram</h2>
+            <div class="diagram-tabs" role="tablist" aria-label="Diagram type selection">
+                <button class="diagram-tab active" data-diagram="tas-volcanic" role="tab" aria-selected="true">TAS Volcanic</button>
+                <button class="diagram-tab" data-diagram="afm" role="tab" aria-selected="false">AFM</button>
+                <button class="diagram-tab" data-diagram="k2o-sio2" role="tab" aria-selected="false">K₂O–SiO₂</button>
+            </div>
+            
+            <h2>Upload Data</h2>
+            <div class="upload-section" id="uploadSection">
+                <h3>Add Sample Series</h3>
+                <p>Upload CSV or Excel (.xlsx) files with geochemistry data</p>
+                <input type="file" id="fileInput" class="upload-input" accept=".csv,.xlsx,.xls" aria-label="Upload geochemistry data file">
+                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                    Choose File...
+                </button>
+                <button class="upload-btn" style="margin-top: 0.5rem; background: var(--ua-blue);" onclick="downloadTemplate()">
+                    Download Template CSV
+                </button>
+                <div id="uploadStatus" class="upload-status"></div>
+            </div>
+            
+            <h2>Sample Series</h2>
+            <p style="font-size: 0.75rem; color: #666; margin: -0.5rem 0 0.75rem 0;">Visibility is per-diagram</p>
+            <div class="series-actions">
+                <button onclick="selectAllSeries(true)" title="Show all series on current diagram">Show All</button>
+                <button onclick="selectAllSeries(false)" title="Hide all series on current diagram">Hide All</button>
+                <button onclick="exportCurrentData()" title="Export visible samples to CSV">Export CSV</button>
+                <button class="danger" onclick="clearUploadedSeries()">Clear Uploaded</button>
+            </div>
+            <div class="series-list" id="seriesList"></div>
+        </aside>
+        
+        <main class="content-area">
+            <div class="diagram-container">
+                <div class="diagram-header">
+                    <div>
+                        <div class="diagram-title" id="diagramTitle">TAS Diagram (Volcanic Rocks)</div>
+                        <div class="diagram-subtitle" id="diagramSubtitle">Le Bas et al. (1986)</div>
+                    </div>
+                    <div class="download-buttons">
+                        <button class="download-btn" onclick="downloadDiagramSVG()" title="Download as SVG vector file">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            SVG
+                        </button>
+                        <button class="download-btn" onclick="downloadDiagramPNG()" title="Download as PNG image">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            PNG
+                        </button>
+                    </div>
+                </div>
+                <div id="diagramArea"></div>
+                <div class="legend" id="legend"></div>
+            </div>
+        </main>
+    </div>
+    
+    <div class="tooltip" id="tooltip"></div>
+    
+    <footer>
+        University of Arizona • Arizona Geological Survey • MMRI Sample Data
+    </footer>
+
+    <!-- Column Mapping Modal -->
+    <div class="modal-overlay" id="columnMappingModal">
+        <div class="modal">
+            <h3>ðŸ“Š Map Data Columns</h3>
+            <p style="font-size: 0.85rem; color: #666; margin-bottom: 1rem;">
+                Match your file's columns to the required geochemistry fields.
+            </p>
+            
+            <div class="modal-field">
+                <label>Series Name Column (or enter a name for all samples)</label>
+                <select id="seriesColumn"></select>
+                <input type="text" id="seriesNameOverride" placeholder="Or type a series name..." style="margin-top: 0.25rem;">
+                <div class="hint">If no column selected, all samples will use the typed name</div>
+            </div>
+            
+            <div class="modal-field">
+                <label>Sample ID Column</label>
+                <select id="sampleColumn"></select>
+            </div>
+            
+            <div class="modal-field">
+                <label>Oxide Columns</label>
+                <div class="column-mapping" id="oxideMapping">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+            
+            <div class="modal-field">
+                <label>Series Style</label>
+                <div class="color-picker-wrapper">
+                    <label style="font-weight: normal;">Color:</label>
+                    <input type="color" id="seriesColor" value="#E67E22">
+                    <label style="font-weight: normal; margin-left: 1rem;">Symbol:</label>
+                </div>
+                <div class="symbol-select" id="symbolSelect" style="margin-top: 0.5rem;">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+            
+            <div class="modal-field">
+                <label>Data Preview (first 3 rows)</label>
+                <div style="overflow-x: auto;">
+                    <table class="preview-table" id="previewTable">
+                        <!-- Populated dynamically -->
+                    </table>
+                </div>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeColumnMapping()">Cancel</button>
+                <button class="btn-primary" onclick="importData()">Import Data</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+// Sample data embedded
+const sampleData = [{"series": "Distributed", "sample": "BS01f", "SiO2": 50.93, "TiO2": 1.39, "Al2O3": 16.49, "Fe2O3": 11.24, "FeO": 0.0, "MnO": 0.17, "MgO": 6.11, "CaO": 10.08, "Na2O": 2.86, "K2O": 1.07, "P2O5": 0.39}, {"series": "Distributed", "sample": "BS02f", "SiO2": 44.88, "TiO2": 2.74, "Al2O3": 11.79, "Fe2O3": 10.39, "FeO": 0.0, "MnO": 0.33, "MgO": 8.68, "CaO": 10.09, "Na2O": 2.88, "K2O": 0.67, "P2O5": 0.86}, {"series": "Distributed", "sample": "AM01f", "SiO2": 51.88, "TiO2": 1.84, "Al2O3": 18.04, "Fe2O3": 11.21, "FeO": 0.0, "MnO": 0.15, "MgO": 5.4, "CaO": 9.06, "Na2O": 3.74, "K2O": 1.45, "P2O5": 0.69}, {"series": "Distributed", "sample": "K01f", "SiO2": 51.88, "TiO2": 1.07, "Al2O3": 16.62, "Fe2O3": 11.79, "FeO": 0.0, "MnO": 0.16, "MgO": 7.99, "CaO": 9.63, "Na2O": 2.83, "K2O": 0.81, "P2O5": 0.23}, {"series": "Distributed", "sample": "K02f", "SiO2": 49.49, "TiO2": 1.04, "Al2O3": 15.86, "Fe2O3": 11.07, "FeO": 0.0, "MnO": 0.15, "MgO": 7.66, "CaO": 9.2, "Na2O": 2.61, "K2O": 0.73, "P2O5": 0.19}, {"series": "Distributed", "sample": "K24-15-1f", "SiO2": 47.89, "TiO2": 1.25, "Al2O3": 14.54, "Fe2O3": 10.27, "FeO": 0.0, "MnO": 0.13, "MgO": 7.81, "CaO": 8.68, "Na2O": 2.39, "K2O": 0.76, "P2O5": 0.23}, {"series": "Distributed", "sample": "K24-15-2f", "SiO2": 53.06, "TiO2": 1.42, "Al2O3": 16.1, "Fe2O3": 12.43, "FeO": 0.0, "MnO": 0.16, "MgO": 9.98, "CaO": 9.16, "Na2O": 2.56, "K2O": 0.98, "P2O5": 0.27}, {"series": "Distributed", "sample": "K24-15-3f", "SiO2": 47.69, "TiO2": 1.14, "Al2O3": 15.15, "Fe2O3": 11.85, "FeO": 0.0, "MnO": 0.11, "MgO": 7.56, "CaO": 8.83, "Na2O": 2.3, "K2O": 0.38, "P2O5": 0.15}, {"series": "Distributed", "sample": "HS01f", "SiO2": 48.04, "TiO2": 2.07, "Al2O3": 11.42, "Fe2O3": 10.27, "FeO": 0.0, "MnO": 0.13, "MgO": 10.68, "CaO": 9.93, "Na2O": 1.81, "K2O": 5.03, "P2O5": 2.94}, {"series": "Distributed", "sample": "T0510f", "SiO2": 42.28, "TiO2": 3.07, "Al2O3": 11.68, "Fe2O3": 12.6, "FeO": 0.0, "MnO": 0.19, "MgO": 11.37, "CaO": 11.88, "Na2O": 2.99, "K2O": 1.48, "P2O5": 1.15}, {"series": "Distributed", "sample": "DV01f", "SiO2": 62.14, "TiO2": 0.95, "Al2O3": 15.48, "Fe2O3": 5.57, "FeO": 0.0, "MnO": 0.1, "MgO": 2.33, "CaO": 4.28, "Na2O": 3.92, "K2O": 1.89, "P2O5": 0.3}, {"series": "Distributed", "sample": "IP09f", "SiO2": 55.34, "TiO2": 1.02, "Al2O3": 17.02, "Fe2O3": 9.05, "FeO": 0.0, "MnO": 0.13, "MgO": 6.94, "CaO": 8.75, "Na2O": 3.39, "K2O": 2.15, "P2O5": 0.42}, {"series": "Distributed", "sample": "IP10f", "SiO2": 50.3, "TiO2": 1.38, "Al2O3": 16.13, "Fe2O3": 8.63, "FeO": 0.0, "MnO": 0.14, "MgO": 3.97, "CaO": 10.91, "Na2O": 3.7, "K2O": 1.69, "P2O5": 0.56}, {"series": "Distributed", "sample": "IP16f", "SiO2": 54.53, "TiO2": 0.81, "Al2O3": 16.36, "Fe2O3": 7.62, "FeO": 0.0, "MnO": 0.12, "MgO": 6.08, "CaO": 7.38, "Na2O": 3.32, "K2O": 1.74, "P2O5": 0.25}, {"series": "Distributed", "sample": "H01f", "SiO2": 52.44, "TiO2": 1.3, "Al2O3": 16.94, "Fe2O3": 9.0, "FeO": 0.0, "MnO": 0.18, "MgO": 5.02, "CaO": 9.13, "Na2O": 3.4, "K2O": 1.95, "P2O5": 0.73}, {"series": "Distributed", "sample": "H06f", "SiO2": 51.27, "TiO2": 1.29, "Al2O3": 16.68, "Fe2O3": 10.0, "FeO": 0.0, "MnO": 0.16, "MgO": 6.91, "CaO": 9.24, "Na2O": 3.54, "K2O": 1.23, "P2O5": 0.46}, {"series": "Distributed", "sample": "HAR07f", "SiO2": 53.3, "TiO2": 1.08, "Al2O3": 17.23, "Fe2O3": 8.21, "FeO": 0.0, "MnO": 0.15, "MgO": 5.27, "CaO": 8.59, "Na2O": 3.53, "K2O": 1.4, "P2O5": 0.32}, {"series": "Distributed", "sample": "H08f", "SiO2": 57.08, "TiO2": 1.0, "Al2O3": 16.3, "Fe2O3": 7.18, "FeO": 0.0, "MnO": 0.13, "MgO": 4.06, "CaO": 7.65, "Na2O": 3.55, "K2O": 2.43, "P2O5": 0.6}, {"series": "Distributed", "sample": "H10f", "SiO2": 55.55, "TiO2": 1.08, "Al2O3": 12.87, "Fe2O3": 6.3, "FeO": 0.0, "MnO": 0.15, "MgO": 3.35, "CaO": 7.54, "Na2O": 1.81, "K2O": 8.16, "P2O5": 0.63}, {"series": "Distributed", "sample": "H11f", "SiO2": 55.81, "TiO2": 1.15, "Al2O3": 16.89, "Fe2O3": 8.44, "FeO": 0.0, "MnO": 0.16, "MgO": 4.63, "CaO": 8.49, "Na2O": 3.54, "K2O": 2.16, "P2O5": 0.48}, {"series": "Distributed", "sample": "M01f", "SiO2": 49.43, "TiO2": 1.5, "Al2O3": 15.99, "Fe2O3": 12.54, "FeO": 0.0, "MnO": 0.17, "MgO": 9.51, "CaO": 9.2, "Na2O": 3.05, "K2O": 1.09, "P2O5": 0.39}, {"series": "Distributed", "sample": "M02f", "SiO2": 48.38, "TiO2": 1.46, "Al2O3": 15.57, "Fe2O3": 12.12, "FeO": 0.0, "MnO": 0.16, "MgO": 9.22, "CaO": 8.41, "Na2O": 3.64, "K2O": 1.09, "P2O5": 0.38}, {"series": "Distributed", "sample": "M03f", "SiO2": 46.49, "TiO2": 1.43, "Al2O3": 15.18, "Fe2O3": 12.05, "FeO": 0.0, "MnO": 0.16, "MgO": 9.31, "CaO": 8.83, "Na2O": 2.72, "K2O": 0.97, "P2O5": 0.37}, {"series": "Distributed", "sample": "M04f", "SiO2": 48.11, "TiO2": 1.4, "Al2O3": 15.18, "Fe2O3": 12.13, "FeO": 0.0, "MnO": 0.17, "MgO": 9.9, "CaO": 8.95, "Na2O": 2.86, "K2O": 1.03, "P2O5": 0.37}, {"series": "Distributed", "sample": "M05f", "SiO2": 48.49, "TiO2": 1.4, "Al2O3": 15.24, "Fe2O3": 12.25, "FeO": 0.0, "MnO": 0.16, "MgO": 9.71, "CaO": 8.97, "Na2O": 3.32, "K2O": 1.26, "P2O5": 0.37}, {"series": "Distributed", "sample": "M06f", "SiO2": 47.66, "TiO2": 1.33, "Al2O3": 15.09, "Fe2O3": 12.14, "FeO": 0.0, "MnO": 0.16, "MgO": 9.4, "CaO": 8.79, "Na2O": 3.01, "K2O": 1.1, "P2O5": 0.35}, {"series": "Distributed", "sample": "M07f", "SiO2": 49.78, "TiO2": 1.35, "Al2O3": 15.62, "Fe2O3": 11.73, "FeO": 0.0, "MnO": 0.16, "MgO": 7.85, "CaO": 9.17, "Na2O": 3.17, "K2O": 1.09, "P2O5": 0.33}, {"series": "Distributed", "sample": "M08f", "SiO2": 49.48, "TiO2": 1.45, "Al2O3": 16.37, "Fe2O3": 10.97, "FeO": 0.0, "MnO": 0.15, "MgO": 6.22, "CaO": 10.3, "Na2O": 3.26, "K2O": 1.16, "P2O5": 0.42}, {"series": "Florence", "sample": "F01f", "SiO2": 49.9, "TiO2": 2.71, "Al2O3": 16.0, "Fe2O3": 12.73, "FeO": 0.0, "MnO": 0.16, "MgO": 5.7, "CaO": 9.85, "Na2O": 2.9, "K2O": 1.25, "P2O5": 0.61}, {"series": "Florence", "sample": "F02s", "SiO2": 45.45, "TiO2": 2.28, "Al2O3": 14.1, "Fe2O3": 10.89, "FeO": 0.0, "MnO": 0.14, "MgO": 4.59, "CaO": 13.54, "Na2O": 2.58, "K2O": 0.99, "P2O5": 0.5}, {"series": "Florence", "sample": "F03f", "SiO2": 51.25, "TiO2": 1.8, "Al2O3": 15.87, "Fe2O3": 12.71, "FeO": 0.0, "MnO": 0.19, "MgO": 8.49, "CaO": 9.91, "Na2O": 2.67, "K2O": 0.55, "P2O5": 0.42}, {"series": "Florence", "sample": "F04f", "SiO2": 49.48, "TiO2": 1.72, "Al2O3": 15.31, "Fe2O3": 12.27, "FeO": 0.0, "MnO": 0.19, "MgO": 8.21, "CaO": 9.99, "Na2O": 2.59, "K2O": 0.57, "P2O5": 0.42}, {"series": "Florence", "sample": "F05f", "SiO2": 45.41, "TiO2": 2.34, "Al2O3": 16.27, "Fe2O3": 11.65, "FeO": 0.0, "MnO": 0.17, "MgO": 4.65, "CaO": 8.5, "Na2O": 3.89, "K2O": 1.08, "P2O5": 0.61}, {"series": "Florence", "sample": "F06f", "SiO2": 53.03, "TiO2": 1.44, "Al2O3": 17.24, "Fe2O3": 11.72, "FeO": 0.0, "MnO": 0.18, "MgO": 7.34, "CaO": 11.24, "Na2O": 2.81, "K2O": 0.53, "P2O5": 0.42}, {"series": "Florence", "sample": "F07f", "SiO2": 51.49, "TiO2": 1.58, "Al2O3": 16.4, "Fe2O3": 10.35, "FeO": 0.0, "MnO": 0.16, "MgO": 4.34, "CaO": 7.19, "Na2O": 3.42, "K2O": 2.22, "P2O5": 0.62}, {"series": "Florence", "sample": "F08sp", "SiO2": 49.22, "TiO2": 2.19, "Al2O3": 15.68, "Fe2O3": 12.0, "FeO": 0.0, "MnO": 0.18, "MgO": 5.74, "CaO": 8.92, "Na2O": 3.0, "K2O": 1.7, "P2O5": 0.52}, {"series": "Florence", "sample": "F09f", "SiO2": 54.12, "TiO2": 1.17, "Al2O3": 16.51, "Fe2O3": 10.75, "FeO": 0.0, "MnO": 0.13, "MgO": 6.49, "CaO": 9.72, "Na2O": 2.64, "K2O": 0.45, "P2O5": 0.2}, {"series": "Florence", "sample": "F10f", "SiO2": 50.17, "TiO2": 2.35, "Al2O3": 16.69, "Fe2O3": 12.17, "FeO": 0.0, "MnO": 0.2, "MgO": 5.19, "CaO": 8.81, "Na2O": 3.31, "K2O": 1.46, "P2O5": 0.82}, {"series": "Florence", "sample": "F11f", "SiO2": 46.36, "TiO2": 1.87, "Al2O3": 16.18, "Fe2O3": 11.61, "FeO": 0.0, "MnO": 0.2, "MgO": 4.05, "CaO": 9.93, "Na2O": 3.1, "K2O": 1.07, "P2O5": 0.43}, {"series": "Florence", "sample": "F13f", "SiO2": 48.94, "TiO2": 2.31, "Al2O3": 16.33, "Fe2O3": 12.11, "FeO": 0.0, "MnO": 0.17, "MgO": 3.81, "CaO": 8.55, "Na2O": 3.27, "K2O": 1.51, "P2O5": 0.78}, {"series": "Florence", "sample": "F14f", "SiO2": 53.48, "TiO2": 1.3, "Al2O3": 18.63, "Fe2O3": 10.04, "FeO": 0.0, "MnO": 0.16, "MgO": 5.1, "CaO": 10.28, "Na2O": 3.18, "K2O": 0.71, "P2O5": 0.38}, {"series": "Florence", "sample": "F15f", "SiO2": 49.05, "TiO2": 2.56, "Al2O3": 16.86, "Fe2O3": 12.02, "FeO": 0.0, "MnO": 0.18, "MgO": 5.93, "CaO": 9.77, "Na2O": 3.17, "K2O": 1.16, "P2O5": 0.67}, {"series": "Geronimo", "sample": "G01ag", "SiO2": 46.36, "TiO2": 2.45, "Al2O3": 15.97, "Fe2O3": 11.59, "FeO": 0.0, "MnO": 0.19, "MgO": 7.91, "CaO": 9.62, "Na2O": 3.59, "K2O": 1.21, "P2O5": 0.77}, {"series": "Geronimo", "sample": "G02sp", "SiO2": 45.42, "TiO2": 2.3, "Al2O3": 15.24, "Fe2O3": 12.11, "FeO": 0.0, "MnO": 0.17, "MgO": 9.18, "CaO": 9.38, "Na2O": 3.5, "K2O": 1.31, "P2O5": 0.64}, {"series": "Geronimo", "sample": "G03ag", "SiO2": 46.26, "TiO2": 2.08, "Al2O3": 15.78, "Fe2O3": 11.72, "FeO": 0.0, "MnO": 0.17, "MgO": 9.26, "CaO": 9.7, "Na2O": 3.04, "K2O": 0.99, "P2O5": 0.65}, {"series": "Geronimo", "sample": "G04ag", "SiO2": 46.17, "TiO2": 2.25, "Al2O3": 15.22, "Fe2O3": 11.62, "FeO": 0.0, "MnO": 0.17, "MgO": 10.38, "CaO": 9.12, "Na2O": 3.48, "K2O": 1.29, "P2O5": 0.59}, {"series": "Geronimo", "sample": "G05sp", "SiO2": 45.83, "TiO2": 2.41, "Al2O3": 14.97, "Fe2O3": 11.74, "FeO": 0.0, "MnO": 0.17, "MgO": 9.78, "CaO": 9.33, "Na2O": 3.41, "K2O": 1.47, "P2O5": 0.52}, {"series": "Geronimo", "sample": "G06sp", "SiO2": 48.43, "TiO2": 2.31, "Al2O3": 15.36, "Fe2O3": 11.14, "FeO": 0.0, "MnO": 0.17, "MgO": 8.26, "CaO": 8.83, "Na2O": 3.67, "K2O": 1.72, "P2O5": 0.61}, {"series": "Geronimo", "sample": "G07sp", "SiO2": 46.0, "TiO2": 2.44, "Al2O3": 15.19, "Fe2O3": 11.82, "FeO": 0.0, "MnO": 0.17, "MgO": 9.44, "CaO": 9.16, "Na2O": 3.49, "K2O": 1.3, "P2O5": 0.55}, {"series": "Geronimo", "sample": "G08gs", "SiO2": 47.32, "TiO2": 2.23, "Al2O3": 15.21, "Fe2O3": 11.08, "FeO": 0.0, "MnO": 0.17, "MgO": 8.78, "CaO": 8.62, "Na2O": 3.63, "K2O": 2.08, "P2O5": 0.54}, {"series": "Geronimo", "sample": "G09ag", "SiO2": 45.89, "TiO2": 2.24, "Al2O3": 15.39, "Fe2O3": 11.6, "FeO": 0.0, "MnO": 0.17, "MgO": 9.42, "CaO": 9.2, "Na2O": 3.35, "K2O": 1.43, "P2O5": 0.58}, {"series": "Geronimo", "sample": "G10ag", "SiO2": 46.43, "TiO2": 2.36, "Al2O3": 15.57, "Fe2O3": 11.8, "FeO": 0.0, "MnO": 0.17, "MgO": 8.67, "CaO": 9.11, "Na2O": 3.34, "K2O": 1.45, "P2O5": 0.64}, {"series": "Geronimo", "sample": "G11sp", "SiO2": 47.46, "TiO2": 2.58, "Al2O3": 15.41, "Fe2O3": 11.98, "FeO": 0.0, "MnO": 0.16, "MgO": 8.29, "CaO": 8.42, "Na2O": 3.67, "K2O": 1.62, "P2O5": 0.64}, {"series": "Geronimo", "sample": "G12ag", "SiO2": 46.73, "TiO2": 2.61, "Al2O3": 15.93, "Fe2O3": 11.65, "FeO": 0.0, "MnO": 0.17, "MgO": 7.87, "CaO": 9.13, "Na2O": 3.66, "K2O": 1.4, "P2O5": 0.7}, {"series": "Geronimo", "sample": "G13ag", "SiO2": 47.34, "TiO2": 2.39, "Al2O3": 16.13, "Fe2O3": 12.03, "FeO": 0.0, "MnO": 0.18, "MgO": 7.21, "CaO": 9.5, "Na2O": 3.69, "K2O": 1.39, "P2O5": 0.84}, {"series": "Geronimo", "sample": "G14ag", "SiO2": 46.39, "TiO2": 2.04, "Al2O3": 16.14, "Fe2O3": 12.0, "FeO": 0.0, "MnO": 0.16, "MgO": 9.05, "CaO": 10.09, "Na2O": 3.28, "K2O": 0.9, "P2O5": 0.46}, {"series": "Geronimo", "sample": "G15xd", "SiO2": 46.35, "TiO2": 0.12, "Al2O3": 3.49, "Fe2O3": 10.03, "FeO": 0.0, "MnO": 0.14, "MgO": 39.25, "CaO": 2.89, "Na2O": 0.25, "K2O": 0.02, "P2O5": 0.02}, {"series": "Geronimo", "sample": "G15xl", "SiO2": 40.97, "TiO2": 1.37, "Al2O3": 14.69, "Fe2O3": 12.02, "FeO": 0.0, "MnO": 0.17, "MgO": 13.01, "CaO": 16.97, "Na2O": 0.75, "K2O": 0.03, "P2O5": 0.06}, {"series": "Geronimo", "sample": "G16ag", "SiO2": 46.33, "TiO2": 2.17, "Al2O3": 15.42, "Fe2O3": 11.57, "FeO": 0.0, "MnO": 0.17, "MgO": 9.12, "CaO": 9.12, "Na2O": 3.18, "K2O": 1.38, "P2O5": 0.62}, {"series": "Geronimo", "sample": "G17s", "SiO2": 48.31, "TiO2": 2.44, "Al2O3": 15.09, "Fe2O3": 11.3, "FeO": 0.0, "MnO": 0.16, "MgO": 8.03, "CaO": 8.06, "Na2O": 3.51, "K2O": 1.91, "P2O5": 0.64}, {"series": "Geronimo", "sample": "G18ag", "SiO2": 47.52, "TiO2": 2.44, "Al2O3": 16.26, "Fe2O3": 11.28, "FeO": 0.0, "MnO": 0.16, "MgO": 7.1, "CaO": 9.1, "Na2O": 3.78, "K2O": 1.37, "P2O5": 0.64}, {"series": "Geronimo", "sample": "G19sp", "SiO2": 48.22, "TiO2": 2.47, "Al2O3": 16.89, "Fe2O3": 11.28, "FeO": 0.0, "MnO": 0.16, "MgO": 6.49, "CaO": 9.09, "Na2O": 3.94, "K2O": 1.21, "P2O5": 0.56}, {"series": "Geronimo", "sample": "G20ag", "SiO2": 47.01, "TiO2": 2.42, "Al2O3": 15.64, "Fe2O3": 11.5, "FeO": 0.0, "MnO": 0.17, "MgO": 8.22, "CaO": 9.35, "Na2O": 3.55, "K2O": 1.21, "P2O5": 0.66}, {"series": "Geronimo", "sample": "G21ag", "SiO2": 46.43, "TiO2": 2.36, "Al2O3": 15.5, "Fe2O3": 11.68, "FeO": 0.0, "MnO": 0.17, "MgO": 8.89, "CaO": 9.24, "Na2O": 3.36, "K2O": 1.28, "P2O5": 0.59}, {"series": "Geronimo", "sample": "G22ag", "SiO2": 48.26, "TiO2": 2.56, "Al2O3": 16.23, "Fe2O3": 11.64, "FeO": 0.0, "MnO": 0.17, "MgO": 6.7, "CaO": 8.84, "Na2O": 3.95, "K2O": 1.42, "P2O5": 0.68}, {"series": "Geronimo", "sample": "G23ag", "SiO2": 46.74, "TiO2": 2.32, "Al2O3": 15.63, "Fe2O3": 11.55, "FeO": 0.0, "MnO": 0.17, "MgO": 8.59, "CaO": 9.22, "Na2O": 3.31, "K2O": 1.36, "P2O5": 0.62}, {"series": "Geronimo", "sample": "G24sp", "SiO2": 47.16, "TiO2": 2.06, "Al2O3": 14.98, "Fe2O3": 11.17, "FeO": 0.0, "MnO": 0.17, "MgO": 9.34, "CaO": 8.62, "Na2O": 3.45, "K2O": 1.88, "P2O5": 0.52}, {"series": "Geronimo", "sample": "G25ag", "SiO2": 47.28, "TiO2": 2.26, "Al2O3": 14.93, "Fe2O3": 11.2, "FeO": 0.0, "MnO": 0.17, "MgO": 9.51, "CaO": 8.74, "Na2O": 3.6, "K2O": 1.82, "P2O5": 0.53}, {"series": "Geronimo", "sample": "G26ag", "SiO2": 47.1, "TiO2": 2.26, "Al2O3": 15.08, "Fe2O3": 11.21, "FeO": 0.0, "MnO": 0.17, "MgO": 9.22, "CaO": 8.65, "Na2O": 3.62, "K2O": 1.79, "P2O5": 0.52}, {"series": "Geronimo", "sample": "G27ag", "SiO2": 47.4, "TiO2": 2.27, "Al2O3": 14.87, "Fe2O3": 11.29, "FeO": 0.0, "MnO": 0.17, "MgO": 9.69, "CaO": 8.72, "Na2O": 3.51, "K2O": 1.84, "P2O5": 0.55}, {"series": "Geronimo", "sample": "G28ag", "SiO2": 46.79, "TiO2": 2.27, "Al2O3": 15.08, "Fe2O3": 11.3, "FeO": 0.0, "MnO": 0.17, "MgO": 9.12, "CaO": 8.75, "Na2O": 3.71, "K2O": 1.83, "P2O5": 0.52}, {"series": "Geronimo", "sample": "G29sp", "SiO2": 47.6, "TiO2": 2.26, "Al2O3": 15.0, "Fe2O3": 11.25, "FeO": 0.0, "MnO": 0.17, "MgO": 9.43, "CaO": 8.62, "Na2O": 3.54, "K2O": 1.76, "P2O5": 0.52}, {"series": "Geronimo", "sample": "G30ag", "SiO2": 47.18, "TiO2": 2.26, "Al2O3": 14.94, "Fe2O3": 11.28, "FeO": 0.0, "MnO": 0.17, "MgO": 9.59, "CaO": 8.57, "Na2O": 3.51, "K2O": 1.81, "P2O5": 0.53}, {"series": "Geronimo", "sample": "G31ag", "SiO2": 47.35, "TiO2": 2.24, "Al2O3": 14.82, "Fe2O3": 11.32, "FeO": 0.0, "MnO": 0.17, "MgO": 9.74, "CaO": 8.63, "Na2O": 3.42, "K2O": 1.82, "P2O5": 0.54}, {"series": "Geronimo", "sample": "G32ag", "SiO2": 46.92, "TiO2": 2.23, "Al2O3": 14.83, "Fe2O3": 11.25, "FeO": 0.0, "MnO": 0.17, "MgO": 9.55, "CaO": 8.73, "Na2O": 3.66, "K2O": 1.87, "P2O5": 0.52}, {"series": "San Francisco", "sample": "SF01sp", "SiO2": 48.69, "TiO2": 1.8, "Al2O3": 15.66, "Fe2O3": 11.64, "FeO": 0.0, "MnO": 0.17, "MgO": 8.3, "CaO": 9.71, "Na2O": 3.17, "K2O": 1.19, "P2O5": 0.54}, {"series": "San Francisco", "sample": "SF02sp", "SiO2": 48.94, "TiO2": 1.88, "Al2O3": 16.35, "Fe2O3": 11.67, "FeO": 0.0, "MnO": 0.17, "MgO": 7.21, "CaO": 10.1, "Na2O": 3.07, "K2O": 1.05, "P2O5": 0.45}, {"series": "San Francisco", "sample": "SF03sp", "SiO2": 48.97, "TiO2": 1.79, "Al2O3": 15.77, "Fe2O3": 11.85, "FeO": 0.0, "MnO": 0.17, "MgO": 8.46, "CaO": 9.7, "Na2O": 3.02, "K2O": 1.06, "P2O5": 0.47}, {"series": "San Francisco", "sample": "SF04gs", "SiO2": 48.43, "TiO2": 1.65, "Al2O3": 15.08, "Fe2O3": 11.77, "FeO": 0.0, "MnO": 0.18, "MgO": 9.63, "CaO": 9.74, "Na2O": 2.88, "K2O": 0.96, "P2O5": 0.44}, {"series": "San Francisco", "sample": "SF05sp", "SiO2": 48.63, "TiO2": 1.72, "Al2O3": 16.0, "Fe2O3": 11.66, "FeO": 0.0, "MnO": 0.17, "MgO": 8.29, "CaO": 9.74, "Na2O": 3.0, "K2O": 1.01, "P2O5": 0.51}, {"series": "San Francisco", "sample": "SF06sp", "SiO2": 48.43, "TiO2": 1.72, "Al2O3": 15.92, "Fe2O3": 11.8, "FeO": 0.0, "MnO": 0.18, "MgO": 8.54, "CaO": 10.11, "Na2O": 2.99, "K2O": 0.99, "P2O5": 0.48}, {"series": "San Francisco", "sample": "SF07sp", "SiO2": 48.61, "TiO2": 1.74, "Al2O3": 15.78, "Fe2O3": 11.9, "FeO": 0.0, "MnO": 0.18, "MgO": 8.6, "CaO": 10.02, "Na2O": 2.97, "K2O": 0.98, "P2O5": 0.49}, {"series": "San Francisco", "sample": "SF08sp", "SiO2": 48.51, "TiO2": 1.74, "Al2O3": 15.79, "Fe2O3": 11.89, "FeO": 0.0, "MnO": 0.18, "MgO": 8.54, "CaO": 10.17, "Na2O": 2.98, "K2O": 0.97, "P2O5": 0.48}, {"series": "San Francisco", "sample": "SF09sp", "SiO2": 47.76, "TiO2": 1.7, "Al2O3": 15.53, "Fe2O3": 11.98, "FeO": 0.0, "MnO": 0.18, "MgO": 9.11, "CaO": 10.02, "Na2O": 2.99, "K2O": 0.99, "P2O5": 0.45}, {"series": "San Francisco", "sample": "SF10sp", "SiO2": 48.83, "TiO2": 1.75, "Al2O3": 15.62, "Fe2O3": 11.78, "FeO": 0.0, "MnO": 0.18, "MgO": 8.59, "CaO": 10.09, "Na2O": 2.93, "K2O": 0.97, "P2O5": 0.48}, {"series": "San Francisco", "sample": "SF11sp", "SiO2": 48.81, "TiO2": 1.67, "Al2O3": 15.52, "Fe2O3": 11.65, "FeO": 0.0, "MnO": 0.17, "MgO": 8.93, "CaO": 9.61, "Na2O": 2.92, "K2O": 0.95, "P2O5": 0.43}, {"series": "San Francisco", "sample": "SF12ag", "SiO2": 48.49, "TiO2": 1.67, "Al2O3": 15.47, "Fe2O3": 11.86, "FeO": 0.0, "MnO": 0.18, "MgO": 8.97, "CaO": 9.8, "Na2O": 2.98, "K2O": 0.97, "P2O5": 0.43}, {"series": "San Francisco", "sample": "SF13s", "SiO2": 48.87, "TiO2": 1.7, "Al2O3": 15.73, "Fe2O3": 11.58, "FeO": 0.0, "MnO": 0.18, "MgO": 8.45, "CaO": 9.83, "Na2O": 2.98, "K2O": 1.0, "P2O5": 0.47}, {"series": "San Francisco", "sample": "SF14sp", "SiO2": 48.74, "TiO2": 1.67, "Al2O3": 15.68, "Fe2O3": 11.68, "FeO": 0.0, "MnO": 0.17, "MgO": 8.66, "CaO": 9.66, "Na2O": 2.95, "K2O": 0.99, "P2O5": 0.47}, {"series": "San Francisco", "sample": "SF15sp", "SiO2": 48.87, "TiO2": 1.68, "Al2O3": 15.57, "Fe2O3": 11.72, "FeO": 0.0, "MnO": 0.17, "MgO": 8.71, "CaO": 9.61, "Na2O": 2.95, "K2O": 0.97, "P2O5": 0.46}, {"series": "San Francisco", "sample": "SF16sp", "SiO2": 48.45, "TiO2": 1.67, "Al2O3": 15.56, "Fe2O3": 11.81, "FeO": 0.0, "MnO": 0.18, "MgO": 8.87, "CaO": 9.73, "Na2O": 2.96, "K2O": 0.97, "P2O5": 0.46}, {"series": "San Francisco", "sample": "SF17sp", "SiO2": 48.71, "TiO2": 1.7, "Al2O3": 15.72, "Fe2O3": 11.8, "FeO": 0.0, "MnO": 0.18, "MgO": 8.7, "CaO": 9.76, "Na2O": 2.94, "K2O": 0.98, "P2O5": 0.48}, {"series": "San Francisco", "sample": "SF18sp", "SiO2": 48.78, "TiO2": 1.68, "Al2O3": 15.57, "Fe2O3": 11.72, "FeO": 0.0, "MnO": 0.18, "MgO": 8.76, "CaO": 9.64, "Na2O": 2.91, "K2O": 0.98, "P2O5": 0.46}, {"series": "San Francisco", "sample": "SF19sp", "SiO2": 48.69, "TiO2": 1.69, "Al2O3": 15.72, "Fe2O3": 11.7, "FeO": 0.0, "MnO": 0.17, "MgO": 8.59, "CaO": 9.66, "Na2O": 2.95, "K2O": 0.99, "P2O5": 0.47}, {"series": "San Francisco", "sample": "SF20sp", "SiO2": 49.13, "TiO2": 1.7, "Al2O3": 15.57, "Fe2O3": 11.62, "FeO": 0.0, "MnO": 0.17, "MgO": 8.51, "CaO": 9.58, "Na2O": 2.93, "K2O": 0.98, "P2O5": 0.45}, {"series": "San Francisco", "sample": "SF21sp", "SiO2": 49.01, "TiO2": 1.68, "Al2O3": 15.74, "Fe2O3": 11.59, "FeO": 0.0, "MnO": 0.17, "MgO": 8.53, "CaO": 9.63, "Na2O": 2.94, "K2O": 0.99, "P2O5": 0.47}, {"series": "San Francisco", "sample": "SF22ag", "SiO2": 46.88, "TiO2": 1.35, "Al2O3": 12.15, "Fe2O3": 10.64, "FeO": 0.0, "MnO": 0.17, "MgO": 13.91, "CaO": 7.77, "Na2O": 2.4, "K2O": 1.27, "P2O5": 0.51}, {"series": "San Francisco", "sample": "SF23ag", "SiO2": 50.41, "TiO2": 1.77, "Al2O3": 15.23, "Fe2O3": 11.18, "FeO": 0.0, "MnO": 0.17, "MgO": 8.08, "CaO": 8.95, "Na2O": 3.01, "K2O": 1.11, "P2O5": 0.47}, {"series": "San Francisco", "sample": "SF24sp", "SiO2": 48.04, "TiO2": 1.71, "Al2O3": 15.38, "Fe2O3": 11.89, "FeO": 0.0, "MnO": 0.18, "MgO": 9.15, "CaO": 9.77, "Na2O": 2.94, "K2O": 0.97, "P2O5": 0.48}, {"series": "San Francisco", "sample": "SF25sp", "SiO2": 48.76, "TiO2": 1.73, "Al2O3": 16.38, "Fe2O3": 11.91, "FeO": 0.0, "MnO": 0.18, "MgO": 7.62, "CaO": 10.23, "Na2O": 3.1, "K2O": 1.05, "P2O5": 0.46}, {"series": "San Francisco", "sample": "SF26gs", "SiO2": 47.87, "TiO2": 1.67, "Al2O3": 15.6, "Fe2O3": 12.06, "FeO": 0.0, "MnO": 0.18, "MgO": 8.98, "CaO": 9.99, "Na2O": 2.99, "K2O": 0.99, "P2O5": 0.41}, {"series": "San Francisco", "sample": "SF27sp", "SiO2": 48.49, "TiO2": 1.68, "Al2O3": 15.4, "Fe2O3": 11.9, "FeO": 0.0, "MnO": 0.18, "MgO": 9.01, "CaO": 9.69, "Na2O": 2.94, "K2O": 0.96, "P2O5": 0.45}, {"series": "San Francisco", "sample": "SF28f", "SiO2": 45.73, "TiO2": 1.69, "Al2O3": 14.87, "Fe2O3": 12.08, "FeO": 0.0, "MnO": 0.18, "MgO": 9.55, "CaO": 12.49, "Na2O": 2.51, "K2O": 0.65, "P2O5": 0.29}, {"series": "San Francisco", "sample": "SF29sp", "SiO2": 48.71, "TiO2": 1.86, "Al2O3": 15.48, "Fe2O3": 12.12, "FeO": 0.0, "MnO": 0.18, "MgO": 8.71, "CaO": 9.67, "Na2O": 3.0, "K2O": 1.07, "P2O5": 0.51}, {"series": "San Francisco", "sample": "SF30gs", "SiO2": 48.44, "TiO2": 1.68, "Al2O3": 15.42, "Fe2O3": 11.98, "FeO": 0.0, "MnO": 0.18, "MgO": 9.05, "CaO": 9.65, "Na2O": 2.95, "K2O": 0.97, "P2O5": 0.44}, {"series": "San Francisco", "sample": "SF31f", "SiO2": 48.12, "TiO2": 1.73, "Al2O3": 15.46, "Fe2O3": 12.42, "FeO": 0.0, "MnO": 0.18, "MgO": 10.03, "CaO": 11.85, "Na2O": 2.69, "K2O": 0.73, "P2O5": 0.31}, {"series": "San Francisco", "sample": "SF32sp", "SiO2": 48.72, "TiO2": 1.68, "Al2O3": 15.54, "Fe2O3": 11.76, "FeO": 0.0, "MnO": 0.18, "MgO": 8.75, "CaO": 9.79, "Na2O": 2.96, "K2O": 0.97, "P2O5": 0.47}, {"series": "San Francisco", "sample": "SF33s", "SiO2": 48.44, "TiO2": 1.68, "Al2O3": 15.48, "Fe2O3": 11.98, "FeO": 0.0, "MnO": 0.18, "MgO": 8.87, "CaO": 9.75, "Na2O": 2.94, "K2O": 0.98, "P2O5": 0.46}, {"series": "San Francisco", "sample": "SF34sp", "SiO2": 49.01, "TiO2": 1.7, "Al2O3": 15.56, "Fe2O3": 11.81, "FeO": 0.0, "MnO": 0.18, "MgO": 8.58, "CaO": 9.7, "Na2O": 2.94, "K2O": 0.99, "P2O5": 0.47}, {"series": "San Francisco", "sample": "SF35sp", "SiO2": 48.98, "TiO2": 1.69, "Al2O3": 15.64, "Fe2O3": 11.64, "FeO": 0.0, "MnO": 0.17, "MgO": 8.43, "CaO": 9.73, "Na2O": 2.98, "K2O": 1.0, "P2O5": 0.47}, {"series": "San Francisco", "sample": "SF36gs", "SiO2": 48.95, "TiO2": 1.69, "Al2O3": 15.73, "Fe2O3": 11.6, "FeO": 0.0, "MnO": 0.17, "MgO": 8.44, "CaO": 9.75, "Na2O": 2.99, "K2O": 1.0, "P2O5": 0.46}, {"series": "San Francisco", "sample": "SF37sp", "SiO2": 48.61, "TiO2": 1.66, "Al2O3": 15.54, "Fe2O3": 11.73, "FeO": 0.0, "MnO": 0.18, "MgO": 8.84, "CaO": 9.67, "Na2O": 2.94, "K2O": 0.97, "P2O5": 0.45}, {"series": "San Francisco", "sample": "SF38sp", "SiO2": 48.57, "TiO2": 1.64, "Al2O3": 15.33, "Fe2O3": 11.86, "FeO": 0.0, "MnO": 0.18, "MgO": 9.14, "CaO": 9.54, "Na2O": 2.91, "K2O": 0.95, "P2O5": 0.43}, {"series": "Pinacate", "sample": "P01f", "SiO2": 48.62, "TiO2": 2.11, "Al2O3": 16.27, "Fe2O3": 11.95, "FeO": 0.0, "MnO": 0.17, "MgO": 7.24, "CaO": 9.15, "Na2O": 3.73, "K2O": 1.24, "P2O5": 0.64}, {"series": "Pinacate", "sample": "P02f", "SiO2": 48.62, "TiO2": 2.14, "Al2O3": 16.18, "Fe2O3": 12.15, "FeO": 0.0, "MnO": 0.18, "MgO": 7.22, "CaO": 9.27, "Na2O": 3.78, "K2O": 1.22, "P2O5": 0.66}, {"series": "Springerville", "sample": "S01f", "SiO2": 43.62, "TiO2": 1.54, "Al2O3": 12.66, "Fe2O3": 12.51, "FeO": 0.0, "MnO": 0.18, "MgO": 15.01, "CaO": 9.54, "Na2O": 1.54, "K2O": 0.47, "P2O5": 0.28}, {"series": "Springerville", "sample": "S02f", "SiO2": 45.62, "TiO2": 1.68, "Al2O3": 13.35, "Fe2O3": 11.89, "FeO": 0.0, "MnO": 0.17, "MgO": 13.83, "CaO": 9.01, "Na2O": 2.16, "K2O": 0.77, "P2O5": 0.41}, {"series": "Springerville", "sample": "S03ag", "SiO2": 45.76, "TiO2": 1.66, "Al2O3": 14.0, "Fe2O3": 12.05, "FeO": 0.0, "MnO": 0.18, "MgO": 11.84, "CaO": 9.29, "Na2O": 2.62, "K2O": 0.95, "P2O5": 0.51}, {"series": "Springerville", "sample": "S04ag", "SiO2": 47.51, "TiO2": 1.87, "Al2O3": 15.62, "Fe2O3": 12.18, "FeO": 0.0, "MnO": 0.17, "MgO": 9.29, "CaO": 9.22, "Na2O": 2.88, "K2O": 1.06, "P2O5": 0.54}, {"series": "Springerville", "sample": "S05s", "SiO2": 46.81, "TiO2": 1.79, "Al2O3": 15.47, "Fe2O3": 11.91, "FeO": 0.0, "MnO": 0.17, "MgO": 9.39, "CaO": 9.47, "Na2O": 2.91, "K2O": 1.1, "P2O5": 0.51}, {"series": "Springerville", "sample": "S06s", "SiO2": 46.8, "TiO2": 1.84, "Al2O3": 15.61, "Fe2O3": 12.04, "FeO": 0.0, "MnO": 0.18, "MgO": 9.07, "CaO": 9.52, "Na2O": 2.95, "K2O": 1.14, "P2O5": 0.55}, {"series": "Springerville", "sample": "S07ag", "SiO2": 46.74, "TiO2": 1.81, "Al2O3": 15.37, "Fe2O3": 11.95, "FeO": 0.0, "MnO": 0.18, "MgO": 9.5, "CaO": 9.45, "Na2O": 2.91, "K2O": 1.11, "P2O5": 0.52}, {"series": "Springerville", "sample": "S08s", "SiO2": 46.71, "TiO2": 1.79, "Al2O3": 15.75, "Fe2O3": 12.11, "FeO": 0.0, "MnO": 0.18, "MgO": 8.84, "CaO": 9.64, "Na2O": 2.97, "K2O": 1.14, "P2O5": 0.51}, {"series": "Springerville", "sample": "S09ag", "SiO2": 48.11, "TiO2": 1.97, "Al2O3": 16.6, "Fe2O3": 12.23, "FeO": 0.0, "MnO": 0.18, "MgO": 6.62, "CaO": 9.6, "Na2O": 3.1, "K2O": 1.1, "P2O5": 0.57}, {"series": "Springerville", "sample": "S10ag", "SiO2": 48.61, "TiO2": 2.0, "Al2O3": 16.89, "Fe2O3": 11.79, "FeO": 0.0, "MnO": 0.17, "MgO": 5.83, "CaO": 9.27, "Na2O": 3.37, "K2O": 1.21, "P2O5": 0.65}, {"series": "Springerville", "sample": "S11s", "SiO2": 44.53, "TiO2": 1.78, "Al2O3": 13.73, "Fe2O3": 11.79, "FeO": 0.0, "MnO": 0.18, "MgO": 11.24, "CaO": 8.91, "Na2O": 2.68, "K2O": 0.9, "P2O5": 0.53}, {"series": "Springerville", "sample": "S12ag", "SiO2": 44.8, "TiO2": 1.82, "Al2O3": 14.09, "Fe2O3": 12.02, "FeO": 0.0, "MnO": 0.18, "MgO": 10.83, "CaO": 9.12, "Na2O": 2.84, "K2O": 1.01, "P2O5": 0.57}, {"series": "Springerville", "sample": "S12ag", "SiO2": 45.85, "TiO2": 1.85, "Al2O3": 14.71, "Fe2O3": 12.63, "FeO": 0.0, "MnO": 0.17, "MgO": 11.01, "CaO": 9.34, "Na2O": 3.01, "K2O": 1.05, "P2O5": 0.63}, {"series": "Springerville", "sample": "S13s", "SiO2": 46.44, "TiO2": 2.03, "Al2O3": 16.76, "Fe2O3": 12.67, "FeO": 0.0, "MnO": 0.19, "MgO": 7.42, "CaO": 9.52, "Na2O": 2.8, "K2O": 1.07, "P2O5": 0.74}, {"series": "Springerville", "sample": "S14ag", "SiO2": 47.62, "TiO2": 1.74, "Al2O3": 14.51, "Fe2O3": 10.87, "FeO": 0.0, "MnO": 0.17, "MgO": 9.77, "CaO": 9.02, "Na2O": 2.73, "K2O": 1.21, "P2O5": 0.55}, {"series": "Springerville", "sample": "S15s", "SiO2": 48.92, "TiO2": 1.78, "Al2O3": 15.83, "Fe2O3": 11.51, "FeO": 0.0, "MnO": 0.16, "MgO": 9.21, "CaO": 8.47, "Na2O": 2.87, "K2O": 1.15, "P2O5": 0.5}, {"series": "Springerville", "sample": "S16s", "SiO2": 54.56, "TiO2": 1.9, "Al2O3": 16.55, "Fe2O3": 9.76, "FeO": 0.0, "MnO": 0.15, "MgO": 4.79, "CaO": 7.14, "Na2O": 4.03, "K2O": 2.44, "P2O5": 0.61}, {"series": "Springerville", "sample": "S17f", "SiO2": 46.45, "TiO2": 1.82, "Al2O3": 14.76, "Fe2O3": 11.71, "FeO": 0.0, "MnO": 0.16, "MgO": 10.46, "CaO": 9.09, "Na2O": 2.96, "K2O": 1.32, "P2O5": 0.41}, {"series": "Springerville", "sample": "S18s", "SiO2": 48.99, "TiO2": 1.33, "Al2O3": 13.96, "Fe2O3": 10.94, "FeO": 0.0, "MnO": 0.16, "MgO": 11.44, "CaO": 7.92, "Na2O": 3.12, "K2O": 1.54, "P2O5": 0.37}, {"series": "Springerville", "sample": "S19f", "SiO2": 46.47, "TiO2": 2.23, "Al2O3": 15.57, "Fe2O3": 12.65, "FeO": 0.0, "MnO": 0.17, "MgO": 9.09, "CaO": 9.18, "Na2O": 3.21, "K2O": 1.21, "P2O5": 0.42}, {"series": "Springerville", "sample": "S20s", "SiO2": 46.79, "TiO2": 2.21, "Al2O3": 16.0, "Fe2O3": 12.43, "FeO": 0.0, "MnO": 0.18, "MgO": 8.95, "CaO": 9.03, "Na2O": 2.59, "K2O": 1.07, "P2O5": 0.55}, {"series": "Springerville", "sample": "S21gs", "SiO2": 48.46, "TiO2": 2.4, "Al2O3": 16.15, "Fe2O3": 0.0, "FeO": 10.77, "MnO": 0.17, "MgO": 6.18, "CaO": 10.14, "Na2O": 3.07, "K2O": 1.19, "P2O5": 0.38}, {"series": "Springerville", "sample": "S22f", "SiO2": 47.73, "TiO2": 2.33, "Al2O3": 15.81, "Fe2O3": 12.4, "FeO": 0.0, "MnO": 0.18, "MgO": 10.43, "CaO": 9.5, "Na2O": 3.21, "K2O": 1.61, "P2O5": 0.67}, {"series": "Springerville", "sample": "S24f", "SiO2": 50.33, "TiO2": 2.2, "Al2O3": 18.17, "Fe2O3": 11.91, "FeO": 0.0, "MnO": 0.18, "MgO": 3.81, "CaO": 7.12, "Na2O": 4.33, "K2O": 1.3, "P2O5": 0.62}, {"series": "San Carlos", "sample": "SCOxd", "SiO2": 44.11, "TiO2": 0.08, "Al2O3": 1.71, "Fe2O3": 9.91, "FeO": 0.0, "MnO": 0.13, "MgO": 43.0, "CaO": 1.66, "Na2O": 0.15, "K2O": 0.02, "P2O5": 0.02}, {"series": "Reacted Samples", "sample": "F01f", "SiO2": 49.9, "TiO2": 2.71, "Al2O3": 16.0, "Fe2O3": 12.73, "FeO": 0.0, "MnO": 0.16, "MgO": 5.7, "CaO": 9.85, "Na2O": 2.9, "K2O": 1.25, "P2O5": 0.61}, {"series": "Reacted Samples", "sample": "F02s", "SiO2": 45.45, "TiO2": 2.28, "Al2O3": 14.1, "Fe2O3": 10.89, "FeO": 0.0, "MnO": 0.14, "MgO": 4.59, "CaO": 13.54, "Na2O": 2.58, "K2O": 0.99, "P2O5": 0.5}, {"series": "Reacted Samples", "sample": "G05sp", "SiO2": 45.83, "TiO2": 2.41, "Al2O3": 14.97, "Fe2O3": 11.74, "FeO": 0.0, "MnO": 0.17, "MgO": 9.78, "CaO": 9.33, "Na2O": 3.41, "K2O": 1.47, "P2O5": 0.52}, {"series": "Reacted Samples", "sample": "G08gs", "SiO2": 47.32, "TiO2": 2.23, "Al2O3": 15.21, "Fe2O3": 11.08, "FeO": 0.0, "MnO": 0.17, "MgO": 8.78, "CaO": 8.62, "Na2O": 3.63, "K2O": 2.08, "P2O5": 0.54}, {"series": "Reacted Samples", "sample": "G15xd", "SiO2": 46.35, "TiO2": 0.12, "Al2O3": 3.49, "Fe2O3": 10.03, "FeO": 0.0, "MnO": 0.14, "MgO": 39.25, "CaO": 2.89, "Na2O": 0.25, "K2O": 0.02, "P2O5": 0.02}, {"series": "Reacted Samples", "sample": "G15xl", "SiO2": 40.97, "TiO2": 1.37, "Al2O3": 14.69, "Fe2O3": 12.02, "FeO": 0.0, "MnO": 0.17, "MgO": 13.01, "CaO": 16.97, "Na2O": 0.75, "K2O": 0.03, "P2O5": 0.06}, {"series": "Reacted Samples", "sample": "RS28f", "SiO2": 45.73, "TiO2": 1.69, "Al2O3": 14.87, "Fe2O3": 12.08, "FeO": 0.0, "MnO": 0.18, "MgO": 9.55, "CaO": 12.49, "Na2O": 2.51, "K2O": 0.65, "P2O5": 0.29}, {"series": "Reacted Samples", "sample": "RS31f", "SiO2": 48.12, "TiO2": 1.73, "Al2O3": 15.46, "Fe2O3": 12.42, "FeO": 0.0, "MnO": 0.18, "MgO": 10.03, "CaO": 11.85, "Na2O": 2.69, "K2O": 0.73, "P2O5": 0.31}, {"series": "Reacted Samples", "sample": "S01f", "SiO2": 43.62, "TiO2": 1.54, "Al2O3": 12.66, "Fe2O3": 12.51, "FeO": 0.0, "MnO": 0.18, "MgO": 15.01, "CaO": 9.54, "Na2O": 1.54, "K2O": 0.47, "P2O5": 0.28}, {"series": "Reacted Samples", "sample": "S12ag", "SiO2": 45.85, "TiO2": 1.85, "Al2O3": 14.71, "Fe2O3": 12.63, "FeO": 0.0, "MnO": 0.17, "MgO": 11.01, "CaO": 9.34, "Na2O": 3.01, "K2O": 1.05, "P2O5": 0.63}, {"series": "Reacted Samples", "sample": "S21gs", "SiO2": 48.46, "TiO2": 2.4, "Al2O3": 16.15, "Fe2O3": 0.0, "FeO": 10.77, "MnO": 0.17, "MgO": 6.18, "CaO": 10.14, "Na2O": 3.07, "K2O": 1.19, "P2O5": 0.38}, {"series": "Reacted Samples", "sample": "SCOxd", "SiO2": 44.11, "TiO2": 0.08, "Al2O3": 1.71, "Fe2O3": 9.91, "FeO": 0.0, "MnO": 0.13, "MgO": 43.0, "CaO": 1.66, "Na2O": 0.15, "K2O": 0.02, "P2O5": 0.02}, {"series": "Reacted Samples", "sample": "CSF22ag", "SiO2": 46.88, "TiO2": 1.35, "Al2O3": 12.15, "Fe2O3": 10.64, "FeO": 0.0, "MnO": 0.17, "MgO": 13.91, "CaO": 7.77, "Na2O": 2.4, "K2O": 1.27, "P2O5": 0.51}, {"series": "Reacted Samples", "sample": "KSF01f", "SiO2": 49.28, "TiO2": 1.22, "Al2O3": 12.68, "Fe2O3": 11.7, "FeO": 0.0, "MnO": 0.17, "MgO": 13.66, "CaO": 10.77, "Na2O": 2.32, "K2O": 0.79, "P2O5": 0.24}, {"series": "Reacted Samples", "sample": "KSF03d", "SiO2": 48.75, "TiO2": 1.73, "Al2O3": 17.08, "Fe2O3": 12.32, "FeO": 0.0, "MnO": 0.18, "MgO": 7.15, "CaO": 10.02, "Na2O": 2.93, "K2O": 0.83, "P2O5": 0.39}, {"series": "Reacted Samples", "sample": "KSF04s", "SiO2": 48.39, "TiO2": 1.89, "Al2O3": 18.59, "Fe2O3": 12.58, "FeO": 0.0, "MnO": 0.15, "MgO": 5.72, "CaO": 9.94, "Na2O": 3.15, "K2O": 1.05, "P2O5": 0.34}, {"series": "Reacted Samples", "sample": "PSF01gs", "SiO2": 44.98, "TiO2": 1.76, "Al2O3": 12.51, "Fe2O3": 11.29, "FeO": 0.0, "MnO": 0.16, "MgO": 13.16, "CaO": 10.79, "Na2O": 2.16, "K2O": 0.8, "P2O5": 0.5}, {"series": "Reacted Samples", "sample": "PSF02d", "SiO2": 47.14, "TiO2": 1.84, "Al2O3": 12.86, "Fe2O3": 12.35, "FeO": 0.0, "MnO": 0.17, "MgO": 13.63, "CaO": 10.97, "Na2O": 2.24, "K2O": 0.82, "P2O5": 0.54}, {"series": "Reacted Samples", "sample": "SFEM01os", "SiO2": 48.81, "TiO2": 1.99, "Al2O3": 15.67, "Fe2O3": 12.34, "FeO": 0.0, "MnO": 0.17, "MgO": 9.74, "CaO": 9.78, "Na2O": 3.41, "K2O": 1.21, "P2O5": 0.58}, {"series": "Reacted Samples", "sample": "SFMM01gs", "SiO2": 47.16, "TiO2": 1.52, "Al2O3": 15.38, "Fe2O3": 11.94, "FeO": 0.0, "MnO": 0.18, "MgO": 9.32, "CaO": 10.68, "Na2O": 2.87, "K2O": 0.78, "P2O5": 0.63}, {"series": "Reacted Samples", "sample": "STSF12f", "SiO2": 47.31, "TiO2": 1.82, "Al2O3": 12.16, "Fe2O3": 12.16, "FeO": 0.0, "MnO": 0.18, "MgO": 15.45, "CaO": 9.42, "Na2O": 2.88, "K2O": 0.82, "P2O5": 0.46}];
+
+// Series colors and symbols
+let seriesStyles = {
+    'Distributed': { color: '#AB0520', symbol: 'circle' },
+    'Florence': { color: '#0C234B', symbol: 'square' },
+    'Geronimo': { color: '#1E5288', symbol: 'diamond' },
+    'San Francisco': { color: '#4B9CD3', symbol: 'triangle' },
+    'Springerville': { color: '#70B865', symbol: 'star' },
+    'Pinacate': { color: '#F5A623', symbol: 'cross' },
+    'San Carlos': { color: '#9B59B6', symbol: 'hexagon' },
+    'Reacted Samples': { color: '#E74C3C', symbol: 'invertedTriangle' }
+};
+
+// Track which series were uploaded (vs original)
+const uploadedSeriesNames = new Set();
+
+// State
+let currentDiagram = 'tas-volcanic';
+let selectedSamples = new Set(sampleData.map((s, i) => i));
+
+// Per-diagram visibility - all OFF by default
+const diagramTypes = ['tas-volcanic', 'afm', 'k2o-sio2'];
+let visibleSeries = {};
+diagramTypes.forEach(diagram => {
+    visibleSeries[diagram] = new Set(); // Empty = all series OFF by default
+});
+
+// Group samples by series
+const seriesGroups = {};
+sampleData.forEach((sample, idx) => {
+    if (!seriesGroups[sample.series]) {
+        seriesGroups[sample.series] = [];
+    }
+    seriesGroups[sample.series].push({ ...sample, idx });
+});
+
+// ====== FILE UPLOAD HANDLING ======
+
+// Available symbols for new series
+const availableSymbols = ['circle', 'square', 'diamond', 'triangle', 'star', 'cross', 'hexagon', 'invertedTriangle'];
+
+// Parsed file data storage
+let parsedFileData = null;
+let parsedHeaders = [];
+let selectedSymbol = 'circle';
+
+// Default oxide column names to look for (case-insensitive matching)
+const oxideAliases = {
+    SiO2: ['sio2', 'si02', 'silica'],
+    TiO2: ['tio2', 'ti02', 'titanium dioxide'],
+    Al2O3: ['al2o3', 'alumina', 'aluminum oxide'],
+    Fe2O3: ['fe2o3', 'ferric oxide', 'iron iii oxide', 'fetotal', 'fe2o3t', 'fe2o3total'],
+    FeO: ['feo', 'ferrous oxide', 'iron ii oxide'],
+    MnO: ['mno', 'manganese oxide'],
+    MgO: ['mgo', 'magnesia', 'magnesium oxide'],
+    CaO: ['cao', 'lime', 'calcium oxide'],
+    Na2O: ['na2o', 'sodium oxide', 'soda'],
+    K2O: ['k2o', 'potassium oxide', 'potash'],
+    P2O5: ['p2o5', 'phosphorus pentoxide', 'phosphate']
+};
+
+// Required oxides for plotting
+const requiredOxides = ['SiO2', 'TiO2', 'Al2O3', 'Fe2O3', 'FeO', 'MnO', 'MgO', 'CaO', 'Na2O', 'K2O'];
+const optionalOxides = ['P2O5'];
+
+// Setup file input listener
+document.addEventListener('DOMContentLoaded', () => {
+    const fileInput = document.getElementById('fileInput');
+    const uploadSection = document.getElementById('uploadSection');
+    
+    fileInput.addEventListener('change', handleFileSelect);
+    
+    // Drag and drop support
+    uploadSection.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadSection.classList.add('drag-over');
+    });
+    
+    uploadSection.addEventListener('dragleave', () => {
+        uploadSection.classList.remove('drag-over');
+    });
+    
+    uploadSection.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadSection.classList.remove('drag-over');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            processFile(files[0]);
+        }
+    });
+});
+
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (file) {
+        processFile(file);
+    }
+}
+
+async function processFile(file) {
+    const statusDiv = document.getElementById('uploadStatus');
+    statusDiv.className = 'upload-status';
+    statusDiv.textContent = 'Processing...';
+    statusDiv.style.display = 'block';
+    
+    try {
+        const ext = file.name.split('.').pop().toLowerCase();
+        
+        if (ext === 'csv') {
+            const text = await file.text();
+            parseCSV(text);
+        } else if (ext === 'xlsx' || ext === 'xls') {
+            await parseExcel(file);
+        } else {
+            throw new Error('Unsupported file type. Please use CSV or Excel (.xlsx) files.');
+        }
+        
+        statusDiv.className = 'upload-status success';
+        statusDiv.textContent = `Loaded ${parsedFileData.length} rows. Configure mapping...`;
+        
+        showColumnMappingModal();
+        
+    } catch (error) {
+        statusDiv.className = 'upload-status error';
+        statusDiv.textContent = `Error: ${error.message}`;
+    }
+    
+    // Reset file input
+    document.getElementById('fileInput').value = '';
+}
+
+function parseCSV(text) {
+    const lines = text.trim().split(/\r?\n/);
+    if (lines.length < 2) {
+        throw new Error('File must have at least a header row and one data row.');
+    }
+    
+    // Parse header
+    parsedHeaders = parseCSVLine(lines[0]);
+    
+    // Parse data rows
+    parsedFileData = [];
+    for (let i = 1; i < lines.length; i++) {
+        const values = parseCSVLine(lines[i]);
+        if (values.length > 0 && values.some(v => v.trim() !== '')) {
+            const row = {};
+            parsedHeaders.forEach((header, idx) => {
+                row[header] = values[idx] || '';
+            });
+            parsedFileData.push(row);
+        }
+    }
+    
+    if (parsedFileData.length === 0) {
+        throw new Error('No data rows found in file.');
+    }
+}
+
+function parseCSVLine(line) {
+    const result = [];
+    let current = '';
+    let inQuotes = false;
+    
+    for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"') {
+            inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+            result.push(current.trim());
+            current = '';
+        } else {
+            current += char;
+        }
+    }
+    result.push(current.trim());
+    return result;
+}
+
+async function parseExcel(file) {
+    // Load SheetJS library dynamically if not already loaded
+    if (typeof XLSX === 'undefined') {
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
+    }
+    
+    const data = await file.arrayBuffer();
+    const workbook = XLSX.read(data, { type: 'array' });
+    
+    // Use the first sheet
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    
+    // Convert to JSON with headers
+    const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+    
+    if (jsonData.length === 0) {
+        throw new Error('No data found in Excel file.');
+    }
+    
+    parsedHeaders = Object.keys(jsonData[0]);
+    parsedFileData = jsonData;
+}
+
+function loadScript(src) {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load ${src}`));
+        document.head.appendChild(script);
+    });
+}
+
+function showColumnMappingModal() {
+    const modal = document.getElementById('columnMappingModal');
+    
+    // Build series column dropdown
+    const seriesSelect = document.getElementById('seriesColumn');
+    seriesSelect.innerHTML = '<option value="">(Use typed name below)</option>';
+    parsedHeaders.forEach(h => {
+        const opt = document.createElement('option');
+        opt.value = h;
+        opt.textContent = h;
+        if (h.toLowerCase().includes('series') || h.toLowerCase().includes('group')) {
+            opt.selected = true;
+        }
+        seriesSelect.appendChild(opt);
+    });
+    
+    // Build sample column dropdown
+    const sampleSelect = document.getElementById('sampleColumn');
+    sampleSelect.innerHTML = '';
+    parsedHeaders.forEach(h => {
+        const opt = document.createElement('option');
+        opt.value = h;
+        opt.textContent = h;
+        if (h.toLowerCase().includes('sample') || h.toLowerCase().includes('id') || h.toLowerCase().includes('name')) {
+            opt.selected = true;
+        }
+        sampleSelect.appendChild(opt);
+    });
+    
+    // Build oxide mapping dropdowns
+    const oxideDiv = document.getElementById('oxideMapping');
+    oxideDiv.innerHTML = '';
+    
+    [...requiredOxides, ...optionalOxides].forEach(oxide => {
+        const field = document.createElement('div');
+        field.className = 'modal-field';
+        field.style.margin = '0.25rem 0';
+        
+        const label = document.createElement('label');
+        label.textContent = oxide;
+        label.style.fontSize = '0.8rem';
+        label.style.display = 'block';
+        
+        const select = document.createElement('select');
+        select.id = `oxide-${oxide}`;
+        select.innerHTML = '<option value="">(not mapped)</option>';
+        
+        // Try to auto-match columns
+        const aliases = oxideAliases[oxide] || [oxide.toLowerCase()];
+        let matched = false;
+        
+        parsedHeaders.forEach(h => {
+            const opt = document.createElement('option');
+            opt.value = h;
+            opt.textContent = h;
+            
+            const hLower = h.toLowerCase().replace(/[\s_-]/g, '');
+            if (!matched && aliases.some(alias => hLower === alias.replace(/[\s_-]/g, ''))) {
+                opt.selected = true;
+                matched = true;
+            }
+            select.appendChild(opt);
+        });
+        
+        field.appendChild(label);
+        field.appendChild(select);
+        oxideDiv.appendChild(field);
+    });
+    
+    // Build symbol selector
+    const symbolDiv = document.getElementById('symbolSelect');
+    symbolDiv.innerHTML = '';
+    selectedSymbol = 'circle';
+    
+    availableSymbols.forEach(sym => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'symbol-option' + (sym === selectedSymbol ? ' selected' : '');
+        btn.innerHTML = `<svg viewBox="0 0 20 20" width="16" height="16">${getSymbolPath(sym, 10, 10, 5, '#333')}</svg>`;
+        btn.onclick = () => {
+            document.querySelectorAll('.symbol-option').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedSymbol = sym;
+        };
+        symbolDiv.appendChild(btn);
+    });
+    
+    // Build preview table
+    updatePreviewTable();
+    
+    modal.classList.add('active');
+}
+
+function updatePreviewTable() {
+    const table = document.getElementById('previewTable');
+    const previewRows = parsedFileData.slice(0, 3);
+    const displayHeaders = parsedHeaders.slice(0, 8); // Show first 8 columns
+    
+    let html = '<thead><tr>';
+    displayHeaders.forEach(h => {
+        html += `<th>${h}</th>`;
+    });
+    if (parsedHeaders.length > 8) {
+        html += '<th>...</th>';
+    }
+    html += '</tr></thead><tbody>';
+    
+    previewRows.forEach(row => {
+        html += '<tr>';
+        displayHeaders.forEach(h => {
+            const val = row[h];
+            html += `<td>${val !== undefined ? val : ''}</td>`;
+        });
+        if (parsedHeaders.length > 8) {
+            html += '<td>...</td>';
+        }
+        html += '</tr>';
+    });
+    html += '</tbody>';
+    
+    table.innerHTML = html;
+}
+
+function closeColumnMapping() {
+    document.getElementById('columnMappingModal').classList.remove('active');
+    parsedFileData = null;
+    parsedHeaders = [];
+}
+
+function importData() {
+    const seriesColumn = document.getElementById('seriesColumn').value;
+    const seriesNameOverride = document.getElementById('seriesNameOverride').value.trim();
+    const sampleColumn = document.getElementById('sampleColumn').value;
+    const seriesColor = document.getElementById('seriesColor').value;
+    
+    // Validate sample column
+    if (!sampleColumn) {
+        alert('Please select a Sample ID column.');
+        return;
+    }
+    
+    // Get oxide mappings
+    const oxideMappings = {};
+    requiredOxides.forEach(oxide => {
+        oxideMappings[oxide] = document.getElementById(`oxide-${oxide}`).value;
+    });
+    optionalOxides.forEach(oxide => {
+        oxideMappings[oxide] = document.getElementById(`oxide-${oxide}`).value;
+    });
+    
+    // Check that at least SiO2 is mapped (minimum for plotting)
+    if (!oxideMappings.SiO2) {
+        alert('SiO₂ column must be mapped for plotting.');
+        return;
+    }
+    
+    // Process each row
+    const newSamples = [];
+    const newSeriesNames = new Set();
+    
+    parsedFileData.forEach(row => {
+        // Determine series name
+        let series = seriesNameOverride;
+        if (!series && seriesColumn) {
+            series = row[seriesColumn] || 'Unknown';
+        }
+        if (!series) {
+            series = 'Uploaded Data';
+        }
+        
+        newSeriesNames.add(series);
+        
+        // Build sample object
+        const sample = {
+            series: series,
+            sample: row[sampleColumn] || 'Unknown',
+            SiO2: parseFloat(row[oxideMappings.SiO2]) || 0,
+            TiO2: parseFloat(row[oxideMappings.TiO2]) || 0,
+            Al2O3: parseFloat(row[oxideMappings.Al2O3]) || 0,
+            Fe2O3: parseFloat(row[oxideMappings.Fe2O3]) || 0,
+            FeO: parseFloat(row[oxideMappings.FeO]) || 0,
+            MnO: parseFloat(row[oxideMappings.MnO]) || 0,
+            MgO: parseFloat(row[oxideMappings.MgO]) || 0,
+            CaO: parseFloat(row[oxideMappings.CaO]) || 0,
+            Na2O: parseFloat(row[oxideMappings.Na2O]) || 0,
+            K2O: parseFloat(row[oxideMappings.K2O]) || 0,
+            P2O5: parseFloat(row[oxideMappings.P2O5]) || 0
+        };
+        
+        // Skip rows with no SiO2 value (likely header or invalid row)
+        if (sample.SiO2 > 0) {
+            newSamples.push(sample);
+        }
+    });
+    
+    if (newSamples.length === 0) {
+        alert('No valid samples found. Make sure SiO₂ column contains numeric values.');
+        return;
+    }
+    
+    // Add new samples to sampleData
+    const startIdx = sampleData.length;
+    newSamples.forEach((sample, i) => {
+        sampleData.push(sample);
+        selectedSamples.add(startIdx + i);
+    });
+    
+    // Add series styles for new series
+    newSeriesNames.forEach(seriesName => {
+        if (!seriesStyles[seriesName]) {
+            seriesStyles[seriesName] = {
+                color: seriesColor,
+                symbol: selectedSymbol
+            };
+        }
+        uploadedSeriesNames.add(seriesName);
+        // Note: Series are OFF by default for all diagrams - user must toggle them on
+        
+        // Add to seriesGroups
+        if (!seriesGroups[seriesName]) {
+            seriesGroups[seriesName] = [];
+        }
+    });
+    
+    // Update seriesGroups with new samples
+    newSamples.forEach((sample, i) => {
+        seriesGroups[sample.series].push({ ...sample, idx: startIdx + i });
+    });
+    
+    // Update UI
+    buildSeriesList();
+    renderDiagram();
+    closeColumnMapping();
+    
+    // Show success message
+    const statusDiv = document.getElementById('uploadStatus');
+    statusDiv.className = 'upload-status success';
+    statusDiv.textContent = `Added ${newSamples.length} samples in ${newSeriesNames.size} series.`;
+}
+
+function selectAllSeries(visible) {
+    Object.keys(seriesGroups).forEach(series => {
+        if (visible) {
+            visibleSeries[currentDiagram].add(series);
+        } else {
+            visibleSeries[currentDiagram].delete(series);
+        }
+        const checkbox = document.getElementById(`vis-${series.replace(/\s+/g, '-')}`);
+        if (checkbox) checkbox.checked = visible;
+    });
+    renderDiagram();
+    updateLegend();
+}
+
+function clearUploadedSeries() {
+    if (uploadedSeriesNames.size === 0) {
+        alert('No uploaded series to clear.');
+        return;
+    }
+    
+    if (!confirm(`Remove ${uploadedSeriesNames.size} uploaded series and their samples?`)) {
+        return;
+    }
+    
+    // Find indices to remove (in reverse order to maintain index validity)
+    const indicesToRemove = [];
+    sampleData.forEach((sample, idx) => {
+        if (uploadedSeriesNames.has(sample.series)) {
+            indicesToRemove.push(idx);
+        }
+    });
+    
+    // Remove from sampleData (reverse order)
+    indicesToRemove.reverse().forEach(idx => {
+        sampleData.splice(idx, 1);
+        selectedSamples.delete(idx);
+    });
+    
+    // Rebuild selectedSamples with corrected indices
+    selectedSamples = new Set(sampleData.map((s, i) => i));
+    
+    // Remove from seriesGroups and seriesStyles
+    uploadedSeriesNames.forEach(seriesName => {
+        delete seriesGroups[seriesName];
+        delete seriesStyles[seriesName];
+        // Remove from all diagram visibility sets
+        diagramTypes.forEach(diagram => {
+            visibleSeries[diagram].delete(seriesName);
+        });
+    });
+    
+    // Rebuild seriesGroups
+    Object.keys(seriesGroups).forEach(key => {
+        seriesGroups[key] = [];
+    });
+    sampleData.forEach((sample, idx) => {
+        if (!seriesGroups[sample.series]) {
+            seriesGroups[sample.series] = [];
+        }
+        seriesGroups[sample.series].push({ ...sample, idx });
+    });
+    
+    uploadedSeriesNames.clear();
+    
+    // Update UI
+    buildSeriesList();
+    renderDiagram();
+    
+    const statusDiv = document.getElementById('uploadStatus');
+    statusDiv.className = 'upload-status success';
+    statusDiv.textContent = 'Uploaded series cleared.';
+}
+
+function deleteUploadedSeries(seriesName) {
+    if (!confirm(`Delete series "${seriesName}" and all its samples?`)) {
+        return;
+    }
+    
+    // Find and remove samples
+    const indicesToRemove = [];
+    sampleData.forEach((sample, idx) => {
+        if (sample.series === seriesName) {
+            indicesToRemove.push(idx);
+        }
+    });
+    
+    indicesToRemove.reverse().forEach(idx => {
+        sampleData.splice(idx, 1);
+    });
+    
+    // Rebuild selectedSamples
+    selectedSamples = new Set(sampleData.map((s, i) => i));
+    
+    // Remove from tracking
+    delete seriesGroups[seriesName];
+    delete seriesStyles[seriesName];
+    // Remove from all diagram visibility sets
+    diagramTypes.forEach(diagram => {
+        visibleSeries[diagram].delete(seriesName);
+    });
+    uploadedSeriesNames.delete(seriesName);
+    
+    // Rebuild seriesGroups
+    Object.keys(seriesGroups).forEach(key => {
+        seriesGroups[key] = [];
+    });
+    sampleData.forEach((sample, idx) => {
+        if (!seriesGroups[sample.series]) {
+            seriesGroups[sample.series] = [];
+        }
+        seriesGroups[sample.series].push({ ...sample, idx });
+    });
+    
+    buildSeriesList();
+    renderDiagram();
+}
+
+// ====== END FILE UPLOAD HANDLING ======
+
+// Download a template CSV for users
+function downloadTemplate() {
+    const headers = ['Series', 'Sample', 'SiO2', 'TiO2', 'Al2O3', 'Fe2O3', 'FeO', 'MnO', 'MgO', 'CaO', 'Na2O', 'K2O', 'P2O5'];
+    const exampleRows = [
+        ['My Series', 'SAMPLE-001', '50.5', '1.2', '16.0', '10.5', '0.0', '0.15', '6.5', '9.0', '3.0', '1.0', '0.4'],
+        ['My Series', 'SAMPLE-002', '48.2', '1.5', '15.5', '11.0', '0.0', '0.18', '7.2', '9.5', '2.8', '0.9', '0.35']
+    ];
+    
+    let csv = headers.join(',') + '\n';
+    exampleRows.forEach(row => {
+        csv += row.join(',') + '\n';
+    });
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'geochem_template.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// Export currently visible sample data to CSV
+function exportCurrentData() {
+    // Get diagram display name for header and filename
+    const diagramNames = {
+        'tas-volcanic': 'TAS_Volcanic',
+        'tas-plutonic': 'TAS_Plutonic',
+        'afm': 'AFM',
+        'k2o-sio2': 'K2O_SiO2'
+    };
+    const classificationColumn = diagramNames[currentDiagram] || 'Classification';
+    
+    const headers = ['Series', 'Sample', 'SiO2', 'TiO2', 'Al2O3', 'Fe2O3', 'FeO', 'MnO', 'MgO', 'CaO', 'Na2O', 'K2O', 'P2O5', classificationColumn];
+    
+    let csv = headers.join(',') + '\n';
+    let exportCount = 0;
+    
+    sampleData.forEach((sample, idx) => {
+        // Only export samples that are currently visible on the diagram
+        if (!selectedSamples.has(idx) || !visibleSeries[currentDiagram].has(sample.series)) return;
+        
+        const row = [
+            `"${sample.series}"`,
+            `"${sample.sample}"`,
+            sample.SiO2,
+            sample.TiO2,
+            sample.Al2O3,
+            sample.Fe2O3,
+            sample.FeO,
+            sample.MnO,
+            sample.MgO,
+            sample.CaO,
+            sample.Na2O,
+            sample.K2O,
+            sample.P2O5 || 0,
+            `"${classifyRock(sample, currentDiagram)}"`
+        ];
+        csv += row.join(',') + '\n';
+        exportCount++;
+    });
+    
+    if (exportCount === 0) {
+        alert('No samples are currently visible. Enable some series to export data.');
+        return;
+    }
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `mmri_geochem_${classificationColumn}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// Download current diagram as SVG
+function downloadDiagramSVG() {
+    const diagramArea = document.getElementById('diagramArea');
+    const svgElement = diagramArea.querySelector('svg');
+    
+    if (!svgElement) {
+        alert('No diagram to download.');
+        return;
+    }
+    
+    // Clone the SVG to modify for export
+    const clonedSvg = svgElement.cloneNode(true);
+    
+    // Add title and legend to the exported SVG
+    const title = document.getElementById('diagramTitle').textContent;
+    const subtitle = document.getElementById('diagramSubtitle').textContent;
+    
+    // Get current viewBox dimensions
+    const viewBox = clonedSvg.getAttribute('viewBox').split(' ').map(Number);
+    const [vbX, vbY, vbWidth, vbHeight] = viewBox;
+    
+    // Use 9px as base (matches diagram field-label size)
+    const titleFontSize = 10;
+    const subtitleFontSize = 8;
+    const legendFontSize = 8;
+    const attrFontSize = 7;
+    const symbolRadius = 3;
+    const fontFamily = "'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    
+    // Calculate legend layout
+    const visibleSeriesList = Object.keys(seriesGroups).sort().filter(s => visibleSeries[currentDiagram].has(s));
+    const legendItemWidth = 70;
+    const itemsPerRow = Math.max(1, Math.floor((vbWidth - 20) / legendItemWidth));
+    const numRows = Math.ceil(visibleSeriesList.length / itemsPerRow);
+    const rowHeight = 12; // 1.5x font size for clear separation
+    
+    // Space for title and legend
+    const titleAreaHeight = 28;
+    const legendAreaHeight = 10 + (numRows * rowHeight) + 12;
+    const newHeight = vbHeight + titleAreaHeight + legendAreaHeight;
+    
+    clonedSvg.setAttribute('viewBox', `${vbX} ${vbY - titleAreaHeight} ${vbWidth} ${newHeight}`);
+    clonedSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    clonedSvg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+    
+    // Add embedded font style and diagram CSS
+    const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+    const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+    style.textContent = `
+        @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
+        text { font-family: ${fontFamily}; }
+        .field-boundary { fill: none; stroke: #666; stroke-width: 0.75; }
+        .grid-line { stroke: #ddd; stroke-width: 0.5; }
+        .field-label { font-size: 9px; fill: #333; }
+        .axis-label { font-size: 12px; fill: #333; }
+    `;
+    defs.appendChild(style);
+    clonedSvg.insertBefore(defs, clonedSvg.firstChild);
+    
+    // Add white background
+    const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    bg.setAttribute('x', vbX);
+    bg.setAttribute('y', vbY - titleAreaHeight);
+    bg.setAttribute('width', vbWidth);
+    bg.setAttribute('height', newHeight);
+    bg.setAttribute('fill', 'white');
+    clonedSvg.insertBefore(bg, defs.nextSibling);
+    
+    // Add title
+    const titleEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    titleEl.setAttribute('x', vbWidth / 2);
+    titleEl.setAttribute('y', vbY - titleAreaHeight + titleFontSize + 2);
+    titleEl.setAttribute('text-anchor', 'middle');
+    titleEl.setAttribute('font-family', fontFamily);
+    titleEl.setAttribute('font-size', titleFontSize);
+    titleEl.setAttribute('font-weight', '700');
+    titleEl.setAttribute('fill', '#0C234B');
+    titleEl.textContent = title;
+    clonedSvg.appendChild(titleEl);
+    
+    // Add subtitle
+    const subtitleEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    subtitleEl.setAttribute('x', vbWidth / 2);
+    subtitleEl.setAttribute('y', vbY - titleAreaHeight + titleFontSize + subtitleFontSize + 6);
+    subtitleEl.setAttribute('text-anchor', 'middle');
+    subtitleEl.setAttribute('font-family', fontFamily);
+    subtitleEl.setAttribute('font-size', subtitleFontSize);
+    subtitleEl.setAttribute('fill', '#666');
+    subtitleEl.textContent = subtitle;
+    clonedSvg.appendChild(subtitleEl);
+    
+    // Build legend - calculate actual items in last row for better centering
+    const itemsInLastRow = visibleSeriesList.length % itemsPerRow || itemsPerRow;
+    const legendStartY = vbHeight + 10;
+    
+    visibleSeriesList.forEach((series, idx) => {
+        const seriesStyle = seriesStyles[series] || { color: '#666', symbol: 'circle' };
+        
+        const row = Math.floor(idx / itemsPerRow);
+        const col = idx % itemsPerRow;
+        
+        // Center each row based on items in that row
+        const itemsInThisRow = (row === numRows - 1) ? itemsInLastRow : itemsPerRow;
+        const rowWidth = itemsInThisRow * legendItemWidth;
+        const rowStartX = (vbWidth - rowWidth) / 2 + symbolRadius + 2;
+        
+        const itemX = rowStartX + col * legendItemWidth;
+        const itemY = legendStartY + row * rowHeight;
+        
+        // Create legend group
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('transform', `translate(${itemX}, ${itemY})`);
+        
+        // Add symbol
+        const symbolSvg = getSymbolPath(seriesStyle.symbol, 0, 0, symbolRadius, seriesStyle.color);
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg">${symbolSvg}</svg>`;
+        const symbolEl = tempDiv.querySelector('svg').firstChild;
+        if (symbolEl) {
+            g.appendChild(symbolEl.cloneNode(true));
+        }
+        
+        // Add label
+        const labelEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        labelEl.setAttribute('x', symbolRadius + 3);
+        labelEl.setAttribute('y', legendFontSize / 3);
+        labelEl.setAttribute('font-family', fontFamily);
+        labelEl.setAttribute('font-size', legendFontSize);
+        labelEl.setAttribute('fill', '#333');
+        labelEl.textContent = series;
+        g.appendChild(labelEl);
+        
+        clonedSvg.appendChild(g);
+    });
+    
+    // Add attribution
+    const attrEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    attrEl.setAttribute('x', vbWidth / 2);
+    attrEl.setAttribute('y', vbHeight + legendAreaHeight - 4);
+    attrEl.setAttribute('text-anchor', 'middle');
+    attrEl.setAttribute('font-family', fontFamily);
+    attrEl.setAttribute('font-size', attrFontSize);
+    attrEl.setAttribute('fill', '#999');
+    attrEl.textContent = 'University of Arizona • Arizona Geological Survey • MMRI';
+    clonedSvg.appendChild(attrEl);
+    
+    // Serialize and download
+    const serializer = new XMLSerializer();
+    let svgString = serializer.serializeToString(clonedSvg);
+    svgString = '<?xml version="1.0" encoding="UTF-8"?>\n' + svgString;
+    
+    const blob = new Blob([svgString], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${title.replace(/[^a-zA-Z0-9]/g, '_')}.svg`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// Download current diagram as PNG
+async function downloadDiagramPNG() {
+    const diagramArea = document.getElementById('diagramArea');
+    const svgElement = diagramArea.querySelector('svg');
+    
+    if (!svgElement) {
+        alert('No diagram to download.');
+        return;
+    }
+    
+    // Wait for fonts to be ready
+    await document.fonts.ready;
+    
+    const title = document.getElementById('diagramTitle').textContent;
+    const subtitle = document.getElementById('diagramSubtitle').textContent;
+    
+    // Get SVG dimensions
+    const viewBox = svgElement.getAttribute('viewBox').split(' ').map(Number);
+    const [vbX, vbY, vbWidth, vbHeight] = viewBox;
+    
+    // Use 9px as base (matches diagram field-label size)
+    const titleFontSize = 10;
+    const subtitleFontSize = 8;
+    const legendFontSize = 8;
+    const attrFontSize = 7;
+    const symbolRadius = 3;
+    const fontFamily = "'Source Sans Pro', Arial, sans-serif";
+    
+    // Calculate legend layout
+    const visibleSeriesList = Object.keys(seriesGroups).sort().filter(s => visibleSeries[currentDiagram].has(s));
+    const legendItemWidth = 70;
+    const itemsPerRow = Math.max(1, Math.floor((vbWidth - 20) / legendItemWidth));
+    const numRows = Math.ceil(visibleSeriesList.length / itemsPerRow);
+    const rowHeight = 12; // 1.5x font size for clear separation
+    
+    // Space for title and legend
+    const titleAreaHeight = 28;
+    const legendAreaHeight = 10 + (numRows * rowHeight) + 12;
+    const totalHeight = vbHeight + titleAreaHeight + legendAreaHeight;
+    
+    // Scale factor for high resolution output
+    const outputScale = 2;
+    
+    // Create canvas
+    const canvas = document.createElement('canvas');
+    canvas.width = vbWidth * outputScale;
+    canvas.height = totalHeight * outputScale;
+    const ctx = canvas.getContext('2d');
+    
+    // Scale for high DPI
+    ctx.scale(outputScale, outputScale);
+    
+    // White background
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, vbWidth, totalHeight);
+    
+    // Draw title
+    ctx.fillStyle = '#0C234B';
+    ctx.font = `bold ${titleFontSize}px ${fontFamily}`;
+    ctx.textAlign = 'center';
+    ctx.fillText(title, vbWidth / 2, titleFontSize + 2);
+    
+    // Draw subtitle
+    ctx.fillStyle = '#666';
+    ctx.font = `${subtitleFontSize}px ${fontFamily}`;
+    ctx.fillText(subtitle, vbWidth / 2, titleFontSize + subtitleFontSize + 6);
+    
+    // Clone and prepare SVG for rendering
+    const svgClone = svgElement.cloneNode(true);
+    
+    // Add style element with embedded font and diagram CSS
+    const styleEl = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+    styleEl.textContent = `
+        @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
+        text, .field-label, .axis-label { font-family: ${fontFamily}; }
+        .field-boundary { fill: none; stroke: #666; stroke-width: 0.75; }
+        .grid-line { stroke: #ddd; stroke-width: 0.5; }
+        .field-label { font-size: 9px; fill: #333; }
+        .axis-label { font-size: 12px; fill: #333; }
+    `;
+    svgClone.insertBefore(styleEl, svgClone.firstChild);
+    
+    // Ensure SVG has proper namespace
+    svgClone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    svgClone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+    
+    // Set explicit dimensions
+    svgClone.setAttribute('width', vbWidth);
+    svgClone.setAttribute('height', vbHeight);
+    
+    // Serialize SVG
+    const serializer = new XMLSerializer();
+    let svgString = serializer.serializeToString(svgClone);
+    
+    // Encode SVG properly for data URL
+    const encodedSvg = encodeURIComponent(svgString)
+        .replace(/'/g, '%27')
+        .replace(/"/g, '%22');
+    
+    const dataUrl = 'data:image/svg+xml;charset=UTF-8,' + encodedSvg;
+    
+    const img = new Image();
+    
+    img.onload = function() {
+        // Draw SVG onto canvas
+        ctx.drawImage(img, 0, titleAreaHeight, vbWidth, vbHeight);
+        
+        // Build legend - calculate items in last row for better centering
+        const itemsInLastRow = visibleSeriesList.length % itemsPerRow || itemsPerRow;
+        const legendStartY = vbHeight + titleAreaHeight + 10;
+        
+        ctx.font = `${legendFontSize}px ${fontFamily}`;
+        ctx.textAlign = 'left';
+        
+        visibleSeriesList.forEach((series, idx) => {
+            const seriesStyle = seriesStyles[series] || { color: '#666', symbol: 'circle' };
+            
+            const row = Math.floor(idx / itemsPerRow);
+            const col = idx % itemsPerRow;
+            
+            // Center each row based on items in that row
+            const itemsInThisRow = (row === numRows - 1) ? itemsInLastRow : itemsPerRow;
+            const rowWidth = itemsInThisRow * legendItemWidth;
+            const rowStartX = (vbWidth - rowWidth) / 2 + symbolRadius + 2;
+            
+            const sx = rowStartX + col * legendItemWidth;
+            const sy = legendStartY + row * rowHeight;
+            const r = symbolRadius;
+            
+            // Draw symbol
+            ctx.fillStyle = seriesStyle.color;
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            
+            switch (seriesStyle.symbol) {
+                case 'circle':
+                    ctx.arc(sx, sy, r, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                    break;
+                case 'square':
+                    ctx.fillRect(sx - r, sy - r, r * 2, r * 2);
+                    ctx.strokeRect(sx - r, sy - r, r * 2, r * 2);
+                    break;
+                case 'diamond':
+                    ctx.moveTo(sx, sy - r);
+                    ctx.lineTo(sx + r, sy);
+                    ctx.lineTo(sx, sy + r);
+                    ctx.lineTo(sx - r, sy);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                    break;
+                case 'triangle':
+                    ctx.moveTo(sx, sy - r);
+                    ctx.lineTo(sx + r, sy + r);
+                    ctx.lineTo(sx - r, sy + r);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                    break;
+                case 'invertedTriangle':
+                    ctx.moveTo(sx - r, sy - r);
+                    ctx.lineTo(sx + r, sy - r);
+                    ctx.lineTo(sx, sy + r);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                    break;
+                case 'star':
+                    ctx.beginPath();
+                    for (let i = 0; i < 5; i++) {
+                        const angle1 = (i * 72 - 90) * Math.PI / 180;
+                        const angle2 = ((i * 72) + 36 - 90) * Math.PI / 180;
+                        if (i === 0) {
+                            ctx.moveTo(sx + r * Math.cos(angle1), sy + r * Math.sin(angle1));
+                        } else {
+                            ctx.lineTo(sx + r * Math.cos(angle1), sy + r * Math.sin(angle1));
+                        }
+                        ctx.lineTo(sx + r * 0.5 * Math.cos(angle2), sy + r * 0.5 * Math.sin(angle2));
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                    break;
+                case 'cross':
+                    const t = r * 0.35;
+                    ctx.beginPath();
+                    ctx.moveTo(sx - r, sy - t);
+                    ctx.lineTo(sx - t, sy - t);
+                    ctx.lineTo(sx - t, sy - r);
+                    ctx.lineTo(sx + t, sy - r);
+                    ctx.lineTo(sx + t, sy - t);
+                    ctx.lineTo(sx + r, sy - t);
+                    ctx.lineTo(sx + r, sy + t);
+                    ctx.lineTo(sx + t, sy + t);
+                    ctx.lineTo(sx + t, sy + r);
+                    ctx.lineTo(sx - t, sy + r);
+                    ctx.lineTo(sx - t, sy + t);
+                    ctx.lineTo(sx - r, sy + t);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                    break;
+                case 'hexagon':
+                    ctx.beginPath();
+                    for (let i = 0; i < 6; i++) {
+                        const angle = (i * 60 - 30) * Math.PI / 180;
+                        if (i === 0) {
+                            ctx.moveTo(sx + r * Math.cos(angle), sy + r * Math.sin(angle));
+                        } else {
+                            ctx.lineTo(sx + r * Math.cos(angle), sy + r * Math.sin(angle));
+                        }
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                    break;
+                default:
+                    ctx.arc(sx, sy, r, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+            }
+            
+            // Draw label
+            ctx.fillStyle = '#333';
+            ctx.fillText(series, sx + r + 3, sy + legendFontSize / 3);
+        });
+        
+        // Draw attribution
+        ctx.fillStyle = '#999';
+        ctx.font = `${attrFontSize}px ${fontFamily}`;
+        ctx.textAlign = 'center';
+        ctx.fillText('University of Arizona • Arizona Geological Survey • MMRI', vbWidth / 2, totalHeight - 4);
+        
+        // Download PNG
+        try {
+            const pngUrl = canvas.toDataURL('image/png');
+            const a = document.createElement('a');
+            a.href = pngUrl;
+            a.download = `${title.replace(/[^a-zA-Z0-9]/g, '_')}.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        } catch (e) {
+            console.error('PNG export error:', e);
+            alert('Error exporting PNG. Try the SVG download instead.');
+        }
+    };
+    
+    img.onerror = function(e) {
+        console.error('Image load error:', e);
+        alert('Error rendering diagram. Try the SVG download instead.');
+    };
+    
+    img.src = dataUrl;
+}
+
+// Initialize UI
+function init() {
+    buildSeriesList();
+    setupDiagramTabs();
+    renderDiagram();
+}
+
+function buildSeriesList() {
+    const container = document.getElementById('seriesList');
+    container.innerHTML = '';
+    
+    Object.keys(seriesGroups).sort().forEach(series => {
+        const samples = seriesGroups[series];
+        const style = seriesStyles[series] || { color: '#666', symbol: 'circle' };
+        const isUploaded = uploadedSeriesNames.has(series);
+        
+        const item = document.createElement('div');
+        item.className = 'series-item';
+        item.innerHTML = `
+            <div class="series-header" data-series="${series}">
+                <svg class="series-symbol" viewBox="0 0 20 20">
+                    ${getSymbolPath(style.symbol, 10, 10, 6, style.color)}
+                </svg>
+                <span class="series-name">${series}${isUploaded ? '<span class="uploaded-badge">uploaded</span>' : ''}</span>
+                <span class="series-count">${samples.length}</span>
+                ${isUploaded ? `<button class="delete-series-btn" onclick="event.stopPropagation(); deleteUploadedSeries('${series.replace(/'/g, "\\'")}')" title="Delete series">âœ•</button>` : ''}
+                <div class="visibility-toggle">
+                    <input type="checkbox" id="vis-${series.replace(/\s+/g, '-')}" 
+                           ${visibleSeries[currentDiagram].has(series) ? 'checked' : ''} 
+                           onclick="event.stopPropagation(); toggleSeriesVisibility('${series}', this.checked)">
+                </div>
+                <span class="series-toggle">▼</span>
+            </div>
+            <div class="series-samples" id="samples-${series.replace(/\s+/g, '-')}">
+                <div class="sample-controls">
+                    <button onclick="selectAllInSeries('${series}', true)">Select All</button>
+                    <button onclick="selectAllInSeries('${series}', false)">Deselect All</button>
+                </div>
+                ${samples.map(s => `
+                    <div class="sample-item">
+                        <input type="checkbox" id="sample-${s.idx}" 
+                               ${selectedSamples.has(s.idx) ? 'checked' : ''}
+                               onchange="toggleSample(${s.idx}, this.checked)">
+                        <label for="sample-${s.idx}">${s.sample}</label>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        
+        item.querySelector('.series-header').addEventListener('click', (e) => {
+            if (e.target.type !== 'checkbox' && !e.target.classList.contains('delete-series-btn')) {
+                const samplesDiv = item.querySelector('.series-samples');
+                const toggle = item.querySelector('.series-toggle');
+                samplesDiv.classList.toggle('expanded');
+                toggle.textContent = samplesDiv.classList.contains('expanded') ? '▲' : '▼';
+            }
+        });
+        
+        container.appendChild(item);
+    });
+}
+
+function setupDiagramTabs() {
+    document.querySelectorAll('.diagram-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.diagram-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentDiagram = tab.dataset.diagram;
+            buildSeriesList(); // Rebuild to show correct checkbox states for this diagram
+            renderDiagram();
+        });
+    });
+}
+
+function toggleSample(idx, checked) {
+    if (checked) {
+        selectedSamples.add(idx);
+    } else {
+        selectedSamples.delete(idx);
+    }
+    renderDiagram();
+}
+
+function toggleSeriesVisibility(series, visible) {
+    if (visible) {
+        visibleSeries[currentDiagram].add(series);
+    } else {
+        visibleSeries[currentDiagram].delete(series);
+    }
+    renderDiagram();
+    updateLegend();
+}
+
+function selectAllInSeries(series, select) {
+    seriesGroups[series].forEach(s => {
+        if (select) {
+            selectedSamples.add(s.idx);
+        } else {
+            selectedSamples.delete(s.idx);
+        }
+        const checkbox = document.getElementById(`sample-${s.idx}`);
+        if (checkbox) checkbox.checked = select;
+    });
+    renderDiagram();
+}
+
+function getSymbolPath(symbol, cx, cy, r, fill) {
+    switch (symbol) {
+        case 'circle':
+            return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" stroke="#fff" stroke-width="0.5"/>`;
+        case 'square':
+            return `<rect x="${cx-r}" y="${cy-r}" width="${r*2}" height="${r*2}" fill="${fill}" stroke="#fff" stroke-width="0.5"/>`;
+        case 'diamond':
+            return `<polygon points="${cx},${cy-r} ${cx+r},${cy} ${cx},${cy+r} ${cx-r},${cy}" fill="${fill}" stroke="#fff" stroke-width="0.5"/>`;
+        case 'triangle':
+            return `<polygon points="${cx},${cy-r} ${cx+r},${cy+r} ${cx-r},${cy+r}" fill="${fill}" stroke="#fff" stroke-width="0.5"/>`;
+        case 'invertedTriangle':
+            return `<polygon points="${cx-r},${cy-r} ${cx+r},${cy-r} ${cx},${cy+r}" fill="${fill}" stroke="#fff" stroke-width="0.5"/>`;
+        case 'star':
+            const pts = [];
+            for (let i = 0; i < 5; i++) {
+                const angle1 = (i * 72 - 90) * Math.PI / 180;
+                const angle2 = ((i * 72) + 36 - 90) * Math.PI / 180;
+                pts.push(`${cx + r * Math.cos(angle1)},${cy + r * Math.sin(angle1)}`);
+                pts.push(`${cx + r * 0.5 * Math.cos(angle2)},${cy + r * 0.5 * Math.sin(angle2)}`);
+            }
+            return `<polygon points="${pts.join(' ')}" fill="${fill}" stroke="#fff" stroke-width="0.5"/>`;
+        case 'cross':
+            const t = r * 0.35;
+            return `<path d="M${cx-r},${cy-t} h${r-t} v${-(r-t)} h${t*2} v${r-t} h${r-t} v${t*2} h${-(r-t)} v${r-t} h${-t*2} v${-(r-t)} h${-(r-t)} z" fill="${fill}" stroke="#fff" stroke-width="0.5"/>`;
+        case 'hexagon':
+            const hexPts = [];
+            for (let i = 0; i < 6; i++) {
+                const angle = (i * 60 - 30) * Math.PI / 180;
+                hexPts.push(`${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)}`);
+            }
+            return `<polygon points="${hexPts.join(' ')}" fill="${fill}" stroke="#fff" stroke-width="0.5"/>`;
+        default:
+            return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" stroke="#fff" stroke-width="0.5"/>`;
+    }
+}
+
+function renderDiagram() {
+    const area = document.getElementById('diagramArea');
+    const title = document.getElementById('diagramTitle');
+    const subtitle = document.getElementById('diagramSubtitle');
+    
+    switch (currentDiagram) {
+        case 'tas-volcanic':
+            title.textContent = 'TAS Diagram (Volcanic Rocks)';
+            subtitle.textContent = 'Le Bas et al. (1986)';
+            area.innerHTML = renderTASVolcanic();
+            break;
+        case 'tas-plutonic':
+            title.textContent = 'TAS Diagram (Plutonic Rocks)';
+            subtitle.textContent = 'Middlemost (1994)';
+            area.innerHTML = renderTASPlutonic();
+            break;
+        case 'afm':
+            title.textContent = 'AFM Diagram';
+            subtitle.textContent = 'Irvine & Baragar (1971)';
+            area.innerHTML = renderAFM();
+            break;
+        case 'k2o-sio2':
+            title.textContent = 'K₂O vs SiO₂ Diagram';
+            subtitle.textContent = 'Peccerillo & Taylor (1976)';
+            area.innerHTML = renderK2OSiO2();
+            break;
+    }
+    
+    updateLegend();
+    setupTooltips();
+}
+
+// TAS Volcanic - exact coordinates from Excel
+function renderTASVolcanic() {
+    const width = 750, height = 520;
+    const margin = { top: 20, right: 30, bottom: 50, left: 60 };
+    const plotWidth = width - margin.left - margin.right;
+    const plotHeight = height - margin.top - margin.bottom;
+    
+    const xMin = 35, xMax = 80, yMin = 0, yMax = 16;
+    const scaleX = x => margin.left + (x - xMin) / (xMax - xMin) * plotWidth;
+    const scaleY = y => margin.top + plotHeight - (y - yMin) / (yMax - yMin) * plotHeight;
+    
+    // Field boundaries from Excel - exact coordinates
+    const fields = {
+        'Foidite': [[35,3], [41,3], [41,7], [45,9.4], [48.4,11.5], [52.5,14], [52.5,16], [35,16]],
+        'Picrobasalt': [[41,0], [41,3], [45,3], [45,0]],
+        'Basalt': [[45,0], [45,5], [52,5], [52,0]],
+        'Basaltic Andesite': [[52,0], [52,5], [57,5.9], [57,0]],
+        'Andesite': [[57,0], [57,5.9], [63,7], [63,0]],
+        'Dacite': [[63,0], [63,7], [69,8], [77,0]],
+        'Rhyolite': [[77,0], [80,0], [80,10], [69.5,13], [69,8]],
+        'Basanite/Tephrite': [[41,3], [41,7], [45,9.4], [49.4,7.3], [45,5], [45,3]],
+        'Trachybasalt': [[45,5], [49.4,7.3], [52,5]],
+        'Basaltic Trachyandesite': [[52,5], [49.4,7.3], [53,9.3], [57,5.9]],
+        'Trachyandesite': [[57,5.9], [53,9.3], [57.6,11.7], [63,7]],
+        'Trachyte/Trachydacite': [[69.5,13], [69,8], [63,7], [57.6,11.7], [61,13.5]],
+        'Phonolitic Tephrite': [[49.4,7.3], [45,9.4], [48.4,11.5], [53,9.3]],
+        'Tephritic Phonolite': [[53,9.3], [48.4,11.5], [52.5,14], [57.6,11.7]],
+        'Phonolite': [[52.5,14], [57.6,11.7], [61,13.5]]
+    };
+    
+    // Alkaline-subalkaline dividing line from Excel
+    const alkLine = [[40,0.4], [43.2,2], [45,2.8], [48,4], [50,4.75], [53.7,6], [55,6.4], [60,8], [65,8.8], [77.4,10]];
+    
+    // Function to create smooth curve using Catmull-Rom spline
+    function smoothCurve(points, scaleXFn, scaleYFn, tension = 0.5) {
+        if (points.length < 2) return '';
+        
+        const scaledPoints = points.map(p => [scaleXFn(p[0]), scaleYFn(p[1])]);
+        
+        // Add phantom points at start and end for Catmull-Rom
+        const pts = [
+            [2 * scaledPoints[0][0] - scaledPoints[1][0], 2 * scaledPoints[0][1] - scaledPoints[1][1]],
+            ...scaledPoints,
+            [2 * scaledPoints[scaledPoints.length-1][0] - scaledPoints[scaledPoints.length-2][0], 
+             2 * scaledPoints[scaledPoints.length-1][1] - scaledPoints[scaledPoints.length-2][1]]
+        ];
+        
+        let path = `M${scaledPoints[0][0]},${scaledPoints[0][1]}`;
+        
+        for (let i = 1; i < pts.length - 2; i++) {
+            const p0 = pts[i - 1];
+            const p1 = pts[i];
+            const p2 = pts[i + 1];
+            const p3 = pts[i + 2];
+            
+            // Calculate control points
+            const cp1x = p1[0] + (p2[0] - p0[0]) / 6 * tension;
+            const cp1y = p1[1] + (p2[1] - p0[1]) / 6 * tension;
+            const cp2x = p2[0] - (p3[0] - p1[0]) / 6 * tension;
+            const cp2y = p2[1] - (p3[1] - p1[1]) / 6 * tension;
+            
+            path += ` C${cp1x},${cp1y} ${cp2x},${cp2y} ${p2[0]},${p2[1]}`;
+        }
+        
+        return path;
+    }
+    
+    let svg = `<svg class="diagram" viewBox="0 0 ${width} ${height}">`;
+    
+    // Background
+    svg += `<rect x="${margin.left}" y="${margin.top}" width="${plotWidth}" height="${plotHeight}" fill="#fafafa"/>`;
+    
+    // Grid
+    for (let x = 35; x <= 80; x += 5) {
+        svg += `<line class="grid-line" x1="${scaleX(x)}" y1="${margin.top}" x2="${scaleX(x)}" y2="${height-margin.bottom}"/>`;
+    }
+    for (let y = 2; y <= 14; y += 2) {
+        svg += `<line class="grid-line" x1="${margin.left}" y1="${scaleY(y)}" x2="${width-margin.right}" y2="${scaleY(y)}"/>`;
+    }
+    
+    // Draw field boundaries as filled polygons without stroke
+    Object.entries(fields).forEach(([name, coords]) => {
+        const pathD = coords.map((pt, i) => `${i === 0 ? 'M' : 'L'}${scaleX(pt[0])},${scaleY(pt[1])}`).join(' ') + ' Z';
+        svg += `<path d="${pathD}" fill="none" stroke="none"/>`;
+    });
+    
+    // Draw only internal dividing lines (matching Excel diagram)
+    const fieldLines = [
+        // Vertical dividing lines from x-axis
+        [[41, 0], [41, 7]],      // Left edge of subalkaline fields up to Basanite top
+        [[45, 0], [45, 5]],      // Picrobasalt/Basalt boundary (stops at top of Basalt)
+        [[52, 0], [52, 5]],      // Basalt/Basaltic Andesite
+        [[57, 0], [57, 5.9]],    // Basaltic Andesite/Andesite
+        [[63, 0], [63, 7]],      // Andesite/Dacite
+        [[69, 8], [77, 0]],      // Dacite/Rhyolite diagonal
+        
+        // Horizontal and diagonal internal lines
+        [[41, 3], [45, 3]],      // Picrobasalt top / Basanite bottom
+        [[41, 7], [45, 9.4]],    // Basanite top left diagonal
+        [[45, 3], [45, 5]],      // Right side of Basanite (from y=3 to y=5)
+        [[45, 5], [52, 5]],      // Top of Basalt
+        [[45, 5], [49.4, 7.3]],  // Basanite to Trachybasalt
+        [[49.4, 7.3], [52, 5]],  // Trachybasalt bottom
+        [[52, 5], [57, 5.9]],    // Top of Basaltic Andesite
+        [[49.4, 7.3], [53, 9.3]], // Trachybasalt to Basaltic Trachyandesite
+        [[53, 9.3], [57, 5.9]],  // Basaltic Trachyandesite bottom
+        [[57, 5.9], [63, 7]],    // Top of Andesite
+        [[53, 9.3], [57.6, 11.7]], // Trachyandesite internal
+        [[57.6, 11.7], [63, 7]], // Trachyandesite bottom right
+        [[63, 7], [69, 8]],      // Dacite/Trachyte boundary
+        [[69, 8], [69.5, 13]],   // Trachyte/Rhyolite vertical
+        
+        // Phonolite region
+        [[45, 9.4], [49.4, 7.3]], // Basanite/Phonolitic Tephrite
+        [[45, 9.4], [48.4, 11.5]], // Left side of Phonolitic Tephrite
+        [[48.4, 11.5], [53, 9.3]], // Top of Phonolitic Tephrite
+        [[48.4, 11.5], [52.5, 14]], // Left side of Tephritic Phonolite
+        [[52.5, 14], [57.6, 11.7]], // Top of Tephritic Phonolite
+        [[57.6, 11.7], [61, 13.5]], // Phonolite/Trachyte boundary
+    ];
+    
+    // Remove duplicates by converting to set of strings
+    const drawnLines = new Set();
+    fieldLines.forEach(([p1, p2]) => {
+        const key = JSON.stringify([p1, p2].sort((a,b) => a[0]-b[0] || a[1]-b[1]));
+        if (!drawnLines.has(key)) {
+            drawnLines.add(key);
+            svg += `<line x1="${scaleX(p1[0])}" y1="${scaleY(p1[1])}" x2="${scaleX(p2[0])}" y2="${scaleY(p2[1])}" stroke="#666" stroke-width="0.75"/>`;
+        }
+    });
+    
+    // Alkaline-subalkaline line (dashed, smooth curve)
+    const alkPath = smoothCurve(alkLine, scaleX, scaleY, 1.0);
+    svg += `<path d="${alkPath}" fill="none" stroke="#AB0520" stroke-width="1.5" stroke-dasharray="5,3"/>`;
+    
+    // Field labels - calculated centroids of each field polygon
+    const labels = [
+        { name: 'Foidite', pos: [43.8, 10] },
+        { name: 'Picrobasalt', pos: [43, 1.5] },
+        { name: 'Basalt', pos: [48.5, 2.5] },
+        { name: 'Basaltic\nAndesite', pos: [54.5, 2.7] },
+        { name: 'Andesite', pos: [60, 3.2] },
+        { name: 'Dacite', pos: [68, 3.8] },
+        { name: 'Rhyolite', pos: [75.1, 6.2] },
+        { name: 'Basanite\n(Ol>10%)', pos: [43, 4.5] },
+        { name: 'Tephrite\n(Ol<10%)', pos: [44, 7] },
+        { name: 'Trachy-\nbasalt', pos: [48.8, 5.8] },
+        { name: 'Basaltic\nTrachy-\nandesite', pos: [52.9, 6.9] },
+        { name: 'Trachy-\nandesite', pos: [57.6, 8.5] },
+        { name: 'Trachyte\n(Qtz<20%)', pos: [66, 11.5] },
+        { name: 'Trachydacite\n(Qtz>20%)', pos: [66, 9] },
+        { name: 'Phonolitic\nTephrite', pos: [49, 9.4] },
+        { name: 'Tephritic\nPhonolite', pos: [52.9, 11.6] },
+        { name: 'Phonolite', pos: [57, 13.1] }
+    ];
+    
+    labels.forEach(label => {
+        const lines = label.name.split('\n');
+        const baseY = scaleY(label.pos[1]);
+        lines.forEach((line, i) => {
+            svg += `<text class="field-label" x="${scaleX(label.pos[0])}" y="${baseY + i * 10}" text-anchor="middle">${line}</text>`;
+        });
+    });
+    
+    // Label for the alkaline-subalkaline dividing line
+    svg += `<text x="${scaleX(72)}" y="${scaleY(10.2)}" font-size="10" fill="#AB0520" font-style="italic">Alkaline</text>`;
+    svg += `<text x="${scaleX(72)}" y="${scaleY(9)}" font-size="10" fill="#AB0520" font-style="italic">Subalkaline</text>`;
+    
+    // Axes
+    svg += `<line x1="${margin.left}" y1="${height-margin.bottom}" x2="${width-margin.right}" y2="${height-margin.bottom}" stroke="#333" stroke-width="1.5"/>`;
+    svg += `<line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${height-margin.bottom}" stroke="#333" stroke-width="1.5"/>`;
+    
+    svg += `<text class="axis-label" x="${width/2}" y="${height-10}" text-anchor="middle">SiO₂ (wt%)</text>`;
+    svg += `<text class="axis-label" x="15" y="${height/2}" text-anchor="middle" transform="rotate(-90,15,${height/2})">Na₂O + K₂O (wt%)</text>`;
+    
+    for (let x = 35; x <= 80; x += 5) {
+        svg += `<text x="${scaleX(x)}" y="${height-margin.bottom+15}" text-anchor="middle" font-size="10">${x}</text>`;
+    }
+    for (let y = 0; y <= 14; y += 2) {
+        svg += `<text x="${margin.left-8}" y="${scaleY(y)+4}" text-anchor="end" font-size="10">${y}</text>`;
+    }
+    
+    // Plot samples
+    sampleData.forEach((sample, idx) => {
+        if (!selectedSamples.has(idx) || !visibleSeries[currentDiagram].has(sample.series)) return;
+        
+        const x = sample.SiO2;
+        const y = sample.Na2O + sample.K2O;
+        if (x < xMin || x > xMax || y < yMin || y > yMax) return;
+        
+        const style = seriesStyles[sample.series] || { color: '#666', symbol: 'circle' };
+        const px = scaleX(x);
+        const py = scaleY(y);
+        
+        svg += `<g class="sample-point" data-idx="${idx}" transform="translate(${px},${py})">`;
+        svg += getSymbolPath(style.symbol, 0, 0, 5, style.color);
+        svg += '</g>';
+    });
+    
+    svg += '</svg>';
+    return svg;
+}
+
+// TAS Plutonic - exact coordinates from Excel
+function renderTASPlutonic() {
+    const width = 750, height = 520;
+    const margin = { top: 20, right: 30, bottom: 50, left: 60 };
+    const plotWidth = width - margin.left - margin.right;
+    const plotHeight = height - margin.top - margin.bottom;
+    
+    const xMin = 35, xMax = 90, yMin = 0, yMax = 18;
+    const scaleX = x => margin.left + (x - xMin) / (xMax - xMin) * plotWidth;
+    const scaleY = y => margin.top + plotHeight - (y - yMin) / (yMax - yMin) * plotHeight;
+    
+    // Field boundaries from Excel - exact coordinates
+    const fields = {
+        'Peridotgabbro': [[41,0], [41,3], [45,3], [45,0]],
+        'Subalkalic Gabbro': [[45,0], [45,2], [52,5], [52,0]],
+        'Gabbrodiorite': [[52,0], [52,5], [57,5.9], [57,0]],
+        'Diorite': [[57,0], [57,5.9], [63,7], [63,0]],
+        'Granodiorite': [[63,0], [63,7], [69,8], [77.3,0]],
+        'Granite': [[77.3,0], [69,8], [71.8,13.5], [85.9,6.8], [87.5,4.7]],
+        'Foid Gabbro': [[41,3], [41,7], [45,9.4], [49.4,7.3], [45,5], [45,3]],
+        'Monzogabbro': [[45,5], [49.4,7.3], [52,5]],
+        'Monzodiorite': [[52,5], [49.4,7.3], [53,9.3], [57,5.9]],
+        'Monzonite': [[57,5.9], [53,9.3], [57.6,11.7], [61,8.6], [63,7]],
+        'Quartz Monzonite': [[63,7], [61,8.6], [71.8,13.5], [69,8]],
+        'Syenite': [[61,8.6], [57.6,11.7], [61,13.5], [63,16.2], [71.8,13.5]],
+        'Alkalic Gabbro': [[45,2], [45,5], [52,5]],
+        'Foid Syenite': [[52.5,14], [52.5,18], [57,18], [63,16.2], [61,13.5], [57.6,11.7]],
+        'Foid Monzosyenite': [[53,9.3], [48.4,11.5], [52.5,14], [57.6,11.7]],
+        'Foidolite': [[41,3], [37,3], [35,9], [37,14], [52.5,18], [52.5,14], [48.4,11.5], [45,9.4], [41,7]],
+        'Foid Monzodiorite': [[49.4,7.3], [45,9.4], [48.4,11.5], [53,9.3]]
+    };
+    
+    let svg = `<svg class="diagram" viewBox="0 0 ${width} ${height}">`;
+    
+    // Background
+    svg += `<rect x="${margin.left}" y="${margin.top}" width="${plotWidth}" height="${plotHeight}" fill="#fafafa"/>`;
+    
+    // Grid
+    for (let x = 40; x <= 85; x += 5) {
+        svg += `<line class="grid-line" x1="${scaleX(x)}" y1="${margin.top}" x2="${scaleX(x)}" y2="${height-margin.bottom}"/>`;
+    }
+    for (let y = 2; y <= 16; y += 2) {
+        svg += `<line class="grid-line" x1="${margin.left}" y1="${scaleY(y)}" x2="${width-margin.right}" y2="${scaleY(y)}"/>`;
+    }
+    
+    // Draw field boundaries
+    Object.entries(fields).forEach(([name, coords]) => {
+        const pathD = coords.map((pt, i) => `${i === 0 ? 'M' : 'L'}${scaleX(pt[0])},${scaleY(pt[1])}`).join(' ') + ' Z';
+        svg += `<path d="${pathD}" class="field-boundary"/>`;
+    });
+    
+    // Labels - calculated centroids of each field polygon
+    const labels = [
+        { name: 'Foidolite', pos: [43.3, 9.9] },
+        { name: 'Peridot-\ngabbro', pos: [43, 1.5] },
+        { name: 'Subalkalic\nGabbro', pos: [48.5, 1.8] },
+        { name: 'Alkalic\nGabbro', pos: [47.3, 4] },
+        { name: 'Gabbro-\ndiorite', pos: [54.5, 2.7] },
+        { name: 'Diorite', pos: [60, 3.2] },
+        { name: 'Granodiorite', pos: [68.1, 3.8] },
+        { name: 'Granite', pos: [78.3, 6.6] },
+        { name: 'Monzo-\ngabbro', pos: [48.8, 5.8] },
+        { name: 'Monzo-\ndiorite', pos: [52.9, 6.9] },
+        { name: 'Monzonite', pos: [58.3, 8.5] },
+        { name: 'Quartz\nMonzonite', pos: [66.2, 9.3] },
+        { name: 'Syenite', pos: [62.9, 12.7] },
+        { name: 'Foid\nGabbro', pos: [44.4, 5.8] },
+        { name: 'Foid\nMonzo-\ndiorite', pos: [49, 9.4] },
+        { name: 'Foid\nMonzo-\nsyenite', pos: [52.9, 11.6] },
+        { name: 'Foid\nSyenite', pos: [57.3, 15.2] }
+    ];
+    
+    labels.forEach(label => {
+        const lines = label.name.split('\n');
+        const baseY = scaleY(label.pos[1]);
+        lines.forEach((line, i) => {
+            svg += `<text class="field-label" x="${scaleX(label.pos[0])}" y="${baseY + i * 10}" text-anchor="middle">${line}</text>`;
+        });
+    });
+    
+    // Axes
+    svg += `<line x1="${margin.left}" y1="${height-margin.bottom}" x2="${width-margin.right}" y2="${height-margin.bottom}" stroke="#333" stroke-width="1.5"/>`;
+    svg += `<line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${height-margin.bottom}" stroke="#333" stroke-width="1.5"/>`;
+    
+    svg += `<text class="axis-label" x="${width/2}" y="${height-10}" text-anchor="middle">SiO₂ (wt%)</text>`;
+    svg += `<text class="axis-label" x="15" y="${height/2}" text-anchor="middle" transform="rotate(-90,15,${height/2})">Na₂O + K₂O (wt%)</text>`;
+    
+    for (let x = 40; x <= 85; x += 5) {
+        svg += `<text x="${scaleX(x)}" y="${height-margin.bottom+15}" text-anchor="middle" font-size="10">${x}</text>`;
+    }
+    for (let y = 0; y <= 16; y += 2) {
+        svg += `<text x="${margin.left-8}" y="${scaleY(y)+4}" text-anchor="end" font-size="10">${y}</text>`;
+    }
+    
+    // Plot samples
+    sampleData.forEach((sample, idx) => {
+        if (!selectedSamples.has(idx) || !visibleSeries[currentDiagram].has(sample.series)) return;
+        
+        const x = sample.SiO2;
+        const y = sample.Na2O + sample.K2O;
+        if (x < xMin || x > xMax || y < yMin || y > yMax) return;
+        
+        const style = seriesStyles[sample.series] || { color: '#666', symbol: 'circle' };
+        const px = scaleX(x);
+        const py = scaleY(y);
+        
+        svg += `<g class="sample-point" data-idx="${idx}" transform="translate(${px},${py})">`;
+        svg += getSymbolPath(style.symbol, 0, 0, 5, style.color);
+        svg += '</g>';
+    });
+    
+    svg += '</svg>';
+    return svg;
+}
+
+// AFM Diagram - using exact coordinates from Excel AFM Template
+// Excel coordinate system: A(0,0) bottom-left, M(1,0) bottom-right, F(0.5,0.866) top
+function renderAFM() {
+    const width = 650, height = 580;
+    const margin = { left: 60, right: 60, top: 40, bottom: 60 };
+    const triBase = 500;
+    const triHeight = triBase * 0.866;  // matches Excel's 0.866 for F vertex
+    
+    // Scale Excel coordinates (0-1 range) to SVG pixels
+    // Excel: y=0 at bottom, y=0.866 at top
+    // SVG: y increases downward, so we flip
+    function excelToSVG(ex, ey) {
+        const svgX = margin.left + ex * triBase;
+        const svgY = margin.top + triHeight - (ey * triBase);  // flip Y
+        return { x: svgX, y: svgY };
+    }
+    
+    // Triangle vertices in SVG coordinates
+    const A = excelToSVG(0, 0);      // bottom-left
+    const M = excelToSVG(1, 0);      // bottom-right
+    const F = excelToSVG(0.5, 0.866); // top
+    
+    // Kuno trend line - exact (x,y) from Excel rows 9-15
+    const kunoLine = [
+        [0.16, 0.207846],
+        [0.3025, 0.34208],
+        [0.405, 0.433013],
+        [0.5, 0.493634],
+        [0.545, 0.502295],
+        [0.5975, 0.480644],
+        [0.6528, 0.437862]
+    ];
+    
+    // Irvine & Baragar line - exact (x,y) from Excel rows 19-27
+    const ibLine = [
+        [0.231, 0.313501],
+        [0.312, 0.367195],
+        [0.441, 0.455529],
+        [0.473, 0.47285],
+        [0.513, 0.47285],
+        [0.542, 0.457261],
+        [0.5555, 0.442539],
+        [0.617, 0.375855],
+        [0.675, 0.303109]
+    ];
+    
+    let svg = `<svg class="diagram" viewBox="0 0 ${width} ${height}">`;
+    
+    // Function to create smooth curve using Catmull-Rom spline for AFM coordinates
+    function smoothCurveAFM(points, tension = 0.5) {
+        if (points.length < 2) return '';
+        
+        const scaledPoints = points.map(p => {
+            const svgPt = excelToSVG(p[0], p[1]);
+            return [svgPt.x, svgPt.y];
+        });
+        
+        // Add phantom points at start and end for Catmull-Rom
+        const pts = [
+            [2 * scaledPoints[0][0] - scaledPoints[1][0], 2 * scaledPoints[0][1] - scaledPoints[1][1]],
+            ...scaledPoints,
+            [2 * scaledPoints[scaledPoints.length-1][0] - scaledPoints[scaledPoints.length-2][0], 
+             2 * scaledPoints[scaledPoints.length-1][1] - scaledPoints[scaledPoints.length-2][1]]
+        ];
+        
+        let path = `M${scaledPoints[0][0]},${scaledPoints[0][1]}`;
+        
+        for (let i = 1; i < pts.length - 2; i++) {
+            const p0 = pts[i - 1];
+            const p1 = pts[i];
+            const p2 = pts[i + 1];
+            const p3 = pts[i + 2];
+            
+            // Calculate control points
+            const cp1x = p1[0] + (p2[0] - p0[0]) / 6 * tension;
+            const cp1y = p1[1] + (p2[1] - p0[1]) / 6 * tension;
+            const cp2x = p2[0] - (p3[0] - p1[0]) / 6 * tension;
+            const cp2y = p2[1] - (p3[1] - p1[1]) / 6 * tension;
+            
+            path += ` C${cp1x},${cp1y} ${cp2x},${cp2y} ${p2[0]},${p2[1]}`;
+        }
+        
+        return path;
+    }
+    
+    // Triangle fill
+    svg += `<polygon points="${A.x},${A.y} ${M.x},${M.y} ${F.x},${F.y}" fill="#fafafa" stroke="none"/>`;
+    
+    // Grid lines at 10% intervals
+    for (let i = 1; i < 10; i++) {
+        const t = i / 10;
+        
+        // Horizontal lines (constant F value) - parallel to A-M base
+        const y = t * 0.866;
+        const xLeft = t * 0.5;        // intersection with A-F edge
+        const xRight = 1 - t * 0.5;   // intersection with M-F edge
+        const p1 = excelToSVG(xLeft, y);
+        const p2 = excelToSVG(xRight, y);
+        svg += `<line class="grid-line" x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}"/>`;
+        
+        // Lines parallel to A-F edge (constant M)
+        const p3 = excelToSVG(t, 0);
+        const p4 = excelToSVG(0.5 + t * 0.5, 0.866 - t * 0.866);
+        svg += `<line class="grid-line" x1="${p3.x}" y1="${p3.y}" x2="${p4.x}" y2="${p4.y}"/>`;
+        
+        // Lines parallel to M-F edge (constant A)
+        const p5 = excelToSVG(1 - t, 0);
+        const p6 = excelToSVG(0.5 - t * 0.5, 0.866 - t * 0.866);
+        svg += `<line class="grid-line" x1="${p5.x}" y1="${p5.y}" x2="${p6.x}" y2="${p6.y}"/>`;
+    }
+    
+    // Triangle outline
+    svg += `<polygon points="${A.x},${A.y} ${M.x},${M.y} ${F.x},${F.y}" fill="none" stroke="#333" stroke-width="1.5"/>`;
+    
+    // Kuno trend line (Tholeiitic) - solid red, smooth curve
+    const kunoPath = smoothCurveAFM(kunoLine, 1.0);
+    svg += `<path d="${kunoPath}" fill="none" stroke="#AB0520" stroke-width="2"/>`;
+    
+    // Irvine & Baragar line (divide) - dashed blue, smooth curve
+    const ibPath = smoothCurveAFM(ibLine, 1.0);
+    svg += `<path d="${ibPath}" fill="none" stroke="#0C234B" stroke-width="2" stroke-dasharray="6,3"/>`;
+    
+    // Vertex labels
+    svg += `<text class="axis-label" x="${A.x}" y="${A.y + 25}" text-anchor="middle" font-size="12">A</text>`;
+    svg += `<text class="axis-label" x="${A.x}" y="${A.y + 38}" text-anchor="middle" font-size="10">(Na₂O + K₂O)</text>`;
+    svg += `<text class="axis-label" x="${M.x}" y="${M.y + 25}" text-anchor="middle" font-size="12">M</text>`;
+    svg += `<text class="axis-label" x="${M.x}" y="${M.y + 38}" text-anchor="middle" font-size="10">(MgO)</text>`;
+    svg += `<text class="axis-label" x="${F.x}" y="${F.y - 15}" text-anchor="middle" font-size="12">F</text>`;
+    svg += `<text class="axis-label" x="${F.x}" y="${F.y - 3}" text-anchor="middle" font-size="10">(FeO*)</text>`;
+    
+    // Scale labels on edges (10, 20, 30, ... 90)
+    for (let i = 1; i <= 9; i++) {
+        const t = i / 10;
+        const label = (i * 10).toString();
+        
+        // Bottom edge (A-M): shows M percentage increasing left to right
+        const bottomPt = excelToSVG(t, 0);
+        svg += `<text x="${bottomPt.x}" y="${bottomPt.y + 15}" text-anchor="middle" font-size="8" fill="#666">${i*10}</text>`;
+        
+        // Left edge (A-F): shows F percentage increasing bottom to top
+        const leftX = t * 0.5;
+        const leftY = t * 0.866;
+        const leftPt = excelToSVG(leftX, leftY);
+        svg += `<text x="${leftPt.x - 12}" y="${leftPt.y + 3}" text-anchor="end" font-size="8" fill="#666">${i*10}</text>`;
+        
+        // Right edge (M-F): shows A percentage increasing bottom to top  
+        const rightX = 1 - t * 0.5;
+        const rightY = t * 0.866;
+        const rightPt = excelToSVG(rightX, rightY);
+        svg += `<text x="${rightPt.x + 12}" y="${rightPt.y + 3}" text-anchor="start" font-size="8" fill="#666">${i*10}</text>`;
+    }
+    
+    // Field labels
+    const thLabelPt = excelToSVG(0.42, 0.50);
+    const caLabelPt = excelToSVG(0.50, 0.25);
+    svg += `<text x="${thLabelPt.x}" y="${thLabelPt.y}" text-anchor="middle" font-size="12" fill="#AB0520" font-weight="600">Tholeiitic</text>`;
+    svg += `<text x="${caLabelPt.x}" y="${caLabelPt.y}" text-anchor="middle" font-size="12" fill="#0C234B" font-weight="600">Calc-alkaline</text>`;
+    
+    // Legend
+    const legendY = margin.top + triHeight + 45;
+    svg += `<line x1="${margin.left}" y1="${legendY}" x2="${margin.left + 30}" y2="${legendY}" stroke="#AB0520" stroke-width="2"/>`;
+    svg += `<text x="${margin.left + 35}" y="${legendY + 4}" font-size="11">Kuno (Tholeiitic trend)</text>`;
+    
+    svg += `<line x1="${margin.left + 180}" y1="${legendY}" x2="${margin.left + 210}" y2="${legendY}" stroke="#0C234B" stroke-width="2" stroke-dasharray="6,3"/>`;
+    svg += `<text x="${margin.left + 215}" y="${legendY + 4}" font-size="11">Irvine & Baragar (divide)</text>`;
+    
+    // Plot samples - convert ternary A,F,M to Excel x,y coordinates
+    sampleData.forEach((sample, idx) => {
+        if (!selectedSamples.has(idx) || !visibleSeries[currentDiagram].has(sample.series)) return;
+        
+        // Calculate AFM components
+        const totalFe = sample.Fe2O3 * 0.8998 + sample.FeO;  // Convert Fe2O3 to FeO equivalent
+        const a = sample.Na2O + sample.K2O;  // Alkalis
+        const f = totalFe;                    // FeO*
+        const m = sample.MgO;                 // MgO
+        const total = a + f + m;
+        
+        if (total === 0) return;
+        
+        // Normalize to get fractions
+        const nA = a / total;
+        const nF = f / total;
+        const nM = m / total;
+        
+        // Convert to Excel's x,y coordinate system
+        // x = nM + 0.5 * nF (M is at x=1, F contributes 0.5 to x at apex)
+        // y = nF * 0.866 (F is at y=0.866)
+        const excelX = nM + 0.5 * nF;
+        const excelY = nF * 0.866;
+        
+        const pt = excelToSVG(excelX, excelY);
+        const style = seriesStyles[sample.series] || { color: '#666', symbol: 'circle' };
+        
+        svg += `<g class="sample-point" data-idx="${idx}" transform="translate(${pt.x},${pt.y})">`;
+        svg += getSymbolPath(style.symbol, 0, 0, 5, style.color);
+        svg += '</g>';
+    });
+    
+    svg += '</svg>';
+    return svg;
+}
+
+// K2O-SiO2 - exact boundaries and subcategories from Excel
+function renderK2OSiO2() {
+    const width = 800, height = 550;
+    const margin = { top: 20, right: 30, bottom: 50, left: 60 };
+    const plotWidth = width - margin.left - margin.right;
+    const plotHeight = height - margin.top - margin.bottom;
+    
+    const xMin = 45, xMax = 80, yMin = 0, yMax = 5;
+    const scaleX = x => margin.left + (x - xMin) / (xMax - xMin) * plotWidth;
+    const scaleY = y => margin.top + plotHeight - (y - yMin) / (yMax - yMin) * plotHeight;
+    
+    // Series boundary lines from Excel
+    const lowKNormal = [[48, 0.3], [52, 0.5], [56, 0.7], [63, 1.0], [70, 1.3], [77, 1.6]];
+    const normalHighK = [[48, 1.2], [52, 1.5], [56, 1.8], [63, 2.4], [70, 3.0], [77, 3.6]];
+    const highKShosh = [[48, 1.6], [52, 2.4], [56, 3.2], [63, 4.0]];
+    
+    // Vertical division lines at rock type boundaries
+    const verticalDivisions = [52, 56, 63, 70];
+    
+    // Interpolate K2O value at a given SiO2 for each boundary line
+    function interpolateK2O(line, sio2) {
+        for (let i = 0; i < line.length - 1; i++) {
+            if (sio2 >= line[i][0] && sio2 <= line[i+1][0]) {
+                const t = (sio2 - line[i][0]) / (line[i+1][0] - line[i][0]);
+                return line[i][1] + t * (line[i+1][1] - line[i][1]);
+            }
+        }
+        return null;
+    }
+    
+    // Function to create smooth curve using Catmull-Rom spline
+    function smoothCurveK2O(points, tension = 0.5) {
+        if (points.length < 2) return '';
+        
+        const scaledPoints = points.map(p => [scaleX(p[0]), scaleY(p[1])]);
+        
+        // Add phantom points at start and end for Catmull-Rom
+        const pts = [
+            [2 * scaledPoints[0][0] - scaledPoints[1][0], 2 * scaledPoints[0][1] - scaledPoints[1][1]],
+            ...scaledPoints,
+            [2 * scaledPoints[scaledPoints.length-1][0] - scaledPoints[scaledPoints.length-2][0], 
+             2 * scaledPoints[scaledPoints.length-1][1] - scaledPoints[scaledPoints.length-2][1]]
+        ];
+        
+        let path = `M${scaledPoints[0][0]},${scaledPoints[0][1]}`;
+        
+        for (let i = 1; i < pts.length - 2; i++) {
+            const p0 = pts[i - 1];
+            const p1 = pts[i];
+            const p2 = pts[i + 1];
+            const p3 = pts[i + 2];
+            
+            // Calculate control points
+            const cp1x = p1[0] + (p2[0] - p0[0]) / 6 * tension;
+            const cp1y = p1[1] + (p2[1] - p0[1]) / 6 * tension;
+            const cp2x = p2[0] - (p3[0] - p1[0]) / 6 * tension;
+            const cp2y = p2[1] - (p3[1] - p1[1]) / 6 * tension;
+            
+            path += ` C${cp1x},${cp1y} ${cp2x},${cp2y} ${p2[0]},${p2[1]}`;
+        }
+        
+        return path;
+    }
+    
+    let svg = `<svg class="diagram" viewBox="0 0 ${width} ${height}">`;
+    
+    // Background
+    svg += `<rect x="${margin.left}" y="${margin.top}" width="${plotWidth}" height="${plotHeight}" fill="#fafafa"/>`;
+    
+    // Fill regions with subtle colors
+    // Low-K region (below lowKNormal line)
+    let lowKPath = `M${scaleX(48)},${scaleY(0)}`;
+    lowKNormal.forEach(pt => lowKPath += ` L${scaleX(pt[0])},${scaleY(pt[1])}`);
+    lowKPath += ` L${scaleX(77)},${scaleY(0)} Z`;
+    svg += `<path d="${lowKPath}" fill="rgba(171,5,32,0.06)" stroke="none"/>`;
+    
+    // Calc-alkaline region (between lowKNormal and normalHighK)
+    let caPath = `M${scaleX(48)},${scaleY(0.3)}`;
+    lowKNormal.forEach(pt => caPath += ` L${scaleX(pt[0])},${scaleY(pt[1])}`);
+    [...normalHighK].reverse().forEach(pt => caPath += ` L${scaleX(pt[0])},${scaleY(pt[1])}`);
+    caPath += ' Z';
+    svg += `<path d="${caPath}" fill="rgba(12,35,75,0.06)" stroke="none"/>`;
+    
+    // High-K region (between normalHighK and highKShosh, up to SiO2=63)
+    let hiKPath = `M${scaleX(48)},${scaleY(1.2)}`;
+    normalHighK.filter(pt => pt[0] <= 70).forEach(pt => hiKPath += ` L${scaleX(pt[0])},${scaleY(pt[1])}`);
+    hiKPath += ` L${scaleX(70)},${scaleY(4)}`;
+    hiKPath += ` L${scaleX(63)},${scaleY(4)}`;
+    [...highKShosh].reverse().forEach(pt => hiKPath += ` L${scaleX(pt[0])},${scaleY(pt[1])}`);
+    hiKPath += ' Z';
+    svg += `<path d="${hiKPath}" fill="rgba(75,156,211,0.06)" stroke="none"/>`;
+    
+    // High-K region extension (SiO2 70-77)
+    let hiKPath2 = `M${scaleX(70)},${scaleY(3.0)} L${scaleX(77)},${scaleY(3.6)} L${scaleX(77)},${scaleY(4)} L${scaleX(70)},${scaleY(4)} Z`;
+    svg += `<path d="${hiKPath2}" fill="rgba(75,156,211,0.06)" stroke="none"/>`;
+    
+    // Shoshonite region (above highKShosh)
+    let shoshPath = `M${scaleX(48)},${scaleY(1.6)}`;
+    highKShosh.forEach(pt => shoshPath += ` L${scaleX(pt[0])},${scaleY(pt[1])}`);
+    shoshPath += ` L${scaleX(63)},${scaleY(5)} L${scaleX(48)},${scaleY(5)} Z`;
+    svg += `<path d="${shoshPath}" fill="rgba(112,184,101,0.06)" stroke="none"/>`;
+    
+    // Grid
+    for (let x = 50; x <= 75; x += 5) {
+        svg += `<line class="grid-line" x1="${scaleX(x)}" y1="${margin.top}" x2="${scaleX(x)}" y2="${height-margin.bottom}"/>`;
+    }
+    for (let y = 1; y <= 4; y += 1) {
+        svg += `<line class="grid-line" x1="${margin.left}" y1="${scaleY(y)}" x2="${width-margin.right}" y2="${scaleY(y)}"/>`;
+    }
+    
+    // Vertical division lines at rock type boundaries
+    verticalDivisions.forEach(x => {
+        // Get the extent of the vertical line (from y=0 to the top boundary)
+        const maxY = x <= 63 ? 4 : (x <= 70 ? 4 : 4);  // extends to top of chart area
+        svg += `<line x1="${scaleX(x)}" y1="${scaleY(0)}" x2="${scaleX(x)}" y2="${scaleY(maxY)}" stroke="#999" stroke-width="0.5" stroke-dasharray="2,2"/>`;
+    });
+    
+    // Series boundary lines (smooth curves)
+    [lowKNormal, normalHighK, highKShosh].forEach(line => {
+        const pathD = smoothCurveK2O(line, 1.0);
+        svg += `<path d="${pathD}" fill="none" stroke="#333" stroke-width="1"/>`;
+    });
+    
+    // Field labels from Excel (Column 29=name, 30=SiO2, 31=K2O positions)
+    const fieldLabels = [
+        // Low-K Tholeiite series
+        { name: 'Low-K\nTholeiite', x: 50, y: 0.2, size: 9 },
+        { name: 'Low-K\nBasaltic\nAndesite', x: 54, y: 0.3, size: 8 },
+        { name: 'Low-K\nAndesite', x: 59.5, y: 0.4, size: 9 },
+        { name: 'Low-K\nDacite', x: 66.5, y: 0.6, size: 9 },
+        { name: 'Low-K\nRhyolite', x: 73.5, y: 0.8, size: 9 },
+        
+        // Calc-alkaline series
+        { name: 'Basalt', x: 50, y: 0.9, size: 10 },
+        { name: 'Basaltic\nAndesite', x: 54, y: 1.1, size: 9 },
+        { name: 'Andesite', x: 59.5, y: 1.5, size: 10 },
+        { name: 'Dacite', x: 66.5, y: 2.0, size: 10 },
+        { name: 'Rhyolite', x: 73.5, y: 2.5, size: 10 },
+        
+        // High-K Calc-Alkaline series
+        { name: 'High-K\nBasalt', x: 50, y: 1.65, size: 9 },
+        { name: 'High-K\nBasaltic\nAndesite', x: 54, y: 2.2, size: 8 },
+        { name: 'High-K\nAndesite', x: 59.5, y: 2.9, size: 9 },
+        { name: 'High-K\nDacite', x: 66.5, y: 3.3, size: 9 },
+        { name: 'High-K\nRhyolite', x: 73.5, y: 3.8, size: 9 },
+        
+        // Shoshonite series
+        { name: 'Absarokite', x: 50, y: 2.7, size: 9 },
+        { name: 'Shoshonite', x: 54, y: 3.3, size: 9 },
+        { name: 'Banakite', x: 59.5, y: 3.9, size: 9 }
+    ];
+    
+    fieldLabels.forEach(label => {
+        const lines = label.name.split('\n');
+        const baseY = scaleY(label.y);
+        lines.forEach((line, i) => {
+            svg += `<text class="field-label" x="${scaleX(label.x)}" y="${baseY + i * 10}" text-anchor="middle" font-size="${label.size}">${line}</text>`;
+        });
+    });
+    
+    // Series labels - positioned between rock label columns (x=59.5 and x=66.5)
+    // Rock labels: x=50, 54, 59.5, 66.5, 73.5 - so x=62-63 is clear
+    const lowKAngle = -10;
+    const calcAlkAngle = -15;
+    const highKAngle = -20;
+    
+    // Low-K Tholeiite Series - between Low-K Andesite (59.5, 0.4) and Low-K Dacite (66.5, 0.6)
+    // y=0.75 is safely between 0.4 and 0.6 vertically
+    const lkX = scaleX(63), lkY = scaleY(0.75);
+    svg += `<text x="${lkX}" y="${lkY}" text-anchor="middle" font-size="9" fill="#AB0520" font-weight="600" transform="rotate(${lowKAngle},${lkX},${lkY})">Low-K Tholeiite Series</text>`;
+    
+    // Calc-Alkaline Series - between Andesite (59.5, 1.5) and Dacite (66.5, 2.0)
+    // y=1.75 is midpoint between 1.5 and 2.0
+    const caX = scaleX(63), caY = scaleY(1.75);
+    svg += `<text x="${caX}" y="${caY}" text-anchor="middle" font-size="9" fill="#0C234B" font-weight="600" transform="rotate(${calcAlkAngle},${caX},${caY})">Calc-Alkaline Series</text>`;
+    
+    // High-K Calc-Alkaline Series - between High-K Andesite (59.5, 2.9) and High-K Dacite (66.5, 3.3)
+    // y=3.1 is midpoint between 2.9 and 3.3
+    const hkX = scaleX(63), hkY = scaleY(3.1);
+    svg += `<text x="${hkX}" y="${hkY}" text-anchor="middle" font-size="9" fill="#4B9CD3" font-weight="600" transform="rotate(${highKAngle},${hkX},${hkY})">High-K Calc-Alkaline Series</text>`;
+    
+    // Shoshonite Series - above Banakite (59.5, 3.9), in upper area
+    const shX = scaleX(56), shY = scaleY(4.5);
+    svg += `<text x="${shX}" y="${shY}" text-anchor="middle" font-size="9" fill="#70B865" font-weight="600">Shoshonite Series</text>`;
+    
+    // Axes
+    svg += `<line x1="${margin.left}" y1="${height-margin.bottom}" x2="${width-margin.right}" y2="${height-margin.bottom}" stroke="#333" stroke-width="1.5"/>`;
+    svg += `<line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${height-margin.bottom}" stroke="#333" stroke-width="1.5"/>`;
+    
+    svg += `<text class="axis-label" x="${width/2}" y="${height-10}" text-anchor="middle">SiO₂ (wt%)</text>`;
+    svg += `<text class="axis-label" x="15" y="${height/2}" text-anchor="middle" transform="rotate(-90,15,${height/2})">K₂O (wt%)</text>`;
+    
+    for (let x = 50; x <= 75; x += 5) {
+        svg += `<text x="${scaleX(x)}" y="${height-margin.bottom+15}" text-anchor="middle" font-size="10">${x}</text>`;
+    }
+    for (let y = 0; y <= 5; y += 1) {
+        svg += `<text x="${margin.left-8}" y="${scaleY(y)+4}" text-anchor="end" font-size="10">${y}</text>`;
+    }
+    
+    // Plot samples
+    sampleData.forEach((sample, idx) => {
+        if (!selectedSamples.has(idx) || !visibleSeries[currentDiagram].has(sample.series)) return;
+        
+        const x = sample.SiO2;
+        const y = sample.K2O;
+        if (x < xMin || x > xMax || y < yMin || y > yMax) return;
+        
+        const style = seriesStyles[sample.series] || { color: '#666', symbol: 'circle' };
+        const px = scaleX(x);
+        const py = scaleY(y);
+        
+        svg += `<g class="sample-point" data-idx="${idx}" transform="translate(${px},${py})">`;
+        svg += getSymbolPath(style.symbol, 0, 0, 5, style.color);
+        svg += '</g>';
+    });
+    
+    svg += '</svg>';
+    return svg;
+}
+
+function updateLegend() {
+    const legend = document.getElementById('legend');
+    legend.innerHTML = '';
+    
+    Object.keys(seriesGroups).sort().forEach(series => {
+        if (!visibleSeries[currentDiagram].has(series)) return;
+        const style = seriesStyles[series] || { color: '#666', symbol: 'circle' };
+        
+        const item = document.createElement('div');
+        item.className = 'legend-item';
+        item.innerHTML = `
+            <svg class="legend-symbol" viewBox="0 0 20 20">
+                ${getSymbolPath(style.symbol, 10, 10, 6, style.color)}
+            </svg>
+            <span>${series}</span>
+        `;
+        legend.appendChild(item);
+    });
+}
+
+function setupTooltips() {
+    const tooltip = document.getElementById('tooltip');
+    
+    document.querySelectorAll('.sample-point').forEach(point => {
+        point.addEventListener('mouseenter', (e) => {
+            const idx = parseInt(point.dataset.idx);
+            const sample = sampleData[idx];
+            const rockName = classifyRock(sample, currentDiagram);
+            
+            tooltip.innerHTML = `
+                <div class="tooltip-title">${sample.sample}</div>
+                <div class="tooltip-series">${sample.series}</div>
+                <div class="tooltip-rock"><span class="tooltip-rock-label">Classification:</span> ${rockName}</div>
+                <div class="tooltip-data">
+                    <span>SiO₂: ${sample.SiO2.toFixed(2)}</span>
+                    <span>TiO₂: ${sample.TiO2.toFixed(2)}</span>
+                    <span>Al₂Oâ‚ƒ: ${sample.Al2O3.toFixed(2)}</span>
+                    <span>Fe₂Oâ‚ƒ: ${sample.Fe2O3.toFixed(2)}</span>
+                    <span>FeO: ${sample.FeO.toFixed(2)}</span>
+                    <span>MnO: ${sample.MnO.toFixed(2)}</span>
+                    <span>MgO: ${sample.MgO.toFixed(2)}</span>
+                    <span>CaO: ${sample.CaO.toFixed(2)}</span>
+                    <span>Na₂O: ${sample.Na2O.toFixed(2)}</span>
+                    <span>K₂O: ${sample.K2O.toFixed(2)}</span>
+                </div>
+            `;
+            tooltip.style.display = 'block';
+        });
+        
+        point.addEventListener('mousemove', (e) => {
+            tooltip.style.left = (e.clientX + 15) + 'px';
+            tooltip.style.top = (e.clientY + 15) + 'px';
+        });
+        
+        point.addEventListener('mouseleave', () => {
+            tooltip.style.display = 'none';
+        });
+    });
+}
+
+// ====== ROCK CLASSIFICATION FUNCTIONS ======
+
+// Point-in-polygon test using ray casting algorithm
+function pointInPolygon(x, y, polygon) {
+    let inside = false;
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+        const xi = polygon[i][0], yi = polygon[i][1];
+        const xj = polygon[j][0], yj = polygon[j][1];
+        
+        if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) {
+            inside = !inside;
+        }
+    }
+    return inside;
+}
+
+// TAS Volcanic field definitions - must match renderTASVolcanic() exactly
+const tasVolcanicFields = {
+    'Foidite': [[35,3], [41,3], [41,7], [45,9.4], [48.4,11.5], [52.5,14], [52.5,16], [35,16]],
+    'Picrobasalt': [[41,0], [41,3], [45,3], [45,0]],
+    'Basalt': [[45,0], [45,5], [52,5], [52,0]],
+    'Basaltic Andesite': [[52,0], [52,5], [57,5.9], [57,0]],
+    'Andesite': [[57,0], [57,5.9], [63,7], [63,0]],
+    'Dacite': [[63,0], [63,7], [69,8], [77,0]],
+    'Rhyolite': [[77,0], [80,0], [80,10], [69.5,13], [69,8]],
+    'Basanite/Tephrite': [[41,3], [41,7], [45,9.4], [49.4,7.3], [45,5], [45,3]],
+    'Trachybasalt': [[45,5], [49.4,7.3], [52,5]],
+    'Basaltic Trachyandesite': [[52,5], [49.4,7.3], [53,9.3], [57,5.9]],
+    'Trachyandesite': [[57,5.9], [53,9.3], [57.6,11.7], [63,7]],
+    'Trachyte/Trachydacite': [[69.5,13], [69,8], [63,7], [57.6,11.7], [61,13.5]],
+    'Phonolitic Tephrite': [[49.4,7.3], [45,9.4], [48.4,11.5], [53,9.3]],
+    'Tephritic Phonolite': [[53,9.3], [48.4,11.5], [52.5,14], [57.6,11.7]],
+    'Phonolite': [[52.5,14], [57.6,11.7], [61,13.5], [61,16], [52.5,16]]
+};
+
+// TAS Plutonic field definitions - must match renderTASPlutonic() exactly
+const tasPlutonicsFields = {
+    'Peridotgabbro': [[41,0], [41,3], [45,3], [45,0]],
+    'Subalkalic Gabbro': [[45,0], [45,2], [52,5], [52,0]],
+    'Alkalic Gabbro': [[45,2], [45,5], [52,5]],
+    'Gabbrodiorite': [[52,0], [52,5], [57,5.9], [57,0]],
+    'Diorite': [[57,0], [57,5.9], [63,7], [63,0]],
+    'Granodiorite': [[63,0], [63,7], [69,8], [77.3,0]],
+    'Granite': [[77.3,0], [69,8], [71.8,13.5], [85.9,6.8], [87.5,4.7]],
+    'Foid Gabbro': [[41,3], [41,7], [45,9.4], [49.4,7.3], [45,5], [45,3]],
+    'Monzogabbro': [[45,5], [49.4,7.3], [52,5]],
+    'Monzodiorite': [[52,5], [49.4,7.3], [53,9.3], [57,5.9]],
+    'Monzonite': [[57,5.9], [53,9.3], [57.6,11.7], [61,8.6], [63,7]],
+    'Quartz Monzonite': [[63,7], [61,8.6], [71.8,13.5], [69,8]],
+    'Syenite': [[61,8.6], [57.6,11.7], [61,13.5], [63,16.2], [71.8,13.5]],
+    'Foid Monzodiorite': [[49.4,7.3], [45,9.4], [48.4,11.5], [53,9.3]],
+    'Foid Monzosyenite': [[53,9.3], [48.4,11.5], [52.5,14], [57.6,11.7]],
+    'Foid Syenite': [[52.5,14], [52.5,18], [57,18], [63,16.2], [61,13.5], [57.6,11.7]],
+    'Foidolite': [[41,3], [37,3], [35,9], [37,14], [52.5,18], [52.5,14], [48.4,11.5], [45,9.4], [41,7]]
+};
+
+// Classify sample for TAS Volcanic diagram
+function classifyTASVolcanic(sample) {
+    const x = sample.SiO2;
+    const y = sample.Na2O + sample.K2O;
+    
+    // Check bounds
+    if (x < 35 || x > 80 || y < 0 || y > 16) return 'Out of range';
+    
+    // Test each field
+    for (const [name, polygon] of Object.entries(tasVolcanicFields)) {
+        if (pointInPolygon(x, y, polygon)) {
+            return name;
+        }
+    }
+    return 'Unclassified';
+}
+
+// Classify sample for TAS Plutonic diagram
+function classifyTASPlutonic(sample) {
+    const x = sample.SiO2;
+    const y = sample.Na2O + sample.K2O;
+    
+    // Check bounds
+    if (x < 35 || x > 90 || y < 0 || y > 18) return 'Out of range';
+    
+    // Test each field
+    for (const [name, polygon] of Object.entries(tasPlutonicsFields)) {
+        if (pointInPolygon(x, y, polygon)) {
+            return name;
+        }
+    }
+    return 'Unclassified';
+}
+
+// AFM: Irvine & Baragar dividing line
+const afmIBLine = [
+    [0.231, 0.313501],
+    [0.312, 0.367195],
+    [0.441, 0.455529],
+    [0.473, 0.47285],
+    [0.513, 0.47285],
+    [0.542, 0.457261],
+    [0.5555, 0.442539],
+    [0.617, 0.375855],
+    [0.675, 0.303109]
+];
+
+// Interpolate Y value on AFM I&B line at given X
+function interpolateAFMLine(excelX) {
+    for (let i = 0; i < afmIBLine.length - 1; i++) {
+        if (excelX >= afmIBLine[i][0] && excelX <= afmIBLine[i+1][0]) {
+            const t = (excelX - afmIBLine[i][0]) / (afmIBLine[i+1][0] - afmIBLine[i][0]);
+            return afmIBLine[i][1] + t * (afmIBLine[i+1][1] - afmIBLine[i][1]);
+        }
+    }
+    return null;
+}
+
+// Classify sample for AFM diagram
+function classifyAFM(sample) {
+    // Calculate AFM components
+    const totalFe = sample.Fe2O3 * 0.8998 + sample.FeO;
+    const a = sample.Na2O + sample.K2O;
+    const f = totalFe;
+    const m = sample.MgO;
+    const total = a + f + m;
+    
+    if (total === 0) return 'Invalid data';
+    
+    // Normalize
+    const nA = a / total;
+    const nF = f / total;
+    const nM = m / total;
+    
+    // Convert to Excel coordinates
+    const excelX = nM + nF * 0.5;
+    const excelY = nF * 0.866;
+    
+    // Check if within triangle bounds
+    if (excelY < 0 || excelY > 0.866) return 'Out of range';
+    if (excelX < excelY / 1.732 || excelX > 1 - excelY / 1.732) return 'Out of range';
+    
+    // Get the I&B line Y value at this X
+    const lineY = interpolateAFMLine(excelX);
+    
+    if (lineY === null) {
+        // Outside the line's X range - use simple heuristic
+        if (excelX < 0.231) return nF > 0.4 ? 'Tholeiitic' : 'Calc-alkaline';
+        if (excelX > 0.675) return 'Calc-alkaline';
+    }
+    
+    return excelY > lineY ? 'Tholeiitic' : 'Calc-alkaline';
+}
+
+// K2O-SiO2 boundary lines
+const k2oLowKNormal = [[48, 0.3], [52, 0.5], [56, 0.7], [63, 1.0], [70, 1.3], [77, 1.6]];
+const k2oNormalHighK = [[48, 1.2], [52, 1.5], [56, 1.8], [63, 2.4], [70, 3.0], [77, 3.6]];
+const k2oHighKShosh = [[48, 1.6], [52, 2.4], [56, 3.2], [63, 4.0]];
+
+// Interpolate K2O value at a given SiO2 for a boundary line
+function interpolateK2OLine(line, sio2) {
+    // Extrapolate if before first point
+    if (sio2 < line[0][0]) {
+        const slope = (line[1][1] - line[0][1]) / (line[1][0] - line[0][0]);
+        return line[0][1] + slope * (sio2 - line[0][0]);
+    }
+    // Extrapolate if after last point
+    if (sio2 > line[line.length-1][0]) {
+        const n = line.length;
+        const slope = (line[n-1][1] - line[n-2][1]) / (line[n-1][0] - line[n-2][0]);
+        return line[n-1][1] + slope * (sio2 - line[n-1][0]);
+    }
+    // Interpolate
+    for (let i = 0; i < line.length - 1; i++) {
+        if (sio2 >= line[i][0] && sio2 <= line[i+1][0]) {
+            const t = (sio2 - line[i][0]) / (line[i+1][0] - line[i][0]);
+            return line[i][1] + t * (line[i+1][1] - line[i][1]);
+        }
+    }
+    return null;
+}
+
+// Classify sample for K2O-SiO2 diagram
+function classifyK2OSiO2(sample) {
+    const sio2 = sample.SiO2;
+    const k2o = sample.K2O;
+    
+    // Check bounds
+    if (sio2 < 48 || sio2 > 77 || k2o < 0 || k2o > 5) return 'Out of range';
+    
+    // Determine series based on K2O relative to boundary lines
+    const lowKBoundary = interpolateK2OLine(k2oLowKNormal, sio2);
+    const highKBoundary = interpolateK2OLine(k2oNormalHighK, sio2);
+    const shoshBoundary = interpolateK2OLine(k2oHighKShosh, sio2);
+    
+    // Check for Shoshonite series first (only exists for SiO2 <= 63)
+    if (sio2 <= 63 && k2o >= shoshBoundary) {
+        if (sio2 < 52) return 'Absarokite';
+        else if (sio2 < 56) return 'Shoshonite';
+        else return 'Banakite';
+    }
+    
+    // Determine rock type based on SiO2
+    let rockType;
+    if (sio2 < 52) rockType = 'Tholeiite';  // Basalt position in Low-K, but "Basalt" in other series
+    else if (sio2 < 56) rockType = 'Basaltic Andesite';
+    else if (sio2 < 63) rockType = 'Andesite';
+    else if (sio2 < 70) rockType = 'Dacite';
+    else rockType = 'Rhyolite';
+    
+    // Determine series prefix
+    if (k2o < lowKBoundary) {
+        // Low-K series - uses "Tholeiite" for basalt position
+        return `Low-K ${rockType}`;
+    } else if (k2o < highKBoundary) {
+        // Normal calc-alkaline - use "Basalt" not "Tholeiite"
+        if (rockType === 'Tholeiite') rockType = 'Basalt';
+        return rockType;
+    } else {
+        // High-K series - use "Basalt" not "Tholeiite"
+        if (rockType === 'Tholeiite') rockType = 'Basalt';
+        return `High-K ${rockType}`;
+    }
+}
+
+// Main classification function - routes to appropriate diagram classifier
+function classifyRock(sample, diagramType) {
+    switch (diagramType) {
+        case 'tas-volcanic':
+            return classifyTASVolcanic(sample);
+        case 'tas-plutonic':
+            return classifyTASPlutonic(sample);
+        case 'afm':
+            return classifyAFM(sample);
+        case 'k2o-sio2':
+            return classifyK2OSiO2(sample);
+        default:
+            return 'Unknown diagram';
+    }
+}
+
+// ====== END ROCK CLASSIFICATION ======
+
+// Initialize on load
+init();
+</script>
+</body>
+</html>
