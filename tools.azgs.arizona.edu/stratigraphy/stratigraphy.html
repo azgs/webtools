@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Generate stratigraphic column images from well data with geologic age colors and lithology patterns. Export to GIS-ready formats.">
-    <meta name="keywords" content="stratigraphy, well logs, geology, GIS, USGS patterns, lithology">
-    <title>Well Stratigraphy Image Generator</title>
+    <meta name="description" content="Generate stratigraphic column images from your data with geologic age colors and lithology patterns. Export to GIS-ready formats.">
+    <meta name="keywords" content="stratigraphy, stratigraphic columns, geology, GIS, USGS patterns, lithology">
+    <title>Stratigraphic Column Generator</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -42,7 +42,7 @@
     <div id="root"></div>
     <noscript>
         <div style="padding: 40px; text-align: center; font-family: sans-serif;">
-            <h1>Well Stratigraphy Image Generator</h1>
+            <h1>Stratigraphic Column Generator</h1>
             <p>This application requires JavaScript to run. Please enable JavaScript in your browser settings.</p>
         </div>
     </noscript>
@@ -70,7 +70,7 @@ const DEFAULT_COLOR_MAP = {
             'ordovician': '#FBB4BD',
             'cambrian': '#FDCDB8',
             'precambrian': '#7FAD51',
-            'unknown': '#D3D3D3',
+            'unknown': '#FFFFFF',
         };
 
         // Built-in USGS Pattern Map - matches Well_Tops_v4_cleaned.xlsx lithology values
@@ -289,115 +289,115 @@ const DEFAULT_COLOR_MAP = {
         // evaporites (halite, anhydrite), igneous intrusions (granite), and
         // stratigraphic sections spanning Neoproterozoic to Cretaceous
         const EXAMPLE_WELL_DATA = [
-            {"API_Number": "02-001-20078", "Elevation_ft": 6358.578, "StratUnit": "Shinarump Member", "Lithology": "Conglomerate", "TopDepth_ft": 0, "BaseDepth_ft": 203, "Lat_WGS84": 36.40582261, "Long_WGS84": -109.2735259, "Age_ID": "Triassic", "Period": "Triassic"},
-            {"API_Number": "02-001-20078", "Elevation_ft": 6358.578, "StratUnit": "De Chelly Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 203, "BaseDepth_ft": 918, "Lat_WGS84": 36.40582261, "Long_WGS84": -109.2735259, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-001-20078", "Elevation_ft": 6358.578, "StratUnit": "Organ Rock Formation", "Lithology": "Siltstone", "TopDepth_ft": 918, "BaseDepth_ft": 1838, "Lat_WGS84": 36.40582261, "Long_WGS84": -109.2735259, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-001-20078", "Elevation_ft": 6358.578, "StratUnit": "Hermosa Group", "Lithology": "Limestone", "TopDepth_ft": 1838, "BaseDepth_ft": 2312, "Lat_WGS84": 36.40582261, "Long_WGS84": -109.2735259, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
-            {"API_Number": "02-001-20078", "Elevation_ft": 6358.578, "StratUnit": "Molas Formation", "Lithology": "Mudstone", "TopDepth_ft": 2312, "BaseDepth_ft": 2360, "Lat_WGS84": 36.40582261, "Long_WGS84": -109.2735259, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
-            {"API_Number": "02-001-20078", "Elevation_ft": 6358.578, "StratUnit": "Leadville Limestone", "Lithology": "Limestone", "TopDepth_ft": 2360, "BaseDepth_ft": 2554, "Lat_WGS84": 36.40582261, "Long_WGS84": -109.2735259, "Age_ID": "Mississippian", "Period": "Mississippian"},
-            {"API_Number": "02-001-20078", "Elevation_ft": 6358.578, "StratUnit": "Ouray Limestone", "Lithology": "Limestone", "TopDepth_ft": 2554, "BaseDepth_ft": 2580, "Lat_WGS84": 36.40582261, "Long_WGS84": -109.2735259, "Age_ID": "Devonian", "Period": "Devonian"},
-            {"API_Number": "02-001-20078", "Elevation_ft": 6358.578, "StratUnit": "Elbert Formation", "Lithology": "Shale", "TopDepth_ft": 2580, "BaseDepth_ft": 2770, "Lat_WGS84": 36.40582261, "Long_WGS84": -109.2735259, "Age_ID": "Devonian", "Period": "Devonian"},
-            {"API_Number": "02-001-20078", "Elevation_ft": 6358.578, "StratUnit": "McCracken Sandstone Member", "Lithology": "Sandstone", "TopDepth_ft": 2770, "BaseDepth_ft": 2875, "Lat_WGS84": 36.40582261, "Long_WGS84": -109.2735259, "Age_ID": "Devonian", "Period": "Devonian"},
-            {"API_Number": "02-001-20078", "Elevation_ft": 6358.578, "StratUnit": "Aneth Dolomite Zone", "Lithology": "Dolomite", "TopDepth_ft": 2875, "BaseDepth_ft": 2970, "Lat_WGS84": 36.40582261, "Long_WGS84": -109.2735259, "Age_ID": "Devonian", "Period": "Devonian"},
-            {"API_Number": "02-001-20078", "Elevation_ft": 6358.578, "StratUnit": "Tapeats Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 2970, "BaseDepth_ft": 2982, "Lat_WGS84": 36.40582261, "Long_WGS84": -109.2735259, "Age_ID": "Cambrian", "Period": "Cambrian"},
-            {"API_Number": "02-001-20078", "Elevation_ft": 6358.578, "StratUnit": "Unknown - metamorphics", "Lithology": "Metamorphic rocks undivided", "TopDepth_ft": 2982, "BaseDepth_ft": 3000, "Lat_WGS84": 36.40582261, "Long_WGS84": -109.2735259, "Age_ID": "Precambrian", "Period": " "},
-            {"API_Number": "02-001-20111", "Elevation_ft": 5416.931, "StratUnit": "Entrada Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 0, "BaseDepth_ft": 10, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Jurassic", "Period": "Jurassic"},
-            {"API_Number": "02-001-20111", "Elevation_ft": 5416.931, "StratUnit": "Carmel Formation", "Lithology": "Mudstone", "TopDepth_ft": 10, "BaseDepth_ft": 105, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Jurassic", "Period": "Jurassic"},
-            {"API_Number": "02-001-20111", "Elevation_ft": 5416.931, "StratUnit": "Navajo Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 105, "BaseDepth_ft": 275, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Jurassic", "Period": "Jurassic"},
-            {"API_Number": "02-001-20111", "Elevation_ft": 5416.931, "StratUnit": "Kayenta\u00a0Formation", "Lithology": "Sandstone", "TopDepth_ft": 275, "BaseDepth_ft": 285, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Jurassic", "Period": "Jurassic"},
-            {"API_Number": "02-001-20111", "Elevation_ft": 5416.931, "StratUnit": "Wingate Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 285, "BaseDepth_ft": 966, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Jurassic", "Period": "Jurassic"},
-            {"API_Number": "02-001-20111", "Elevation_ft": 5416.931, "StratUnit": "Chinle Formation", "Lithology": "Shale", "TopDepth_ft": 966, "BaseDepth_ft": 2014, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Triassic", "Period": "Triassic"},
-            {"API_Number": "02-001-20111", "Elevation_ft": 5416.931, "StratUnit": "Shinarump Member", "Lithology": "Conglomerate", "TopDepth_ft": 2014, "BaseDepth_ft": 2068, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Triassic", "Period": "Triassic"},
-            {"API_Number": "02-001-20111", "Elevation_ft": 5416.931, "StratUnit": "De Chelly Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 2068, "BaseDepth_ft": 2396, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-001-20111", "Elevation_ft": 5416.931, "StratUnit": "Organ Rock Formation", "Lithology": "Siltstone", "TopDepth_ft": 2396, "BaseDepth_ft": 3135, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-001-20111", "Elevation_ft": 5416.931, "StratUnit": "Lower Cutler Group", "Lithology": "Sandstone", "TopDepth_ft": 3135, "BaseDepth_ft": 3979, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-001-20111", "Elevation_ft": 5416.931, "StratUnit": "Hermosa Group", "Lithology": "Limestone", "TopDepth_ft": 3979, "BaseDepth_ft": 4550, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
-            {"API_Number": "02-001-20111", "Elevation_ft": 5416.931, "StratUnit": "Ismay Zone", "Lithology": "Carbonate", "TopDepth_ft": 4550, "BaseDepth_ft": 4721, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
-            {"API_Number": "02-001-20111", "Elevation_ft": 5416.931, "StratUnit": "Desert Creek Zone", "Lithology": "Carbonate", "TopDepth_ft": 4721, "BaseDepth_ft": 4940, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
-            {"API_Number": "02-001-20111", "Elevation_ft": 5416.931, "StratUnit": "Akah Formation", "Lithology": "Evaporitic rocks undivided", "TopDepth_ft": 4940, "BaseDepth_ft": 5000, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
-            {"API_Number": "02-001-20204", "Elevation_ft": 5430.055, "StratUnit": "Morrison Formation", "Lithology": "Mudstone", "TopDepth_ft": 0, "BaseDepth_ft": 1494, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Jurassic", "Period": "Jurassic"},
-            {"API_Number": "02-001-20204", "Elevation_ft": 5430.055, "StratUnit": "Chinle Formation", "Lithology": "Shale", "TopDepth_ft": 1494, "BaseDepth_ft": 2243, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Triassic", "Period": "Triassic"},
-            {"API_Number": "02-001-20204", "Elevation_ft": 5430.055, "StratUnit": "Moenkopi Formation", "Lithology": "Shale", "TopDepth_ft": 2243, "BaseDepth_ft": 2453, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Triassic", "Period": "Triassic"},
-            {"API_Number": "02-001-20204", "Elevation_ft": 5430.055, "StratUnit": "De Chelly Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 2453, "BaseDepth_ft": 2827, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-001-20204", "Elevation_ft": 5430.055, "StratUnit": "Organ Rock Formation", "Lithology": "Siltstone", "TopDepth_ft": 2827, "BaseDepth_ft": 4300, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-001-20204", "Elevation_ft": 5430.055, "StratUnit": "Hermosa Group", "Lithology": "Limestone", "TopDepth_ft": 4300, "BaseDepth_ft": 4975, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
-            {"API_Number": "02-001-20204", "Elevation_ft": 5430.055, "StratUnit": "Ismay Zone", "Lithology": "Carbonate", "TopDepth_ft": 4975, "BaseDepth_ft": 5098, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
-            {"API_Number": "02-001-20204", "Elevation_ft": 5430.055, "StratUnit": "Desert Creek Zone", "Lithology": "Carbonate", "TopDepth_ft": 5098, "BaseDepth_ft": 5230, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
-            {"API_Number": "02-001-20204", "Elevation_ft": 5430.055, "StratUnit": "Akah Formation", "Lithology": "Evaporitic rocks undivided", "TopDepth_ft": 5230, "BaseDepth_ft": 5428, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
-            {"API_Number": "02-001-20204", "Elevation_ft": 5430.055, "StratUnit": "Barker Creek Zone", "Lithology": "Carbonate", "TopDepth_ft": 5428, "BaseDepth_ft": 5668, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
-            {"API_Number": "02-001-20204", "Elevation_ft": 5430.055, "StratUnit": "Lower Paradox Formation", "Lithology": "Evaporitic rocks undivided", "TopDepth_ft": 5668, "BaseDepth_ft": 5957, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
-            {"API_Number": "02-001-20204", "Elevation_ft": 5430.055, "StratUnit": "Molas Formation", "Lithology": "Mudstone", "TopDepth_ft": 5957, "BaseDepth_ft": 5958, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
-            {"API_Number": "02-001-20204", "Elevation_ft": 5430.055, "StratUnit": "Leadville Limestone", "Lithology": "Limestone", "TopDepth_ft": 5958, "BaseDepth_ft": 6236, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Mississippian", "Period": "Mississippian"},
-            {"API_Number": "02-001-20204", "Elevation_ft": 5430.055, "StratUnit": "Ouray Limestone", "Lithology": "Limestone", "TopDepth_ft": 6236, "BaseDepth_ft": 6302, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Devonian", "Period": "Devonian"},
-            {"API_Number": "02-001-20204", "Elevation_ft": 5430.055, "StratUnit": "Elbert Formation", "Lithology": "Shale", "TopDepth_ft": 6302, "BaseDepth_ft": 6493, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Devonian", "Period": "Devonian"},
-            {"API_Number": "02-001-20204", "Elevation_ft": 5430.055, "StratUnit": "McCracken Sandstone Member", "Lithology": "Sandstone", "TopDepth_ft": 6493, "BaseDepth_ft": 6612, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Devonian", "Period": "Devonian"},
-            {"API_Number": "02-001-20204", "Elevation_ft": 5430.055, "StratUnit": "Aneth Dolomite Zone", "Lithology": "Dolomite", "TopDepth_ft": 6612, "BaseDepth_ft": 6752, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Devonian", "Period": "Devonian"},
-            {"API_Number": "02-001-20240", "Elevation_ft": 8510.914, "StratUnit": "Chinle Formation", "Lithology": "Shale", "TopDepth_ft": 0, "BaseDepth_ft": 1548, "Lat_WGS84": 36.48837642, "Long_WGS84": -109.1534442, "Age_ID": "Triassic", "Period": "Triassic"},
-            {"API_Number": "02-001-20240", "Elevation_ft": 8510.914, "StratUnit": "Coconino Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 1548, "BaseDepth_ft": 3390, "Lat_WGS84": 36.48837642, "Long_WGS84": -109.1534442, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-001-20240", "Elevation_ft": 8510.914, "StratUnit": "Hermosa Group", "Lithology": "Limestone", "TopDepth_ft": 3390, "BaseDepth_ft": 4075, "Lat_WGS84": 36.48837642, "Long_WGS84": -109.1534442, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
-            {"API_Number": "02-001-20240", "Elevation_ft": 8510.914, "StratUnit": "Black shale", "Lithology": "Shale", "TopDepth_ft": 3855, "BaseDepth_ft": 3865, "Lat_WGS84": 36.48837642, "Long_WGS84": -109.1534442, "Age_ID": "Unknown", "Period": " "},
-            {"API_Number": "02-001-20240", "Elevation_ft": 8510.914, "StratUnit": "Shist Intrusive", "Lithology": "Shist", "TopDepth_ft": 3865, "BaseDepth_ft": 4075, "Lat_WGS84": 36.48837642, "Long_WGS84": -109.1534442, "Age_ID": "Unknown", "Period": " "},
-            {"API_Number": "02-001-20295", "Elevation_ft": 6388.107, "StratUnit": "Chinle Formation", "Lithology": "Shale", "TopDepth_ft": 0, "BaseDepth_ft": 198, "Lat_WGS84": 34.43906281, "Long_WGS84": -109.2635296, "Age_ID": "Triassic", "Period": "Triassic"},
-            {"API_Number": "02-001-20295", "Elevation_ft": 6388.107, "StratUnit": "Moenkopi Formation", "Lithology": "Shale", "TopDepth_ft": 198, "BaseDepth_ft": 213, "Lat_WGS84": 34.43906281, "Long_WGS84": -109.2635296, "Age_ID": "Triassic", "Period": "Triassic"},
-            {"API_Number": "02-001-20295", "Elevation_ft": 6388.107, "StratUnit": "San Andres Formation", "Lithology": "Limestone", "TopDepth_ft": 213, "BaseDepth_ft": 480, "Lat_WGS84": 34.43906281, "Long_WGS84": -109.2635296, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-001-20295", "Elevation_ft": 6388.107, "StratUnit": "Glorieta Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 480, "BaseDepth_ft": 660, "Lat_WGS84": 34.43906281, "Long_WGS84": -109.2635296, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-001-20295", "Elevation_ft": 6388.107, "StratUnit": "Supai Group", "Lithology": "Sandstone", "TopDepth_ft": 660, "BaseDepth_ft": 1366, "Lat_WGS84": 34.43906281, "Long_WGS84": -109.2635296, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-001-20295", "Elevation_ft": 6388.107, "StratUnit": "Fort Apache Member", "Lithology": "Dolomite", "TopDepth_ft": 1366, "BaseDepth_ft": 2138, "Lat_WGS84": 34.43906281, "Long_WGS84": -109.2635296, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-001-20295", "Elevation_ft": 6388.107, "StratUnit": "Granite Wash Formation", "Lithology": "Quartzite", "TopDepth_ft": 2138, "BaseDepth_ft": 2365, "Lat_WGS84": 34.43906281, "Long_WGS84": -109.2635296, "Age_ID": "Cambrian", "Period": "Cambrian"},
-            {"API_Number": "02-001-20295", "Elevation_ft": 6388.107, "StratUnit": "Unknown - granite", "Lithology": "Granite", "TopDepth_ft": 2365, "BaseDepth_ft": 2431, "Lat_WGS84": 34.43906281, "Long_WGS84": -109.2635296, "Age_ID": "Unknown", "Period": " "},
-            {"API_Number": "02-001-20423", "Elevation_ft": 5515.361, "StratUnit": "Chinle Formation/Moenkopi Formation", "Lithology": "Shale", "TopDepth_ft": 0, "BaseDepth_ft": 522, "Lat_WGS84": 34.698875, "Long_WGS84": -109.78918, "Age_ID": "Triassic", "Period": "Triassic"},
-            {"API_Number": "02-001-20423", "Elevation_ft": 5515.361, "StratUnit": "Coconino Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 522, "BaseDepth_ft": 930, "Lat_WGS84": 34.698875, "Long_WGS84": -109.78918, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-001-20423", "Elevation_ft": 5515.361, "StratUnit": "Supai Group", "Lithology": "Sandstone", "TopDepth_ft": 930, "BaseDepth_ft": 1148, "Lat_WGS84": 34.698875, "Long_WGS84": -109.78918, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-001-20423", "Elevation_ft": 5515.361, "StratUnit": "Supai Group - anhydrite", "Lithology": "Anhydrite", "TopDepth_ft": 988, "BaseDepth_ft": 1080, "Lat_WGS84": 34.698875, "Long_WGS84": -109.78918, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-001-20423", "Elevation_ft": 5515.361, "StratUnit": "Supai Group - halite", "Lithology": "Halite", "TopDepth_ft": 1080, "BaseDepth_ft": 1148, "Lat_WGS84": 34.698875, "Long_WGS84": -109.78918, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-001-20423", "Elevation_ft": 5515.361, "StratUnit": "Supai Group - potash", "Lithology": "Evaporitic rocks undivided", "TopDepth_ft": 1102, "BaseDepth_ft": 1106, "Lat_WGS84": 34.698875, "Long_WGS84": -109.78918, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-001-90008", "Elevation_ft": 8330.459, "StratUnit": "Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 0, "BaseDepth_ft": 60, "Lat_WGS84": 33.85582032, "Long_WGS84": -109.0948329, "Age_ID": "Unknown", "Period": " "},
-            {"API_Number": "02-001-90008", "Elevation_ft": 8330.459, "StratUnit": "Tuff", "Lithology": "Tuff", "TopDepth_ft": 60, "BaseDepth_ft": 80, "Lat_WGS84": 33.85582032, "Long_WGS84": -109.0948329, "Age_ID": "Unknown", "Period": " "},
-            {"API_Number": "02-001-90008", "Elevation_ft": 8330.459, "StratUnit": "Basalt", "Lithology": "Basalt", "TopDepth_ft": 80, "BaseDepth_ft": 100, "Lat_WGS84": 33.85582032, "Long_WGS84": -109.0948329, "Age_ID": "Unknown", "Period": " "},
-            {"API_Number": "02-001-90008", "Elevation_ft": 8330.459, "StratUnit": "Unknown", "Lithology": "Andesite", "TopDepth_ft": 100, "BaseDepth_ft": 280, "Lat_WGS84": 33.85582032, "Long_WGS84": -109.0948329, "Age_ID": "Unknown", "Period": " "},
-            {"API_Number": "02-001-90008", "Elevation_ft": 8330.459, "StratUnit": "Basalt", "Lithology": "Basalt", "TopDepth_ft": 280, "BaseDepth_ft": 345, "Lat_WGS84": 33.85582032, "Long_WGS84": -109.0948329, "Age_ID": "Unknown", "Period": " "},
-            {"API_Number": "02-005-20032", "Elevation_ft": 5033.054, "StratUnit": "Kaibab Formation", "Lithology": "Limestone", "TopDepth_ft": 0, "BaseDepth_ft": 520, "Lat_WGS84": 36.94143829, "Long_WGS84": -112.3431345, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-005-20032", "Elevation_ft": 5033.054, "StratUnit": "Kaibab Formation - limestone", "Lithology": "Limestone", "TopDepth_ft": 0, "BaseDepth_ft": 520, "Lat_WGS84": 36.94143829, "Long_WGS84": -112.3431345, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-005-20032", "Elevation_ft": 5033.054, "StratUnit": "Toroweap Formation", "Lithology": "Limestone", "TopDepth_ft": 520, "BaseDepth_ft": 840, "Lat_WGS84": 36.94143829, "Long_WGS84": -112.3431345, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-005-20032", "Elevation_ft": 5033.054, "StratUnit": "Coconino Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 840, "BaseDepth_ft": 870, "Lat_WGS84": 36.94143829, "Long_WGS84": -112.3431345, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-005-20032", "Elevation_ft": 5033.054, "StratUnit": "Hermit Shale", "Lithology": "Shale", "TopDepth_ft": 870, "BaseDepth_ft": 1480, "Lat_WGS84": 36.94143829, "Long_WGS84": -112.3431345, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-005-20032", "Elevation_ft": 5033.054, "StratUnit": "Supai Group", "Lithology": "Sandstone", "TopDepth_ft": 1480, "BaseDepth_ft": 2180, "Lat_WGS84": 36.94143829, "Long_WGS84": -112.3431345, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-005-20032", "Elevation_ft": 5033.054, "StratUnit": "Callville Limestone", "Lithology": "Limestone", "TopDepth_ft": 2180, "BaseDepth_ft": 2420, "Lat_WGS84": 36.94143829, "Long_WGS84": -112.3431345, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
-            {"API_Number": "02-005-20032", "Elevation_ft": 5033.054, "StratUnit": "Redwall Limestone", "Lithology": "Limestone", "TopDepth_ft": 2420, "BaseDepth_ft": 3260, "Lat_WGS84": 36.94143829, "Long_WGS84": -112.3431345, "Age_ID": "Mississippian", "Period": "Mississippian"},
-            {"API_Number": "02-005-20032", "Elevation_ft": 5033.054, "StratUnit": "Martin Formation", "Lithology": "Limestone", "TopDepth_ft": 3260, "BaseDepth_ft": 3744, "Lat_WGS84": 36.94143829, "Long_WGS84": -112.3431345, "Age_ID": "Devonian", "Period": "Devonian"},
-            {"API_Number": "02-005-20032", "Elevation_ft": 5033.054, "StratUnit": "Muav Limestone", "Lithology": "Limestone", "TopDepth_ft": 3744, "BaseDepth_ft": 4250, "Lat_WGS84": 36.94143829, "Long_WGS84": -112.3431345, "Age_ID": "Cambrian", "Period": "Cambrian"},
-            {"API_Number": "02-005-20032", "Elevation_ft": 5033.054, "StratUnit": "Bright Angel Shale", "Lithology": "Shale", "TopDepth_ft": 4250, "BaseDepth_ft": 4450, "Lat_WGS84": 36.94143829, "Long_WGS84": -112.3431345, "Age_ID": "Cambrian", "Period": "Cambrian"},
-            {"API_Number": "02-005-20032", "Elevation_ft": 5033.054, "StratUnit": "Tapeats Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 4450, "BaseDepth_ft": 4760, "Lat_WGS84": 36.94143829, "Long_WGS84": -112.3431345, "Age_ID": "Cambrian", "Period": "Cambrian"},
-            {"API_Number": "02-005-20032", "Elevation_ft": 5033.054, "StratUnit": "Chuar Group", "Lithology": "Shale", "TopDepth_ft": 4760, "BaseDepth_ft": 5436, "Lat_WGS84": 36.94143829, "Long_WGS84": -112.3431345, "Age_ID": "Neoproterozoic", "Period": "Neoproterozoic"},
-            {"API_Number": "02-017-05005", "Elevation_ft": 5708.940000000001, "StratUnit": "Chinle Formation", "Lithology": "Shale", "TopDepth_ft": 0, "BaseDepth_ft": 595, "Lat_WGS84": 35.07764732, "Long_WGS84": -109.9491694, "Age_ID": "Triassic", "Period": "Triassic"},
-            {"API_Number": "02-017-05005", "Elevation_ft": 5708.940000000001, "StratUnit": "Shinarump Member", "Lithology": "Conglomerate", "TopDepth_ft": 595, "BaseDepth_ft": 674, "Lat_WGS84": 35.07764732, "Long_WGS84": -109.9491694, "Age_ID": "Triassic", "Period": "Triassic"},
-            {"API_Number": "02-017-05005", "Elevation_ft": 5708.940000000001, "StratUnit": "Moenkopi Formation", "Lithology": "Shale", "TopDepth_ft": 674, "BaseDepth_ft": 1124, "Lat_WGS84": 35.07764732, "Long_WGS84": -109.9491694, "Age_ID": "Triassic", "Period": "Triassic"},
-            {"API_Number": "02-017-05005", "Elevation_ft": 5708.940000000001, "StratUnit": "Kaibab Formation", "Lithology": "Limestone", "TopDepth_ft": 1124, "BaseDepth_ft": 1127, "Lat_WGS84": 35.07764732, "Long_WGS84": -109.9491694, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-017-05005", "Elevation_ft": 5708.940000000001, "StratUnit": "Coconino Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 1127, "BaseDepth_ft": 1590, "Lat_WGS84": 35.07764732, "Long_WGS84": -109.9491694, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-017-05005", "Elevation_ft": 5708.940000000001, "StratUnit": "Supai Group", "Lithology": "Sandstone", "TopDepth_ft": 1590, "BaseDepth_ft": 3353, "Lat_WGS84": 35.07764732, "Long_WGS84": -109.9491694, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-017-05005", "Elevation_ft": 5708.940000000001, "StratUnit": "Granite Wash Formation", "Lithology": "Quartzite", "TopDepth_ft": 3353, "BaseDepth_ft": 3432, "Lat_WGS84": 35.07764732, "Long_WGS84": -109.9491694, "Age_ID": "Cambrian", "Period": "Cambrian"},
-            {"API_Number": "02-017-05064", "Elevation_ft": 6125.627, "StratUnit": "Mesa Verde Group", "Lithology": "Sandstone", "TopDepth_ft": 0, "BaseDepth_ft": 402, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Cretaceous", "Period": "Cretaceous"},
-            {"API_Number": "02-017-05064", "Elevation_ft": 6125.627, "StratUnit": "Mancos Shale", "Lithology": "Shale", "TopDepth_ft": 402, "BaseDepth_ft": 918, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Cretaceous", "Period": "Cretaceous"},
-            {"API_Number": "02-017-05064", "Elevation_ft": 6125.627, "StratUnit": "Dakota Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 918, "BaseDepth_ft": 997, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Cretaceous", "Period": "Cretaceous"},
-            {"API_Number": "02-017-05064", "Elevation_ft": 6125.627, "StratUnit": "Cow Springs Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 997, "BaseDepth_ft": 1332, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Jurassic", "Period": "Jurassic"},
-            {"API_Number": "02-017-05064", "Elevation_ft": 6125.627, "StratUnit": "Entrada Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 1332, "BaseDepth_ft": 1618, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Jurassic", "Period": "Jurassic"},
-            {"API_Number": "02-017-05064", "Elevation_ft": 6125.627, "StratUnit": "Navajo Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 1618, "BaseDepth_ft": 2010, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Jurassic", "Period": "Jurassic"},
-            {"API_Number": "02-017-05064", "Elevation_ft": 6125.627, "StratUnit": "Moenave\u00a0Formation", "Lithology": "Shale", "TopDepth_ft": 2010, "BaseDepth_ft": 2370, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Jurassic", "Period": "Jurassic"},
-            {"API_Number": "02-017-05064", "Elevation_ft": 6125.627, "StratUnit": "Wingate Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 2370, "BaseDepth_ft": 2860, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Jurassic", "Period": "Jurassic"},
-            {"API_Number": "02-017-05064", "Elevation_ft": 6125.627, "StratUnit": "Chinle Formation", "Lithology": "Shale", "TopDepth_ft": 2860, "BaseDepth_ft": 4110, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Triassic", "Period": "Triassic"},
-            {"API_Number": "02-017-05064", "Elevation_ft": 6125.627, "StratUnit": "Shinarump Member", "Lithology": "Conglomerate", "TopDepth_ft": 4110, "BaseDepth_ft": 4230, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Triassic", "Period": "Triassic"},
-            {"API_Number": "02-017-05064", "Elevation_ft": 6125.627, "StratUnit": "Moenkopi Formation", "Lithology": "Shale", "TopDepth_ft": 4230, "BaseDepth_ft": 4512, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Triassic", "Period": "Triassic"},
-            {"API_Number": "02-017-05064", "Elevation_ft": 6125.627, "StratUnit": "De Chelly Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 4512, "BaseDepth_ft": 5355, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-017-05064", "Elevation_ft": 6125.627, "StratUnit": "Supai Group", "Lithology": "Sandstone", "TopDepth_ft": 5355, "BaseDepth_ft": 6601, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Permian", "Period": "Permian"},
-            {"API_Number": "02-017-05064", "Elevation_ft": 6125.627, "StratUnit": "Hermosa Group", "Lithology": "Limestone", "TopDepth_ft": 6601, "BaseDepth_ft": 6914, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
-            {"API_Number": "02-017-05064", "Elevation_ft": 6125.627, "StratUnit": "Molas Formation", "Lithology": "Mudstone", "TopDepth_ft": 6914, "BaseDepth_ft": 6984, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
-            {"API_Number": "02-017-05064", "Elevation_ft": 6125.627, "StratUnit": "Unknown", "Lithology": "Unknown", "TopDepth_ft": 6984, "BaseDepth_ft": 7180, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Mississippian", "Period": "Mississippian"},
-            {"API_Number": "02-017-05064", "Elevation_ft": 6125.627, "StratUnit": "Elbert Formation", "Lithology": "Shale", "TopDepth_ft": 7180, "BaseDepth_ft": 7455, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Devonian", "Period": "Devonian"},
-            {"API_Number": "02-017-05064", "Elevation_ft": 6125.627, "StratUnit": "McCracken Sandstone Member", "Lithology": "Sandstone", "TopDepth_ft": 7455, "BaseDepth_ft": 7545, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Devonian", "Period": "Devonian"},
-            {"API_Number": "02-017-05064", "Elevation_ft": 6125.627, "StratUnit": "Aneth Dolomite Zone", "Lithology": "Dolomite", "TopDepth_ft": 7545, "BaseDepth_ft": 7622, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Devonian", "Period": "Devonian"},
-            {"API_Number": "02-017-05064", "Elevation_ft": 6125.627, "StratUnit": "Bright Angel Shale", "Lithology": "Shale", "TopDepth_ft": 7622, "BaseDepth_ft": 7650, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Cambrian", "Period": "Cambrian"},
-            {"API_Number": "02-017-05064", "Elevation_ft": 6125.627, "StratUnit": "Tapeats Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 7650, "BaseDepth_ft": 7740, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Cambrian", "Period": "Cambrian"},
-            {"API_Number": "02-017-05064", "Elevation_ft": 6125.627, "StratUnit": "Unknown", "Lithology": "Unknown", "TopDepth_ft": 7740, "BaseDepth_ft": 7780, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Precambrian", "Period": " "}
+            {"Identifier": "02-001-20078", "SurfaceElevation_ft": 6358.578, "StratUnit": "Shinarump Member", "Lithology": "Conglomerate", "TopDepth_ft": 0, "BaseDepth_ft": 203, "Lat_WGS84": 36.40582261, "Long_WGS84": -109.2735259, "Age_ID": "Triassic", "Period": "Triassic"},
+            {"Identifier": "02-001-20078", "SurfaceElevation_ft": 6358.578, "StratUnit": "De Chelly Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 203, "BaseDepth_ft": 918, "Lat_WGS84": 36.40582261, "Long_WGS84": -109.2735259, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-001-20078", "SurfaceElevation_ft": 6358.578, "StratUnit": "Organ Rock Formation", "Lithology": "Siltstone", "TopDepth_ft": 918, "BaseDepth_ft": 1838, "Lat_WGS84": 36.40582261, "Long_WGS84": -109.2735259, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-001-20078", "SurfaceElevation_ft": 6358.578, "StratUnit": "Hermosa Group", "Lithology": "Limestone", "TopDepth_ft": 1838, "BaseDepth_ft": 2312, "Lat_WGS84": 36.40582261, "Long_WGS84": -109.2735259, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
+            {"Identifier": "02-001-20078", "SurfaceElevation_ft": 6358.578, "StratUnit": "Molas Formation", "Lithology": "Mudstone", "TopDepth_ft": 2312, "BaseDepth_ft": 2360, "Lat_WGS84": 36.40582261, "Long_WGS84": -109.2735259, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
+            {"Identifier": "02-001-20078", "SurfaceElevation_ft": 6358.578, "StratUnit": "Leadville Limestone", "Lithology": "Limestone", "TopDepth_ft": 2360, "BaseDepth_ft": 2554, "Lat_WGS84": 36.40582261, "Long_WGS84": -109.2735259, "Age_ID": "Mississippian", "Period": "Mississippian"},
+            {"Identifier": "02-001-20078", "SurfaceElevation_ft": 6358.578, "StratUnit": "Ouray Limestone", "Lithology": "Limestone", "TopDepth_ft": 2554, "BaseDepth_ft": 2580, "Lat_WGS84": 36.40582261, "Long_WGS84": -109.2735259, "Age_ID": "Devonian", "Period": "Devonian"},
+            {"Identifier": "02-001-20078", "SurfaceElevation_ft": 6358.578, "StratUnit": "Elbert Formation", "Lithology": "Shale", "TopDepth_ft": 2580, "BaseDepth_ft": 2770, "Lat_WGS84": 36.40582261, "Long_WGS84": -109.2735259, "Age_ID": "Devonian", "Period": "Devonian"},
+            {"Identifier": "02-001-20078", "SurfaceElevation_ft": 6358.578, "StratUnit": "McCracken Sandstone Member", "Lithology": "Sandstone", "TopDepth_ft": 2770, "BaseDepth_ft": 2875, "Lat_WGS84": 36.40582261, "Long_WGS84": -109.2735259, "Age_ID": "Devonian", "Period": "Devonian"},
+            {"Identifier": "02-001-20078", "SurfaceElevation_ft": 6358.578, "StratUnit": "Aneth Dolomite Zone", "Lithology": "Dolomite", "TopDepth_ft": 2875, "BaseDepth_ft": 2970, "Lat_WGS84": 36.40582261, "Long_WGS84": -109.2735259, "Age_ID": "Devonian", "Period": "Devonian"},
+            {"Identifier": "02-001-20078", "SurfaceElevation_ft": 6358.578, "StratUnit": "Tapeats Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 2970, "BaseDepth_ft": 2982, "Lat_WGS84": 36.40582261, "Long_WGS84": -109.2735259, "Age_ID": "Cambrian", "Period": "Cambrian"},
+            {"Identifier": "02-001-20078", "SurfaceElevation_ft": 6358.578, "StratUnit": "Unknown - metamorphics", "Lithology": "Metamorphic rocks undivided", "TopDepth_ft": 2982, "BaseDepth_ft": 3000, "Lat_WGS84": 36.40582261, "Long_WGS84": -109.2735259, "Age_ID": "Precambrian", "Period": " "},
+            {"Identifier": "02-001-20111", "SurfaceElevation_ft": 5416.931, "StratUnit": "Entrada Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 0, "BaseDepth_ft": 10, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Jurassic", "Period": "Jurassic"},
+            {"Identifier": "02-001-20111", "SurfaceElevation_ft": 5416.931, "StratUnit": "Carmel Formation", "Lithology": "Mudstone", "TopDepth_ft": 10, "BaseDepth_ft": 105, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Jurassic", "Period": "Jurassic"},
+            {"Identifier": "02-001-20111", "SurfaceElevation_ft": 5416.931, "StratUnit": "Navajo Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 105, "BaseDepth_ft": 275, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Jurassic", "Period": "Jurassic"},
+            {"Identifier": "02-001-20111", "SurfaceElevation_ft": 5416.931, "StratUnit": "Kayenta\u00a0Formation", "Lithology": "Sandstone", "TopDepth_ft": 275, "BaseDepth_ft": 285, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Jurassic", "Period": "Jurassic"},
+            {"Identifier": "02-001-20111", "SurfaceElevation_ft": 5416.931, "StratUnit": "Wingate Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 285, "BaseDepth_ft": 966, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Jurassic", "Period": "Jurassic"},
+            {"Identifier": "02-001-20111", "SurfaceElevation_ft": 5416.931, "StratUnit": "Chinle Formation", "Lithology": "Shale", "TopDepth_ft": 966, "BaseDepth_ft": 2014, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Triassic", "Period": "Triassic"},
+            {"Identifier": "02-001-20111", "SurfaceElevation_ft": 5416.931, "StratUnit": "Shinarump Member", "Lithology": "Conglomerate", "TopDepth_ft": 2014, "BaseDepth_ft": 2068, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Triassic", "Period": "Triassic"},
+            {"Identifier": "02-001-20111", "SurfaceElevation_ft": 5416.931, "StratUnit": "De Chelly Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 2068, "BaseDepth_ft": 2396, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-001-20111", "SurfaceElevation_ft": 5416.931, "StratUnit": "Organ Rock Formation", "Lithology": "Siltstone", "TopDepth_ft": 2396, "BaseDepth_ft": 3135, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-001-20111", "SurfaceElevation_ft": 5416.931, "StratUnit": "Lower Cutler Group", "Lithology": "Sandstone", "TopDepth_ft": 3135, "BaseDepth_ft": 3979, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-001-20111", "SurfaceElevation_ft": 5416.931, "StratUnit": "Hermosa Group", "Lithology": "Limestone", "TopDepth_ft": 3979, "BaseDepth_ft": 4550, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
+            {"Identifier": "02-001-20111", "SurfaceElevation_ft": 5416.931, "StratUnit": "Ismay Zone", "Lithology": "Carbonate", "TopDepth_ft": 4550, "BaseDepth_ft": 4721, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
+            {"Identifier": "02-001-20111", "SurfaceElevation_ft": 5416.931, "StratUnit": "Desert Creek Zone", "Lithology": "Carbonate", "TopDepth_ft": 4721, "BaseDepth_ft": 4940, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
+            {"Identifier": "02-001-20111", "SurfaceElevation_ft": 5416.931, "StratUnit": "Akah Formation", "Lithology": "Evaporitic rocks undivided", "TopDepth_ft": 4940, "BaseDepth_ft": 5000, "Lat_WGS84": 36.97856632, "Long_WGS84": -109.3402397, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
+            {"Identifier": "02-001-20204", "SurfaceElevation_ft": 5430.055, "StratUnit": "Morrison Formation", "Lithology": "Mudstone", "TopDepth_ft": 0, "BaseDepth_ft": 1494, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Jurassic", "Period": "Jurassic"},
+            {"Identifier": "02-001-20204", "SurfaceElevation_ft": 5430.055, "StratUnit": "Chinle Formation", "Lithology": "Shale", "TopDepth_ft": 1494, "BaseDepth_ft": 2243, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Triassic", "Period": "Triassic"},
+            {"Identifier": "02-001-20204", "SurfaceElevation_ft": 5430.055, "StratUnit": "Moenkopi Formation", "Lithology": "Shale", "TopDepth_ft": 2243, "BaseDepth_ft": 2453, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Triassic", "Period": "Triassic"},
+            {"Identifier": "02-001-20204", "SurfaceElevation_ft": 5430.055, "StratUnit": "De Chelly Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 2453, "BaseDepth_ft": 2827, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-001-20204", "SurfaceElevation_ft": 5430.055, "StratUnit": "Organ Rock Formation", "Lithology": "Siltstone", "TopDepth_ft": 2827, "BaseDepth_ft": 4300, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-001-20204", "SurfaceElevation_ft": 5430.055, "StratUnit": "Hermosa Group", "Lithology": "Limestone", "TopDepth_ft": 4300, "BaseDepth_ft": 4975, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
+            {"Identifier": "02-001-20204", "SurfaceElevation_ft": 5430.055, "StratUnit": "Ismay Zone", "Lithology": "Carbonate", "TopDepth_ft": 4975, "BaseDepth_ft": 5098, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
+            {"Identifier": "02-001-20204", "SurfaceElevation_ft": 5430.055, "StratUnit": "Desert Creek Zone", "Lithology": "Carbonate", "TopDepth_ft": 5098, "BaseDepth_ft": 5230, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
+            {"Identifier": "02-001-20204", "SurfaceElevation_ft": 5430.055, "StratUnit": "Akah Formation", "Lithology": "Evaporitic rocks undivided", "TopDepth_ft": 5230, "BaseDepth_ft": 5428, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
+            {"Identifier": "02-001-20204", "SurfaceElevation_ft": 5430.055, "StratUnit": "Barker Creek Zone", "Lithology": "Carbonate", "TopDepth_ft": 5428, "BaseDepth_ft": 5668, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
+            {"Identifier": "02-001-20204", "SurfaceElevation_ft": 5430.055, "StratUnit": "Lower Paradox Formation", "Lithology": "Evaporitic rocks undivided", "TopDepth_ft": 5668, "BaseDepth_ft": 5957, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
+            {"Identifier": "02-001-20204", "SurfaceElevation_ft": 5430.055, "StratUnit": "Molas Formation", "Lithology": "Mudstone", "TopDepth_ft": 5957, "BaseDepth_ft": 5958, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
+            {"Identifier": "02-001-20204", "SurfaceElevation_ft": 5430.055, "StratUnit": "Leadville Limestone", "Lithology": "Limestone", "TopDepth_ft": 5958, "BaseDepth_ft": 6236, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Mississippian", "Period": "Mississippian"},
+            {"Identifier": "02-001-20204", "SurfaceElevation_ft": 5430.055, "StratUnit": "Ouray Limestone", "Lithology": "Limestone", "TopDepth_ft": 6236, "BaseDepth_ft": 6302, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Devonian", "Period": "Devonian"},
+            {"Identifier": "02-001-20204", "SurfaceElevation_ft": 5430.055, "StratUnit": "Elbert Formation", "Lithology": "Shale", "TopDepth_ft": 6302, "BaseDepth_ft": 6493, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Devonian", "Period": "Devonian"},
+            {"Identifier": "02-001-20204", "SurfaceElevation_ft": 5430.055, "StratUnit": "McCracken Sandstone Member", "Lithology": "Sandstone", "TopDepth_ft": 6493, "BaseDepth_ft": 6612, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Devonian", "Period": "Devonian"},
+            {"Identifier": "02-001-20204", "SurfaceElevation_ft": 5430.055, "StratUnit": "Aneth Dolomite Zone", "Lithology": "Dolomite", "TopDepth_ft": 6612, "BaseDepth_ft": 6752, "Lat_WGS84": 36.9258276, "Long_WGS84": -109.1637417, "Age_ID": "Devonian", "Period": "Devonian"},
+            {"Identifier": "02-001-20240", "SurfaceElevation_ft": 8510.914, "StratUnit": "Chinle Formation", "Lithology": "Shale", "TopDepth_ft": 0, "BaseDepth_ft": 1548, "Lat_WGS84": 36.48837642, "Long_WGS84": -109.1534442, "Age_ID": "Triassic", "Period": "Triassic"},
+            {"Identifier": "02-001-20240", "SurfaceElevation_ft": 8510.914, "StratUnit": "Coconino Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 1548, "BaseDepth_ft": 3390, "Lat_WGS84": 36.48837642, "Long_WGS84": -109.1534442, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-001-20240", "SurfaceElevation_ft": 8510.914, "StratUnit": "Hermosa Group", "Lithology": "Limestone", "TopDepth_ft": 3390, "BaseDepth_ft": 4075, "Lat_WGS84": 36.48837642, "Long_WGS84": -109.1534442, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
+            {"Identifier": "02-001-20240", "SurfaceElevation_ft": 8510.914, "StratUnit": "Black shale", "Lithology": "Shale", "TopDepth_ft": 3855, "BaseDepth_ft": 3865, "Lat_WGS84": 36.48837642, "Long_WGS84": -109.1534442, "Age_ID": "Unknown", "Period": " "},
+            {"Identifier": "02-001-20240", "SurfaceElevation_ft": 8510.914, "StratUnit": "Shist Intrusive", "Lithology": "Shist", "TopDepth_ft": 3865, "BaseDepth_ft": 4075, "Lat_WGS84": 36.48837642, "Long_WGS84": -109.1534442, "Age_ID": "Unknown", "Period": " "},
+            {"Identifier": "02-001-20295", "SurfaceElevation_ft": 6388.107, "StratUnit": "Chinle Formation", "Lithology": "Shale", "TopDepth_ft": 0, "BaseDepth_ft": 198, "Lat_WGS84": 34.43906281, "Long_WGS84": -109.2635296, "Age_ID": "Triassic", "Period": "Triassic"},
+            {"Identifier": "02-001-20295", "SurfaceElevation_ft": 6388.107, "StratUnit": "Moenkopi Formation", "Lithology": "Shale", "TopDepth_ft": 198, "BaseDepth_ft": 213, "Lat_WGS84": 34.43906281, "Long_WGS84": -109.2635296, "Age_ID": "Triassic", "Period": "Triassic"},
+            {"Identifier": "02-001-20295", "SurfaceElevation_ft": 6388.107, "StratUnit": "San Andres Formation", "Lithology": "Limestone", "TopDepth_ft": 213, "BaseDepth_ft": 480, "Lat_WGS84": 34.43906281, "Long_WGS84": -109.2635296, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-001-20295", "SurfaceElevation_ft": 6388.107, "StratUnit": "Glorieta Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 480, "BaseDepth_ft": 660, "Lat_WGS84": 34.43906281, "Long_WGS84": -109.2635296, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-001-20295", "SurfaceElevation_ft": 6388.107, "StratUnit": "Supai Group", "Lithology": "Sandstone", "TopDepth_ft": 660, "BaseDepth_ft": 1366, "Lat_WGS84": 34.43906281, "Long_WGS84": -109.2635296, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-001-20295", "SurfaceElevation_ft": 6388.107, "StratUnit": "Fort Apache Member", "Lithology": "Dolomite", "TopDepth_ft": 1366, "BaseDepth_ft": 2138, "Lat_WGS84": 34.43906281, "Long_WGS84": -109.2635296, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-001-20295", "SurfaceElevation_ft": 6388.107, "StratUnit": "Granite Wash Formation", "Lithology": "Quartzite", "TopDepth_ft": 2138, "BaseDepth_ft": 2365, "Lat_WGS84": 34.43906281, "Long_WGS84": -109.2635296, "Age_ID": "Cambrian", "Period": "Cambrian"},
+            {"Identifier": "02-001-20295", "SurfaceElevation_ft": 6388.107, "StratUnit": "Unknown - granite", "Lithology": "Granite", "TopDepth_ft": 2365, "BaseDepth_ft": 2431, "Lat_WGS84": 34.43906281, "Long_WGS84": -109.2635296, "Age_ID": "Unknown", "Period": " "},
+            {"Identifier": "02-001-20423", "SurfaceElevation_ft": 5515.361, "StratUnit": "Chinle Formation/Moenkopi Formation", "Lithology": "Shale", "TopDepth_ft": 0, "BaseDepth_ft": 522, "Lat_WGS84": 34.698875, "Long_WGS84": -109.78918, "Age_ID": "Triassic", "Period": "Triassic"},
+            {"Identifier": "02-001-20423", "SurfaceElevation_ft": 5515.361, "StratUnit": "Coconino Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 522, "BaseDepth_ft": 930, "Lat_WGS84": 34.698875, "Long_WGS84": -109.78918, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-001-20423", "SurfaceElevation_ft": 5515.361, "StratUnit": "Supai Group", "Lithology": "Sandstone", "TopDepth_ft": 930, "BaseDepth_ft": 1148, "Lat_WGS84": 34.698875, "Long_WGS84": -109.78918, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-001-20423", "SurfaceElevation_ft": 5515.361, "StratUnit": "Supai Group - anhydrite", "Lithology": "Anhydrite", "TopDepth_ft": 988, "BaseDepth_ft": 1080, "Lat_WGS84": 34.698875, "Long_WGS84": -109.78918, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-001-20423", "SurfaceElevation_ft": 5515.361, "StratUnit": "Supai Group - halite", "Lithology": "Halite", "TopDepth_ft": 1080, "BaseDepth_ft": 1148, "Lat_WGS84": 34.698875, "Long_WGS84": -109.78918, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-001-20423", "SurfaceElevation_ft": 5515.361, "StratUnit": "Supai Group - potash", "Lithology": "Evaporitic rocks undivided", "TopDepth_ft": 1102, "BaseDepth_ft": 1106, "Lat_WGS84": 34.698875, "Long_WGS84": -109.78918, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-001-90008", "SurfaceElevation_ft": 8330.459, "StratUnit": "Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 0, "BaseDepth_ft": 60, "Lat_WGS84": 33.85582032, "Long_WGS84": -109.0948329, "Age_ID": "Unknown", "Period": " "},
+            {"Identifier": "02-001-90008", "SurfaceElevation_ft": 8330.459, "StratUnit": "Tuff", "Lithology": "Tuff", "TopDepth_ft": 60, "BaseDepth_ft": 80, "Lat_WGS84": 33.85582032, "Long_WGS84": -109.0948329, "Age_ID": "Unknown", "Period": " "},
+            {"Identifier": "02-001-90008", "SurfaceElevation_ft": 8330.459, "StratUnit": "Basalt", "Lithology": "Basalt", "TopDepth_ft": 80, "BaseDepth_ft": 100, "Lat_WGS84": 33.85582032, "Long_WGS84": -109.0948329, "Age_ID": "Unknown", "Period": " "},
+            {"Identifier": "02-001-90008", "SurfaceElevation_ft": 8330.459, "StratUnit": "Unknown", "Lithology": "Andesite", "TopDepth_ft": 100, "BaseDepth_ft": 280, "Lat_WGS84": 33.85582032, "Long_WGS84": -109.0948329, "Age_ID": "Unknown", "Period": " "},
+            {"Identifier": "02-001-90008", "SurfaceElevation_ft": 8330.459, "StratUnit": "Basalt", "Lithology": "Basalt", "TopDepth_ft": 280, "BaseDepth_ft": 345, "Lat_WGS84": 33.85582032, "Long_WGS84": -109.0948329, "Age_ID": "Unknown", "Period": " "},
+            {"Identifier": "02-005-20032", "SurfaceElevation_ft": 5033.054, "StratUnit": "Kaibab Formation", "Lithology": "Limestone", "TopDepth_ft": 0, "BaseDepth_ft": 520, "Lat_WGS84": 36.94143829, "Long_WGS84": -112.3431345, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-005-20032", "SurfaceElevation_ft": 5033.054, "StratUnit": "Kaibab Formation - limestone", "Lithology": "Limestone", "TopDepth_ft": 0, "BaseDepth_ft": 520, "Lat_WGS84": 36.94143829, "Long_WGS84": -112.3431345, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-005-20032", "SurfaceElevation_ft": 5033.054, "StratUnit": "Toroweap Formation", "Lithology": "Limestone", "TopDepth_ft": 520, "BaseDepth_ft": 840, "Lat_WGS84": 36.94143829, "Long_WGS84": -112.3431345, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-005-20032", "SurfaceElevation_ft": 5033.054, "StratUnit": "Coconino Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 840, "BaseDepth_ft": 870, "Lat_WGS84": 36.94143829, "Long_WGS84": -112.3431345, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-005-20032", "SurfaceElevation_ft": 5033.054, "StratUnit": "Hermit Shale", "Lithology": "Shale", "TopDepth_ft": 870, "BaseDepth_ft": 1480, "Lat_WGS84": 36.94143829, "Long_WGS84": -112.3431345, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-005-20032", "SurfaceElevation_ft": 5033.054, "StratUnit": "Supai Group", "Lithology": "Sandstone", "TopDepth_ft": 1480, "BaseDepth_ft": 2180, "Lat_WGS84": 36.94143829, "Long_WGS84": -112.3431345, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-005-20032", "SurfaceElevation_ft": 5033.054, "StratUnit": "Callville Limestone", "Lithology": "Limestone", "TopDepth_ft": 2180, "BaseDepth_ft": 2420, "Lat_WGS84": 36.94143829, "Long_WGS84": -112.3431345, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
+            {"Identifier": "02-005-20032", "SurfaceElevation_ft": 5033.054, "StratUnit": "Redwall Limestone", "Lithology": "Limestone", "TopDepth_ft": 2420, "BaseDepth_ft": 3260, "Lat_WGS84": 36.94143829, "Long_WGS84": -112.3431345, "Age_ID": "Mississippian", "Period": "Mississippian"},
+            {"Identifier": "02-005-20032", "SurfaceElevation_ft": 5033.054, "StratUnit": "Martin Formation", "Lithology": "Limestone", "TopDepth_ft": 3260, "BaseDepth_ft": 3744, "Lat_WGS84": 36.94143829, "Long_WGS84": -112.3431345, "Age_ID": "Devonian", "Period": "Devonian"},
+            {"Identifier": "02-005-20032", "SurfaceElevation_ft": 5033.054, "StratUnit": "Muav Limestone", "Lithology": "Limestone", "TopDepth_ft": 3744, "BaseDepth_ft": 4250, "Lat_WGS84": 36.94143829, "Long_WGS84": -112.3431345, "Age_ID": "Cambrian", "Period": "Cambrian"},
+            {"Identifier": "02-005-20032", "SurfaceElevation_ft": 5033.054, "StratUnit": "Bright Angel Shale", "Lithology": "Shale", "TopDepth_ft": 4250, "BaseDepth_ft": 4450, "Lat_WGS84": 36.94143829, "Long_WGS84": -112.3431345, "Age_ID": "Cambrian", "Period": "Cambrian"},
+            {"Identifier": "02-005-20032", "SurfaceElevation_ft": 5033.054, "StratUnit": "Tapeats Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 4450, "BaseDepth_ft": 4760, "Lat_WGS84": 36.94143829, "Long_WGS84": -112.3431345, "Age_ID": "Cambrian", "Period": "Cambrian"},
+            {"Identifier": "02-005-20032", "SurfaceElevation_ft": 5033.054, "StratUnit": "Chuar Group", "Lithology": "Shale", "TopDepth_ft": 4760, "BaseDepth_ft": 5436, "Lat_WGS84": 36.94143829, "Long_WGS84": -112.3431345, "Age_ID": "Neoproterozoic", "Period": "Neoproterozoic"},
+            {"Identifier": "02-017-05005", "SurfaceElevation_ft": 5708.940000000001, "StratUnit": "Chinle Formation", "Lithology": "Shale", "TopDepth_ft": 0, "BaseDepth_ft": 595, "Lat_WGS84": 35.07764732, "Long_WGS84": -109.9491694, "Age_ID": "Triassic", "Period": "Triassic"},
+            {"Identifier": "02-017-05005", "SurfaceElevation_ft": 5708.940000000001, "StratUnit": "Shinarump Member", "Lithology": "Conglomerate", "TopDepth_ft": 595, "BaseDepth_ft": 674, "Lat_WGS84": 35.07764732, "Long_WGS84": -109.9491694, "Age_ID": "Triassic", "Period": "Triassic"},
+            {"Identifier": "02-017-05005", "SurfaceElevation_ft": 5708.940000000001, "StratUnit": "Moenkopi Formation", "Lithology": "Shale", "TopDepth_ft": 674, "BaseDepth_ft": 1124, "Lat_WGS84": 35.07764732, "Long_WGS84": -109.9491694, "Age_ID": "Triassic", "Period": "Triassic"},
+            {"Identifier": "02-017-05005", "SurfaceElevation_ft": 5708.940000000001, "StratUnit": "Kaibab Formation", "Lithology": "Limestone", "TopDepth_ft": 1124, "BaseDepth_ft": 1127, "Lat_WGS84": 35.07764732, "Long_WGS84": -109.9491694, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-017-05005", "SurfaceElevation_ft": 5708.940000000001, "StratUnit": "Coconino Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 1127, "BaseDepth_ft": 1590, "Lat_WGS84": 35.07764732, "Long_WGS84": -109.9491694, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-017-05005", "SurfaceElevation_ft": 5708.940000000001, "StratUnit": "Supai Group", "Lithology": "Sandstone", "TopDepth_ft": 1590, "BaseDepth_ft": 3353, "Lat_WGS84": 35.07764732, "Long_WGS84": -109.9491694, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-017-05005", "SurfaceElevation_ft": 5708.940000000001, "StratUnit": "Granite Wash Formation", "Lithology": "Quartzite", "TopDepth_ft": 3353, "BaseDepth_ft": 3432, "Lat_WGS84": 35.07764732, "Long_WGS84": -109.9491694, "Age_ID": "Cambrian", "Period": "Cambrian"},
+            {"Identifier": "02-017-05064", "SurfaceElevation_ft": 6125.627, "StratUnit": "Mesa Verde Group", "Lithology": "Sandstone", "TopDepth_ft": 0, "BaseDepth_ft": 402, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Cretaceous", "Period": "Cretaceous"},
+            {"Identifier": "02-017-05064", "SurfaceElevation_ft": 6125.627, "StratUnit": "Mancos Shale", "Lithology": "Shale", "TopDepth_ft": 402, "BaseDepth_ft": 918, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Cretaceous", "Period": "Cretaceous"},
+            {"Identifier": "02-017-05064", "SurfaceElevation_ft": 6125.627, "StratUnit": "Dakota Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 918, "BaseDepth_ft": 997, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Cretaceous", "Period": "Cretaceous"},
+            {"Identifier": "02-017-05064", "SurfaceElevation_ft": 6125.627, "StratUnit": "Cow Springs Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 997, "BaseDepth_ft": 1332, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Jurassic", "Period": "Jurassic"},
+            {"Identifier": "02-017-05064", "SurfaceElevation_ft": 6125.627, "StratUnit": "Entrada Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 1332, "BaseDepth_ft": 1618, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Jurassic", "Period": "Jurassic"},
+            {"Identifier": "02-017-05064", "SurfaceElevation_ft": 6125.627, "StratUnit": "Navajo Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 1618, "BaseDepth_ft": 2010, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Jurassic", "Period": "Jurassic"},
+            {"Identifier": "02-017-05064", "SurfaceElevation_ft": 6125.627, "StratUnit": "Moenave\u00a0Formation", "Lithology": "Shale", "TopDepth_ft": 2010, "BaseDepth_ft": 2370, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Jurassic", "Period": "Jurassic"},
+            {"Identifier": "02-017-05064", "SurfaceElevation_ft": 6125.627, "StratUnit": "Wingate Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 2370, "BaseDepth_ft": 2860, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Jurassic", "Period": "Jurassic"},
+            {"Identifier": "02-017-05064", "SurfaceElevation_ft": 6125.627, "StratUnit": "Chinle Formation", "Lithology": "Shale", "TopDepth_ft": 2860, "BaseDepth_ft": 4110, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Triassic", "Period": "Triassic"},
+            {"Identifier": "02-017-05064", "SurfaceElevation_ft": 6125.627, "StratUnit": "Shinarump Member", "Lithology": "Conglomerate", "TopDepth_ft": 4110, "BaseDepth_ft": 4230, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Triassic", "Period": "Triassic"},
+            {"Identifier": "02-017-05064", "SurfaceElevation_ft": 6125.627, "StratUnit": "Moenkopi Formation", "Lithology": "Shale", "TopDepth_ft": 4230, "BaseDepth_ft": 4512, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Triassic", "Period": "Triassic"},
+            {"Identifier": "02-017-05064", "SurfaceElevation_ft": 6125.627, "StratUnit": "De Chelly Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 4512, "BaseDepth_ft": 5355, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-017-05064", "SurfaceElevation_ft": 6125.627, "StratUnit": "Supai Group", "Lithology": "Sandstone", "TopDepth_ft": 5355, "BaseDepth_ft": 6601, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Permian", "Period": "Permian"},
+            {"Identifier": "02-017-05064", "SurfaceElevation_ft": 6125.627, "StratUnit": "Hermosa Group", "Lithology": "Limestone", "TopDepth_ft": 6601, "BaseDepth_ft": 6914, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
+            {"Identifier": "02-017-05064", "SurfaceElevation_ft": 6125.627, "StratUnit": "Molas Formation", "Lithology": "Mudstone", "TopDepth_ft": 6914, "BaseDepth_ft": 6984, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Pennsylvanian", "Period": "Pennsylvanian"},
+            {"Identifier": "02-017-05064", "SurfaceElevation_ft": 6125.627, "StratUnit": "Unknown", "Lithology": "Unknown", "TopDepth_ft": 6984, "BaseDepth_ft": 7180, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Mississippian", "Period": "Mississippian"},
+            {"Identifier": "02-017-05064", "SurfaceElevation_ft": 6125.627, "StratUnit": "Elbert Formation", "Lithology": "Shale", "TopDepth_ft": 7180, "BaseDepth_ft": 7455, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Devonian", "Period": "Devonian"},
+            {"Identifier": "02-017-05064", "SurfaceElevation_ft": 6125.627, "StratUnit": "McCracken Sandstone Member", "Lithology": "Sandstone", "TopDepth_ft": 7455, "BaseDepth_ft": 7545, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Devonian", "Period": "Devonian"},
+            {"Identifier": "02-017-05064", "SurfaceElevation_ft": 6125.627, "StratUnit": "Aneth Dolomite Zone", "Lithology": "Dolomite", "TopDepth_ft": 7545, "BaseDepth_ft": 7622, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Devonian", "Period": "Devonian"},
+            {"Identifier": "02-017-05064", "SurfaceElevation_ft": 6125.627, "StratUnit": "Bright Angel Shale", "Lithology": "Shale", "TopDepth_ft": 7622, "BaseDepth_ft": 7650, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Cambrian", "Period": "Cambrian"},
+            {"Identifier": "02-017-05064", "SurfaceElevation_ft": 6125.627, "StratUnit": "Tapeats Sandstone", "Lithology": "Sandstone", "TopDepth_ft": 7650, "BaseDepth_ft": 7740, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Cambrian", "Period": "Cambrian"},
+            {"Identifier": "02-017-05064", "SurfaceElevation_ft": 6125.627, "StratUnit": "Unknown", "Lithology": "Unknown", "TopDepth_ft": 7740, "BaseDepth_ft": 7780, "Lat_WGS84": 35.96353932, "Long_WGS84": -110.479915, "Age_ID": "Precambrian", "Period": " "}
         ];
 
         // AZGS Logo (embedded JPEG, 546x546px)
@@ -463,7 +463,7 @@ const DEFAULT_COLOR_MAP = {
             const [previewImage, setPreviewImage] = useState('');
             const [generating, setGenerating] = useState(false);
             const [progress, setProgress] = useState({ current: 0, total: 0 });
-            const [packageName, setPackageName] = useState('wells_with_images');
+            const [packageName, setPackageName] = useState('strat_images');
             const [usePatterns, setUsePatterns] = useState(true);
             const [citation, setCitation] = useState('');
             const [logoImage, setLogoImage] = useState(null);
@@ -491,7 +491,7 @@ const DEFAULT_COLOR_MAP = {
                     setWellData(EXAMPLE_WELL_DATA);
                     setIsExampleData(true);
                     setColumns({
-                        wellId: 'API_Number',
+                        wellId: 'Identifier',
                         unitName: 'StratUnit',
                         topDepth: 'TopDepth_ft',
                         bottomDepth: 'BaseDepth_ft',
@@ -499,7 +499,7 @@ const DEFAULT_COLOR_MAP = {
                         lithology: 'Lithology',
                         latitude: 'Lat_WGS84',
                         longitude: 'Long_WGS84',
-                        surfaceElevation: 'Elevation_ft'
+                        surfaceElevation: 'SurfaceElevation_ft'
                     });
                     // Set default preview well
                     setPreviewWell('02-017-05005');
@@ -681,7 +681,7 @@ const DEFAULT_COLOR_MAP = {
                 setWellData(EXAMPLE_WELL_DATA);
                 setIsExampleData(true);
                 setColumns({ 
-                    wellId: 'API_Number', 
+                    wellId: 'Identifier', 
                     unitName: 'StratUnit', 
                     topDepth: 'TopDepth_ft', 
                     bottomDepth: 'BaseDepth_ft', 
@@ -689,7 +689,7 @@ const DEFAULT_COLOR_MAP = {
                     lithology: 'Lithology',
                     latitude: 'Lat_WGS84', 
                     longitude: 'Long_WGS84',
-                    surfaceElevation: 'Elevation_ft'
+                    surfaceElevation: 'SurfaceElevation_ft'
                 });
                 setShowColumnMapping(false);
             };
@@ -707,64 +707,59 @@ const DEFAULT_COLOR_MAP = {
                 // Create template data with headers and example rows
                 const templateData = [
                     {
-                        'API_Number': '02-001-00001',
+                        'Identifier': '02-001-00001',
                         'StratUnit': 'Morrison Formation',
                         'Lithology': 'Sandstone',
                         'TopDepth_ft': 0,
                         'BaseDepth_ft': 500,
                         'Age_ID': 'Jurassic',
-                        'Period': 'Jurassic',
                         'Lat_WGS84': 34.5678,
                         'Long_WGS84': -111.1234,
-                        'Elevation_ft': 5000
+                        'SurfaceElevation_ft': 5000
                     },
                     {
-                        'API_Number': '02-001-00001',
+                        'Identifier': '02-001-00001',
                         'StratUnit': 'Chinle Formation',
                         'Lithology': 'Shale',
                         'TopDepth_ft': 500,
                         'BaseDepth_ft': 1200,
                         'Age_ID': 'Triassic',
-                        'Period': 'Triassic',
                         'Lat_WGS84': 34.5678,
                         'Long_WGS84': -111.1234,
-                        'Elevation_ft': 5000
+                        'SurfaceElevation_ft': 5000
                     },
                     {
-                        'API_Number': '02-001-00001',
+                        'Identifier': '02-001-00001',
                         'StratUnit': 'Kaibab Limestone',
                         'Lithology': 'Limestone',
                         'TopDepth_ft': 1200,
                         'BaseDepth_ft': 1800,
                         'Age_ID': 'Permian',
-                        'Period': 'Permian',
                         'Lat_WGS84': 34.5678,
                         'Long_WGS84': -111.1234,
-                        'Elevation_ft': 5000
+                        'SurfaceElevation_ft': 5000
                     },
                     {
-                        'API_Number': '02-001-00002',
+                        'Identifier': '02-001-00002',
                         'StratUnit': 'Dakota Sandstone',
                         'Lithology': 'Sandstone',
                         'TopDepth_ft': 0,
                         'BaseDepth_ft': 350,
                         'Age_ID': 'Cretaceous',
-                        'Period': 'Cretaceous',
                         'Lat_WGS84': 35.1234,
                         'Long_WGS84': -110.5678,
-                        'Elevation_ft': 4500
+                        'SurfaceElevation_ft': 4500
                     },
                     {
-                        'API_Number': '02-001-00002',
+                        'Identifier': '02-001-00002',
                         'StratUnit': 'Mancos Shale',
                         'Lithology': 'Shale',
                         'TopDepth_ft': 350,
                         'BaseDepth_ft': 900,
                         'Age_ID': 'Cretaceous',
-                        'Period': 'Cretaceous',
                         'Lat_WGS84': 35.1234,
                         'Long_WGS84': -110.5678,
-                        'Elevation_ft': 4500
+                        'SurfaceElevation_ft': 4500
                     }
                 ];
                 
@@ -773,23 +768,22 @@ const DEFAULT_COLOR_MAP = {
                 
                 // Set column widths
                 ws['!cols'] = [
-                    { wch: 15 },  // API_Number
+                    { wch: 15 },  // Identifier
                     { wch: 22 },  // StratUnit
                     { wch: 15 },  // Lithology
                     { wch: 12 },  // TopDepth_ft
                     { wch: 13 },  // BaseDepth_ft
                     { wch: 12 },  // Age_ID
-                    { wch: 12 },  // Period
                     { wch: 12 },  // Lat_WGS84
                     { wch: 12 },  // Long_WGS84
-                    { wch: 12 }   // Elevation_ft
+                    { wch: 12 }   // SurfaceElevation_ft
                 ];
                 
                 const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, 'Well_Stratigraphy');
+                XLSX.utils.book_append_sheet(wb, ws, 'Stratigraphy');
                 
                 // Generate and download file
-                XLSX.writeFile(wb, 'WellStratigraphy_Template.xlsx');
+                XLSX.writeFile(wb, 'Stratigraphy_Template.xlsx');
             };
 
 
@@ -853,9 +847,9 @@ const DEFAULT_COLOR_MAP = {
                 
                 // Draw title
                 ctx.fillStyle = '#000'; ctx.font = 'bold 16px Arial, sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText(`Well ${wellRecords[0][columns.wellId]}`, width / 2, 25);
+                ctx.fillText(`${wellRecords[0][columns.wellId]}`, width / 2, 25);
                 
-                // Draw depth range under well ID
+                // Draw depth range under ID
                 ctx.font = '12px Arial, sans-serif';
                 ctx.fillText(`Depth Range: ${minDepth.toFixed(1)} - ${maxDepth.toFixed(1)} ft`, width / 2, 42);
                 
@@ -1170,14 +1164,14 @@ const DEFAULT_COLOR_MAP = {
                     const records = wellData.filter(r => r[columns.wellId] === previewWell);
                     
                     if (records.length === 0) {
-                        alert(`No data found for well ${previewWell}`);
+                        alert(`No data found for ${previewWell}`);
                         return;
                     }
                     
                     const imageData = generateStratImage(records);
                     
                     if (!imageData) {
-                        alert(`Failed to generate image for well ${previewWell}. Check console for details.`);
+                        alert(`Failed to generate image for ${previewWell}. Check console for details.`);
                         return;
                     }
                     
@@ -1193,7 +1187,7 @@ const DEFAULT_COLOR_MAP = {
             const handleDownload = () => {
                 if (!previewImage) return;
                 const link = document.createElement('a');
-                link.download = `well_${previewWell}_strat.jpg`; // Changed to .jpg for ArcGIS Pro
+                link.download = `strat_${previewWell}.jpg`; // Changed to .jpg for ArcGIS Pro
                 link.href = previewImage;
                 link.click();
             };
@@ -1230,7 +1224,7 @@ const DEFAULT_COLOR_MAP = {
                     
                     // Add CSV to ZIP
                     const csvContent = csvData.map(row => row.join(',')).join('\n');
-                    zip.file('wells.csv', csvContent);
+                    zip.file('data.csv', csvContent);
                     
                     // Generate and download ZIP
                     const content = await zip.generateAsync({ type: 'blob' });
@@ -1241,7 +1235,7 @@ const DEFAULT_COLOR_MAP = {
                     link.click();
                     URL.revokeObjectURL(url);
                     
-                    alert(`Package created!\n\n${uniqueWells.length} wells processed\nDownloaded as: ${packageName}.zip`);
+                    alert(`Package created!\n\n${uniqueWells.length} columns processed\nDownloaded as: ${packageName}.zip`);
                 } catch (err) {
                     alert('Error generating package: ' + err.message);
                 } finally {
@@ -1264,7 +1258,7 @@ const DEFAULT_COLOR_MAP = {
                     
                     {/* Header */}
                     <header style={{ textAlign: 'center', marginBottom: '25px' }}>
-                        <h1 style={{ fontSize: '32px', marginBottom: '8px', color: '#AB0520', fontWeight: 'bold' }}>Well Stratigraphy Image Generator</h1>
+                        <h1 style={{ fontSize: '32px', marginBottom: '8px', color: '#AB0520', fontWeight: 'bold' }}>Stratigraphic Column Generator</h1>
                         {patternsLoaded && Object.keys(patternImages.current).length > 0 && (
                             <p style={{ color: '#28a745', fontSize: '13px', marginTop: '8px' }} role="status">✓ {Object.keys(patternImages.current).length} patterns loaded</p>
                         )}
@@ -1287,11 +1281,11 @@ const DEFAULT_COLOR_MAP = {
                             <div style={{ background: 'white', padding: '25px', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', marginBottom: '20px' }}>
                                 <h2 style={{ marginTop: 0, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '12px', color: '#0C234B', fontSize: '20px' }}>
                                     <Upload size={28} style={{ color: '#AB0520' }} />
-                                    Upload Your Well Data
+                                    Upload Your Data
                                 </h2>
                                 
                                 <div style={{ border: '3px dashed #AB0520', borderRadius: '12px', padding: '25px', textAlign: 'center', background: '#fef7f7', marginBottom: '15px' }}>
-                                    <label htmlFor="well-data-upload" className="sr-only" style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', border: 0 }}>Upload well stratigraphy Excel file</label>
+                                    <label htmlFor="well-data-upload" className="sr-only" style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', border: 0 }}>Upload stratigraphy Excel file</label>
                                     <input 
                                         type="file" 
                                         id="well-data-upload"
@@ -1305,15 +1299,15 @@ const DEFAULT_COLOR_MAP = {
                                             isExampleData ? (
                                                 <span style={{ color: '#0C234B', fontWeight: 'bold' }}>
                                                     <span style={{ background: '#0C234B', color: 'white', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', marginRight: '8px' }}>EXAMPLE DATA</span>
-                                                    {wellData.length} records from {uniqueWells.length} Arizona wells
+                                                    {wellData.length} records for {uniqueWells.length} columns
                                                 </span>
                                             ) : (
                                                 <span style={{ color: '#28a745', fontWeight: 'bold' }}>
                                                     <span style={{ background: '#28a745', color: 'white', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', marginRight: '8px' }}>YOUR DATA</span>
-                                                    ✓ {wellData.length} records loaded from {uniqueWells.length} wells
+                                                    ✓ {wellData.length} records loaded for {uniqueWells.length} columns
                                                 </span>
                                             )
-                                        ) : 'Excel file with well stratigraphy data (.xlsx, .xls)'}
+                                        ) : 'Excel file with stratigraphy data (.xlsx, .xls)'}
                                     </p>
                                 </div>
 
@@ -1369,7 +1363,7 @@ const DEFAULT_COLOR_MAP = {
                                     {Object.entries(columns).map(([key, value]) => (
                                         <div key={key}>
                                             <label style={{ display: 'block', fontWeight: '600', marginBottom: '4px', fontSize: '12px', color: '#374151' }}>
-                                                {key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())}
+                                                {key === 'wellId' ? 'Identifier' : key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())}
                                                 {['wellId', 'topDepth', 'bottomDepth'].includes(key) && <span style={{ color: '#AB0520' }}> *</span>}
                                             </label>
                                             <select value={value} onChange={(e) => setColumns({...columns, [key]: e.target.value})} disabled={!wellData}
@@ -1398,7 +1392,7 @@ const DEFAULT_COLOR_MAP = {
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
                                         <div>
                                             <label style={{ display: 'block', fontWeight: '600', marginBottom: '4px', fontSize: '12px' }}>Package Name</label>
-                                            <input type="text" value={packageName} onChange={(e) => setPackageName(e.target.value)} placeholder="wells_with_images" style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #cbd5e0', fontSize: '13px', boxSizing: 'border-box' }} />
+                                            <input type="text" value={packageName} onChange={(e) => setPackageName(e.target.value)} placeholder="strat_images" style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #cbd5e0', fontSize: '13px', boxSizing: 'border-box' }} />
                                         </div>
                                         <div>
                                             <label style={{ display: 'block', fontWeight: '600', marginBottom: '4px', fontSize: '12px' }}>Citation (optional)</label>
@@ -1409,7 +1403,7 @@ const DEFAULT_COLOR_MAP = {
                                     {generating && (
                                         <div style={{ marginBottom: '15px', background: '#81D3EB', padding: '12px', borderRadius: '4px' }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '14px', fontWeight: '500' }}>
-                                                <span>Processing wells...</span><span>{progress.current} / {progress.total}</span>
+                                                <span>Processing...</span><span>{progress.current} / {progress.total}</span>
                                             </div>
                                             <div style={{ width: '100%', height: '10px', background: '#e5e7eb', borderRadius: '5px', overflow: 'hidden' }}>
                                                 <div style={{ width: `${(progress.current / progress.total) * 100}%`, height: '100%', background: '#0C234B', transition: 'width 0.3s' }} />
@@ -1419,7 +1413,7 @@ const DEFAULT_COLOR_MAP = {
 
                                     <button onClick={handleDownloadPackage} disabled={generating || !hasCoords} style={{ width: '100%', padding: '16px', background: (generating || !hasCoords) ? '#CBD5E0' : '#AB0520', color: 'white', border: 'none', borderRadius: '8px', cursor: (generating || !hasCoords) ? 'not-allowed' : 'pointer', fontWeight: 'bold', fontSize: '15px' }}>
                                         <Camera size={20} style={{ display: 'inline', marginRight: '10px', verticalAlign: 'middle' }} />
-                                        {generating ? 'Generating...' : `Download ZIP Package (${uniqueWells.length} wells)`}
+                                        {generating ? 'Generating...' : `Download ZIP Package (${uniqueWells.length} columns)`}
                                     </button>
 
                                     {!hasCoords && (
@@ -1429,7 +1423,7 @@ const DEFAULT_COLOR_MAP = {
                                     )}
                                     
                                     <div style={{ marginTop: '12px', fontSize: '12px', color: '#666', textAlign: 'center' }}>
-                                        ZIP contains: wells.csv + {uniqueWells.length} JPEG images with embedded coordinates
+                                        ZIP contains: data.csv + {uniqueWells.length} JPEG images with embedded coordinates
                                     </div>
                                 </div>
                             )}
@@ -1463,7 +1457,7 @@ const DEFAULT_COLOR_MAP = {
                             <div style={{ background: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
                                 <div style={{ textAlign: 'center', marginBottom: '15px' }}>
                                     <h3 style={{ margin: 0, color: '#0C234B', fontSize: '16px' }}>
-                                        Well Preview
+                                        Preview
                                     </h3>
                                     {wellData && (
                                         <span style={{ 
@@ -1477,7 +1471,7 @@ const DEFAULT_COLOR_MAP = {
                                             color: isExampleData ? '#0C234B' : '#166534',
                                             border: isExampleData ? '1px solid #0C234B' : '1px solid #22c55e'
                                         }}>
-                                            {isExampleData ? '📍 Example Arizona Wells' : '📁 Your Uploaded Data'}
+                                            {isExampleData ? '📍 Example Arizona Data' : '📁 Your Uploaded Data'}
                                         </span>
                                     )}
                                 </div>
@@ -1488,10 +1482,10 @@ const DEFAULT_COLOR_MAP = {
                                         <select 
                                             value={previewWell} 
                                             onChange={(e) => setPreviewWell(e.target.value)} 
-                                            aria-label="Select well to preview"
+                                            aria-label="Select record to preview"
                                             style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '2px solid #0C234B', fontSize: '14px', fontWeight: '500', cursor: 'pointer' }}
                                         >
-                                            <option value="">Select a well to preview...</option>
+                                            <option value="">Select a record to preview...</option>
                                             {uniqueWells.map(well => <option key={well} value={well}>{well}</option>)}
                                         </select>
                                         
@@ -1526,13 +1520,13 @@ const DEFAULT_COLOR_MAP = {
                                         {/* Well counter */}
                                         {previewWell && (
                                             <div style={{ textAlign: 'center', marginTop: '8px', fontSize: '12px', color: '#666' }}>
-                                                Well {uniqueWells.indexOf(previewWell) + 1} of {uniqueWells.length}
+                                                {uniqueWells.indexOf(previewWell) + 1} of {uniqueWells.length}
                                             </div>
                                         )}
                                     </div>
                                 ) : (
                                     <div style={{ marginBottom: '15px', padding: '12px', background: '#f8f9fa', borderRadius: '6px', textAlign: 'center' }}>
-                                        <p style={{ margin: 0, fontSize: '13px', color: '#666' }}>Load well data to browse and preview</p>
+                                        <p style={{ margin: 0, fontSize: '13px', color: '#666' }}>Load data to browse and preview</p>
                                     </div>
                                 )}
 
@@ -1544,7 +1538,7 @@ const DEFAULT_COLOR_MAP = {
                                             style={{ textAlign: 'center', marginBottom: '10px', maxHeight: '500px', overflowY: 'auto', border: '1px solid #e5e7eb', borderRadius: '6px', background: '#fafafa', cursor: 'pointer', position: 'relative' }}
                                             title="Click to enlarge"
                                         >
-                                            <img src={previewImage} alt={`Stratigraphic column for well ${previewWell}`} style={{ maxWidth: '100%' }} />
+                                            <img src={previewImage} alt={`Stratigraphic column for ${previewWell}`} style={{ maxWidth: '100%' }} />
                                             <div style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(0,0,0,0.6)', color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', pointerEvents: 'none' }}>
                                                 🔍 Click to enlarge
                                             </div>
@@ -1563,7 +1557,7 @@ const DEFAULT_COLOR_MAP = {
                                     <div style={{ background: '#f8f9fa', borderRadius: '8px', padding: '30px 20px', textAlign: 'center', border: '1px dashed #cbd5e0' }}>
                                         <div style={{ fontSize: '40px', marginBottom: '10px', opacity: 0.3 }}>📊</div>
                                         <div style={{ color: '#666', fontSize: '13px', marginBottom: '15px' }}>
-                                            {wellData ? 'Select a well from the dropdown above' : 'Loading example data...'}
+                                            {wellData ? 'Select a record from the dropdown above' : 'Loading example data...'}
                                         </div>
                                     </div>
                                 )}
@@ -1596,7 +1590,7 @@ const DEFAULT_COLOR_MAP = {
                         <div 
                             role="dialog"
                             aria-modal="true"
-                            aria-label={`Full view of well ${previewWell} stratigraphic column`}
+                            aria-label={`Full view of ${previewWell} stratigraphic column`}
                             onClick={() => setShowImageModal(false)}
                             onKeyDown={(e) => {
                                 if (e.key === 'Escape') setShowImageModal(false);
@@ -1643,7 +1637,7 @@ const DEFAULT_COLOR_MAP = {
                                 }}
                             >
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                    <label htmlFor="modal-well-select" style={{ color: 'white', fontSize: '16px', fontWeight: '500' }}>Well:</label>
+                                    <label htmlFor="modal-well-select" style={{ color: 'white', fontSize: '16px', fontWeight: '500' }}>ID:</label>
                                     <select 
                                         id="modal-well-select"
                                         value={previewWell} 
@@ -1725,7 +1719,7 @@ const DEFAULT_COLOR_MAP = {
                             >
                                 <img 
                                     src={previewImage} 
-                                    alt={`Well ${previewWell} Stratigraphic Column`}
+                                    alt={`${previewWell} Stratigraphic Column`}
                                     style={{ 
                                         maxWidth: '100%',
                                         height: 'auto',
@@ -1737,7 +1731,7 @@ const DEFAULT_COLOR_MAP = {
                             
                             {/* Footer hint */}
                             <div style={{ position: 'absolute', bottom: '20px', color: 'rgba(255,255,255,0.5)', fontSize: '13px' }}>
-                                Click outside to close (or press Esc) • Use ← → arrow keys to navigate wells
+                                Click outside to close (or press Esc) • Use ← → arrow keys to navigate
                             </div>
                         </div>
                     )}
@@ -1753,7 +1747,7 @@ const DEFAULT_COLOR_MAP = {
                                 <div style={{ marginTop: '12px', paddingLeft: '10px', color: '#555', lineHeight: '1.7' }}>
                                     <ol style={{ margin: 0, paddingLeft: '20px' }}>
                                         <li><strong>Extract ZIP</strong> to a folder on your computer</li>
-                                        <li><strong>XY Table To Point:</strong> In ArcGIS Pro, right-click wells.csv → XY Table To Point
+                                        <li><strong>XY Table To Point:</strong> In ArcGIS Pro, right-click data.csv → XY Table To Point
                                             <ul style={{ marginTop: '4px', paddingLeft: '20px', fontSize: '12px' }}>
                                                 <li>X Field: Longitude</li>
                                                 <li>Y Field: Latitude</li>
@@ -1764,7 +1758,7 @@ const DEFAULT_COLOR_MAP = {
                                         <li><strong>Add Attachments:</strong> Data Management Tools → Attachments → Add Attachments
                                             <ul style={{ marginTop: '4px', paddingLeft: '20px', fontSize: '12px' }}>
                                                 <li>Input Join Field: API</li>
-                                                <li>Match Table: wells.csv</li>
+                                                <li>Match Table: data.csv</li>
                                                 <li>Match Join Field: API</li>
                                                 <li>Match Path Field: ImagePath</li>
                                             </ul>
