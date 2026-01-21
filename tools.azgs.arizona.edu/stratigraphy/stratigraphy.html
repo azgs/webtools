@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Generate stratigraphic column images from well data with geologic age colors and lithology patterns. Export to GIS-ready formats.">
-    <meta name="keywords" content="stratigraphy, well logs, geology, GIS, USGS patterns, lithology">
-    <title>Well Stratigraphy Image Generator</title>
+    <meta name="description" content="Generate stratigraphic column images from your data with geologic age colors and lithology patterns. Export to GIS-ready formats.">
+    <meta name="keywords" content="stratigraphy, stratigraphic columns, geology, GIS, USGS patterns, lithology">
+    <title>Stratigraphic Column Generator</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -42,7 +42,7 @@
     <div id="root"></div>
     <noscript>
         <div style="padding: 40px; text-align: center; font-family: sans-serif;">
-            <h1>Well Stratigraphy Image Generator</h1>
+            <h1>Stratigraphic Column Generator</h1>
             <p>This application requires JavaScript to run. Please enable JavaScript in your browser settings.</p>
         </div>
     </noscript>
@@ -70,7 +70,7 @@ const DEFAULT_COLOR_MAP = {
             'ordovician': '#FBB4BD',
             'cambrian': '#FDCDB8',
             'precambrian': '#7FAD51',
-            'unknown': '#D3D3D3',
+            'unknown': '#FFFFFF',
         };
 
         // Built-in USGS Pattern Map - matches Well_Tops_v4_cleaned.xlsx lithology values
@@ -463,7 +463,7 @@ const DEFAULT_COLOR_MAP = {
             const [previewImage, setPreviewImage] = useState('');
             const [generating, setGenerating] = useState(false);
             const [progress, setProgress] = useState({ current: 0, total: 0 });
-            const [packageName, setPackageName] = useState('wells_with_images');
+            const [packageName, setPackageName] = useState('strat_images');
             const [usePatterns, setUsePatterns] = useState(true);
             const [citation, setCitation] = useState('');
             const [logoImage, setLogoImage] = useState(null);
@@ -786,10 +786,10 @@ const DEFAULT_COLOR_MAP = {
                 ];
                 
                 const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, 'Well_Stratigraphy');
+                XLSX.utils.book_append_sheet(wb, ws, 'Stratigraphy');
                 
                 // Generate and download file
-                XLSX.writeFile(wb, 'WellStratigraphy_Template.xlsx');
+                XLSX.writeFile(wb, 'Stratigraphy_Template.xlsx');
             };
 
 
@@ -853,9 +853,9 @@ const DEFAULT_COLOR_MAP = {
                 
                 // Draw title
                 ctx.fillStyle = '#000'; ctx.font = 'bold 16px Arial, sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText(`Well ${wellRecords[0][columns.wellId]}`, width / 2, 25);
+                ctx.fillText(`${wellRecords[0][columns.wellId]}`, width / 2, 25);
                 
-                // Draw depth range under well ID
+                // Draw depth range under ID
                 ctx.font = '12px Arial, sans-serif';
                 ctx.fillText(`Depth Range: ${minDepth.toFixed(1)} - ${maxDepth.toFixed(1)} ft`, width / 2, 42);
                 
@@ -1170,14 +1170,14 @@ const DEFAULT_COLOR_MAP = {
                     const records = wellData.filter(r => r[columns.wellId] === previewWell);
                     
                     if (records.length === 0) {
-                        alert(`No data found for well ${previewWell}`);
+                        alert(`No data found for ${previewWell}`);
                         return;
                     }
                     
                     const imageData = generateStratImage(records);
                     
                     if (!imageData) {
-                        alert(`Failed to generate image for well ${previewWell}. Check console for details.`);
+                        alert(`Failed to generate image for ${previewWell}. Check console for details.`);
                         return;
                     }
                     
@@ -1193,7 +1193,7 @@ const DEFAULT_COLOR_MAP = {
             const handleDownload = () => {
                 if (!previewImage) return;
                 const link = document.createElement('a');
-                link.download = `well_${previewWell}_strat.jpg`; // Changed to .jpg for ArcGIS Pro
+                link.download = `strat_${previewWell}.jpg`; // Changed to .jpg for ArcGIS Pro
                 link.href = previewImage;
                 link.click();
             };
@@ -1230,7 +1230,7 @@ const DEFAULT_COLOR_MAP = {
                     
                     // Add CSV to ZIP
                     const csvContent = csvData.map(row => row.join(',')).join('\n');
-                    zip.file('wells.csv', csvContent);
+                    zip.file('data.csv', csvContent);
                     
                     // Generate and download ZIP
                     const content = await zip.generateAsync({ type: 'blob' });
@@ -1241,7 +1241,7 @@ const DEFAULT_COLOR_MAP = {
                     link.click();
                     URL.revokeObjectURL(url);
                     
-                    alert(`Package created!\n\n${uniqueWells.length} wells processed\nDownloaded as: ${packageName}.zip`);
+                    alert(`Package created!\n\n${uniqueWells.length} columns processed\nDownloaded as: ${packageName}.zip`);
                 } catch (err) {
                     alert('Error generating package: ' + err.message);
                 } finally {
@@ -1264,7 +1264,7 @@ const DEFAULT_COLOR_MAP = {
                     
                     {/* Header */}
                     <header style={{ textAlign: 'center', marginBottom: '25px' }}>
-                        <h1 style={{ fontSize: '32px', marginBottom: '8px', color: '#AB0520', fontWeight: 'bold' }}>Well Stratigraphy Image Generator</h1>
+                        <h1 style={{ fontSize: '32px', marginBottom: '8px', color: '#AB0520', fontWeight: 'bold' }}>Stratigraphic Column Generator</h1>
                         {patternsLoaded && Object.keys(patternImages.current).length > 0 && (
                             <p style={{ color: '#28a745', fontSize: '13px', marginTop: '8px' }} role="status">✓ {Object.keys(patternImages.current).length} patterns loaded</p>
                         )}
@@ -1287,11 +1287,11 @@ const DEFAULT_COLOR_MAP = {
                             <div style={{ background: 'white', padding: '25px', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', marginBottom: '20px' }}>
                                 <h2 style={{ marginTop: 0, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '12px', color: '#0C234B', fontSize: '20px' }}>
                                     <Upload size={28} style={{ color: '#AB0520' }} />
-                                    Upload Your Well Data
+                                    Upload Your Data
                                 </h2>
                                 
                                 <div style={{ border: '3px dashed #AB0520', borderRadius: '12px', padding: '25px', textAlign: 'center', background: '#fef7f7', marginBottom: '15px' }}>
-                                    <label htmlFor="well-data-upload" className="sr-only" style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', border: 0 }}>Upload well stratigraphy Excel file</label>
+                                    <label htmlFor="well-data-upload" className="sr-only" style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', border: 0 }}>Upload stratigraphy Excel file</label>
                                     <input 
                                         type="file" 
                                         id="well-data-upload"
@@ -1313,7 +1313,7 @@ const DEFAULT_COLOR_MAP = {
                                                     ✓ {wellData.length} records loaded from {uniqueWells.length} wells
                                                 </span>
                                             )
-                                        ) : 'Excel file with well stratigraphy data (.xlsx, .xls)'}
+                                        ) : 'Excel file with stratigraphy data (.xlsx, .xls)'}
                                     </p>
                                 </div>
 
@@ -1398,7 +1398,7 @@ const DEFAULT_COLOR_MAP = {
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
                                         <div>
                                             <label style={{ display: 'block', fontWeight: '600', marginBottom: '4px', fontSize: '12px' }}>Package Name</label>
-                                            <input type="text" value={packageName} onChange={(e) => setPackageName(e.target.value)} placeholder="wells_with_images" style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #cbd5e0', fontSize: '13px', boxSizing: 'border-box' }} />
+                                            <input type="text" value={packageName} onChange={(e) => setPackageName(e.target.value)} placeholder="strat_images" style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #cbd5e0', fontSize: '13px', boxSizing: 'border-box' }} />
                                         </div>
                                         <div>
                                             <label style={{ display: 'block', fontWeight: '600', marginBottom: '4px', fontSize: '12px' }}>Citation (optional)</label>
@@ -1409,7 +1409,7 @@ const DEFAULT_COLOR_MAP = {
                                     {generating && (
                                         <div style={{ marginBottom: '15px', background: '#81D3EB', padding: '12px', borderRadius: '4px' }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '14px', fontWeight: '500' }}>
-                                                <span>Processing wells...</span><span>{progress.current} / {progress.total}</span>
+                                                <span>Processing...</span><span>{progress.current} / {progress.total}</span>
                                             </div>
                                             <div style={{ width: '100%', height: '10px', background: '#e5e7eb', borderRadius: '5px', overflow: 'hidden' }}>
                                                 <div style={{ width: `${(progress.current / progress.total) * 100}%`, height: '100%', background: '#0C234B', transition: 'width 0.3s' }} />
@@ -1419,7 +1419,7 @@ const DEFAULT_COLOR_MAP = {
 
                                     <button onClick={handleDownloadPackage} disabled={generating || !hasCoords} style={{ width: '100%', padding: '16px', background: (generating || !hasCoords) ? '#CBD5E0' : '#AB0520', color: 'white', border: 'none', borderRadius: '8px', cursor: (generating || !hasCoords) ? 'not-allowed' : 'pointer', fontWeight: 'bold', fontSize: '15px' }}>
                                         <Camera size={20} style={{ display: 'inline', marginRight: '10px', verticalAlign: 'middle' }} />
-                                        {generating ? 'Generating...' : `Download ZIP Package (${uniqueWells.length} wells)`}
+                                        {generating ? 'Generating...' : `Download ZIP Package (${uniqueWells.length} columns)`}
                                     </button>
 
                                     {!hasCoords && (
@@ -1429,7 +1429,7 @@ const DEFAULT_COLOR_MAP = {
                                     )}
                                     
                                     <div style={{ marginTop: '12px', fontSize: '12px', color: '#666', textAlign: 'center' }}>
-                                        ZIP contains: wells.csv + {uniqueWells.length} JPEG images with embedded coordinates
+                                        ZIP contains: data.csv + {uniqueWells.length} JPEG images with embedded coordinates
                                     </div>
                                 </div>
                             )}
@@ -1463,7 +1463,7 @@ const DEFAULT_COLOR_MAP = {
                             <div style={{ background: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
                                 <div style={{ textAlign: 'center', marginBottom: '15px' }}>
                                     <h3 style={{ margin: 0, color: '#0C234B', fontSize: '16px' }}>
-                                        Well Preview
+                                        Preview
                                     </h3>
                                     {wellData && (
                                         <span style={{ 
@@ -1477,7 +1477,7 @@ const DEFAULT_COLOR_MAP = {
                                             color: isExampleData ? '#0C234B' : '#166534',
                                             border: isExampleData ? '1px solid #0C234B' : '1px solid #22c55e'
                                         }}>
-                                            {isExampleData ? '📍 Example Arizona Wells' : '📁 Your Uploaded Data'}
+                                            {isExampleData ? '📍 Example Arizona Data' : '📁 Your Uploaded Data'}
                                         </span>
                                     )}
                                 </div>
@@ -1488,10 +1488,10 @@ const DEFAULT_COLOR_MAP = {
                                         <select 
                                             value={previewWell} 
                                             onChange={(e) => setPreviewWell(e.target.value)} 
-                                            aria-label="Select well to preview"
+                                            aria-label="Select record to preview"
                                             style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '2px solid #0C234B', fontSize: '14px', fontWeight: '500', cursor: 'pointer' }}
                                         >
-                                            <option value="">Select a well to preview...</option>
+                                            <option value="">Select a record to preview...</option>
                                             {uniqueWells.map(well => <option key={well} value={well}>{well}</option>)}
                                         </select>
                                         
@@ -1526,13 +1526,13 @@ const DEFAULT_COLOR_MAP = {
                                         {/* Well counter */}
                                         {previewWell && (
                                             <div style={{ textAlign: 'center', marginTop: '8px', fontSize: '12px', color: '#666' }}>
-                                                Well {uniqueWells.indexOf(previewWell) + 1} of {uniqueWells.length}
+                                                {uniqueWells.indexOf(previewWell) + 1} of {uniqueWells.length}
                                             </div>
                                         )}
                                     </div>
                                 ) : (
                                     <div style={{ marginBottom: '15px', padding: '12px', background: '#f8f9fa', borderRadius: '6px', textAlign: 'center' }}>
-                                        <p style={{ margin: 0, fontSize: '13px', color: '#666' }}>Load well data to browse and preview</p>
+                                        <p style={{ margin: 0, fontSize: '13px', color: '#666' }}>Load data to browse and preview</p>
                                     </div>
                                 )}
 
@@ -1544,7 +1544,7 @@ const DEFAULT_COLOR_MAP = {
                                             style={{ textAlign: 'center', marginBottom: '10px', maxHeight: '500px', overflowY: 'auto', border: '1px solid #e5e7eb', borderRadius: '6px', background: '#fafafa', cursor: 'pointer', position: 'relative' }}
                                             title="Click to enlarge"
                                         >
-                                            <img src={previewImage} alt={`Stratigraphic column for well ${previewWell}`} style={{ maxWidth: '100%' }} />
+                                            <img src={previewImage} alt={`Stratigraphic column for ${previewWell}`} style={{ maxWidth: '100%' }} />
                                             <div style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(0,0,0,0.6)', color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', pointerEvents: 'none' }}>
                                                 🔍 Click to enlarge
                                             </div>
@@ -1563,7 +1563,7 @@ const DEFAULT_COLOR_MAP = {
                                     <div style={{ background: '#f8f9fa', borderRadius: '8px', padding: '30px 20px', textAlign: 'center', border: '1px dashed #cbd5e0' }}>
                                         <div style={{ fontSize: '40px', marginBottom: '10px', opacity: 0.3 }}>📊</div>
                                         <div style={{ color: '#666', fontSize: '13px', marginBottom: '15px' }}>
-                                            {wellData ? 'Select a well from the dropdown above' : 'Loading example data...'}
+                                            {wellData ? 'Select a record from the dropdown above' : 'Loading example data...'}
                                         </div>
                                     </div>
                                 )}
@@ -1596,7 +1596,7 @@ const DEFAULT_COLOR_MAP = {
                         <div 
                             role="dialog"
                             aria-modal="true"
-                            aria-label={`Full view of well ${previewWell} stratigraphic column`}
+                            aria-label={`Full view of ${previewWell} stratigraphic column`}
                             onClick={() => setShowImageModal(false)}
                             onKeyDown={(e) => {
                                 if (e.key === 'Escape') setShowImageModal(false);
@@ -1643,7 +1643,7 @@ const DEFAULT_COLOR_MAP = {
                                 }}
                             >
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                    <label htmlFor="modal-well-select" style={{ color: 'white', fontSize: '16px', fontWeight: '500' }}>Well:</label>
+                                    <label htmlFor="modal-well-select" style={{ color: 'white', fontSize: '16px', fontWeight: '500' }}>ID:</label>
                                     <select 
                                         id="modal-well-select"
                                         value={previewWell} 
@@ -1725,7 +1725,7 @@ const DEFAULT_COLOR_MAP = {
                             >
                                 <img 
                                     src={previewImage} 
-                                    alt={`Well ${previewWell} Stratigraphic Column`}
+                                    alt={`${previewWell} Stratigraphic Column`}
                                     style={{ 
                                         maxWidth: '100%',
                                         height: 'auto',
@@ -1737,7 +1737,7 @@ const DEFAULT_COLOR_MAP = {
                             
                             {/* Footer hint */}
                             <div style={{ position: 'absolute', bottom: '20px', color: 'rgba(255,255,255,0.5)', fontSize: '13px' }}>
-                                Click outside to close (or press Esc) • Use ← → arrow keys to navigate wells
+                                Click outside to close (or press Esc) • Use ← → arrow keys to navigate
                             </div>
                         </div>
                     )}
@@ -1753,7 +1753,7 @@ const DEFAULT_COLOR_MAP = {
                                 <div style={{ marginTop: '12px', paddingLeft: '10px', color: '#555', lineHeight: '1.7' }}>
                                     <ol style={{ margin: 0, paddingLeft: '20px' }}>
                                         <li><strong>Extract ZIP</strong> to a folder on your computer</li>
-                                        <li><strong>XY Table To Point:</strong> In ArcGIS Pro, right-click wells.csv → XY Table To Point
+                                        <li><strong>XY Table To Point:</strong> In ArcGIS Pro, right-click data.csv → XY Table To Point
                                             <ul style={{ marginTop: '4px', paddingLeft: '20px', fontSize: '12px' }}>
                                                 <li>X Field: Longitude</li>
                                                 <li>Y Field: Latitude</li>
@@ -1764,7 +1764,7 @@ const DEFAULT_COLOR_MAP = {
                                         <li><strong>Add Attachments:</strong> Data Management Tools → Attachments → Add Attachments
                                             <ul style={{ marginTop: '4px', paddingLeft: '20px', fontSize: '12px' }}>
                                                 <li>Input Join Field: API</li>
-                                                <li>Match Table: wells.csv</li>
+                                                <li>Match Table: data.csv</li>
                                                 <li>Match Join Field: API</li>
                                                 <li>Match Path Field: ImagePath</li>
                                             </ul>
