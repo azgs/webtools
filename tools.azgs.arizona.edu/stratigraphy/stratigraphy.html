@@ -1299,12 +1299,12 @@ const DEFAULT_COLOR_MAP = {
                                             isExampleData ? (
                                                 <span style={{ color: '#0C234B', fontWeight: 'bold' }}>
                                                     <span style={{ background: '#0C234B', color: 'white', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', marginRight: '8px' }}>EXAMPLE DATA</span>
-                                                    {wellData.length} records from {uniqueWells.length} Arizona wells
+                                                    {wellData.length} records for {uniqueWells.length} columns
                                                 </span>
                                             ) : (
                                                 <span style={{ color: '#28a745', fontWeight: 'bold' }}>
                                                     <span style={{ background: '#28a745', color: 'white', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', marginRight: '8px' }}>YOUR DATA</span>
-                                                    ✓ {wellData.length} records loaded from {uniqueWells.length} wells
+                                                    ✓ {wellData.length} records loaded for {uniqueWells.length} columns
                                                 </span>
                                             )
                                         ) : 'Excel file with stratigraphy data (.xlsx, .xls)'}
@@ -1363,7 +1363,7 @@ const DEFAULT_COLOR_MAP = {
                                     {Object.entries(columns).map(([key, value]) => (
                                         <div key={key}>
                                             <label style={{ display: 'block', fontWeight: '600', marginBottom: '4px', fontSize: '12px', color: '#374151' }}>
-                                                {key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())}
+                                                {key === 'wellId' ? 'Identifier' : key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())}
                                                 {['wellId', 'topDepth', 'bottomDepth'].includes(key) && <span style={{ color: '#AB0520' }}> *</span>}
                                             </label>
                                             <select value={value} onChange={(e) => setColumns({...columns, [key]: e.target.value})} disabled={!wellData}
