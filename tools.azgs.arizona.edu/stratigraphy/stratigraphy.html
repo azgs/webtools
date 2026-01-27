@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Generate stratigraphic column images from your data with geologic age colors and lithology patterns. Export to GIS-ready formats.">
     <meta name="keywords" content="stratigraphy, stratigraphic columns, geology, GIS, USGS patterns, lithology">
-    <title>Stratigraphic Column Generator</title>
+    <title>Stratigraphic Column Generator v 1.0</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -42,7 +42,7 @@
     <div id="root"></div>
     <noscript>
         <div style="padding: 40px; text-align: center; font-family: sans-serif;">
-            <h1>Stratigraphic Column Generator</h1>
+            <h1>Stratigraphic Column Generator v 1.0</h1>
             <p>This application requires JavaScript to run. Please enable JavaScript in your browser settings.</p>
         </div>
     </noscript>
@@ -52,24 +52,24 @@
         const Download = ({ size = 24, style = {} }) => <svg aria-hidden="true" width={size} height={size} style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>;
         const Camera = ({ size = 24, style = {} }) => <svg aria-hidden="true" width={size} height={size} style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>;
 
-        // Built-in Geologic Ages Color Map from GeologicAgesColor.xlsx
-       
+        // Built-in Geologic Ages Color Map - ICS (International Chronostratigraphic Chart) colors
+        // from Geologic_Ages_Color_Key_v2.xlsx
 
 const DEFAULT_COLOR_MAP = {
-            'quaternary': '#FFFFB3',
-            'neogene': '#FEEBAC',
-            'paleogene': '#EAC672',
-            'cretaceous': '#B3DF7F',
-            'jurassic': '#CCEBC5',
-            'triassic': '#CCECE1',
-            'permian': '#B3E3EE',
-            'pennsylvanian': '#B3D6F1',
-            'mississippian': '#689FCA',
-            'devonian': '#9999C9',
-            'silurian': '#E9C7E2',
-            'ordovician': '#FBB4BD',
-            'cambrian': '#FDCDB8',
-            'precambrian': '#7FAD51',
+            'quaternary': '#F9F97F',
+            'neogene': '#FFE619',
+            'paleogene': '#FDC07A',
+            'cretaceous': '#A6D84A',
+            'jurassic': '#80CFD8',
+            'triassic': '#BD8CC3',
+            'permian': '#FB745C',
+            'pennsylvanian': '#99C2B5',
+            'mississippian': '#B3BE6C',
+            'devonian': '#CB8C37',
+            'silurian': '#B3E1B6',
+            'ordovician': '#4DB47E',
+            'cambrian': '#7FA056',
+            'precambrian': '#F881B5',
             'unknown': '#FFFFFF',
         };
 
@@ -1258,7 +1258,7 @@ const DEFAULT_COLOR_MAP = {
                     
                     {/* Header */}
                     <header style={{ textAlign: 'center', marginBottom: '25px' }}>
-                        <h1 style={{ fontSize: '32px', marginBottom: '8px', color: '#AB0520', fontWeight: 'bold' }}>Stratigraphic Column Generator</h1>
+                        <h1 style={{ fontSize: '32px', marginBottom: '8px', color: '#AB0520', fontWeight: 'bold' }}>Stratigraphic Column Generator v 1.0</h1>
                         {patternsLoaded && Object.keys(patternImages.current).length > 0 && (
                             <p style={{ color: '#28a745', fontSize: '13px', marginTop: '8px' }} role="status">✓ {Object.keys(patternImages.current).length} patterns loaded</p>
                         )}
