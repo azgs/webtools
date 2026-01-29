@@ -1,13 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-715WNJYBV9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-715WNJYBV9');
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Interactive geochemistry diagram generator for TAS, AFM, and K2O-SiO2 classification diagrams. Upload and visualize major element data for volcanic rocks.">
   <meta name="author" content="Arizona Geological Survey">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#0C234B">
-  <title>Geochemistry Diagram Generator | Arizona Geological Survey</title>
+  <title>Geochemistry Diagram Generator v 1.0 | Arizona Geological Survey</title>
   
   <!-- Preload font for better performance -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -704,8 +712,8 @@
 <body>
     <header role="banner">
         <div>
-            <h1>Geochemistry Diagram Generator</h1>
-            <p>Arizona Geological Survey • Major Element Classification Diagrams</p>
+            <h1>Geochemistry Diagram Generator v 1.0</h1>
+            <p>Arizona Geological Survey | Major Element Classification Diagrams</p>
         </div>
     </header>
     
@@ -719,7 +727,7 @@
             <div class="diagram-tabs" role="tablist" aria-label="Diagram type selection">
                 <button class="diagram-tab active" data-diagram="tas-volcanic" role="tab" aria-selected="true">TAS Volcanic</button>
                 <button class="diagram-tab" data-diagram="afm" role="tab" aria-selected="false">AFM</button>
-                <button class="diagram-tab" data-diagram="k2o-sio2" role="tab" aria-selected="false">K₂O–SiO₂</button>
+                <button class="diagram-tab" data-diagram="k2o-sio2" role="tab" aria-selected="false">K2O-SiO2</button>
             </div>
             
             <h2>Upload Data</h2>
@@ -782,7 +790,7 @@
     <div class="tooltip" id="tooltip"></div>
     
     <footer>
-        University of Arizona • Arizona Geological Survey • MMRI Sample Data
+        University of Arizona | Arizona Geological Survey | MMRI Sample Data
     </footer>
 
     <!-- Column Mapping Modal -->
@@ -1207,7 +1215,7 @@ function importData() {
     
     // Check that at least SiO2 is mapped (minimum for plotting)
     if (!oxideMappings.SiO2) {
-        alert('SiO₂ column must be mapped for plotting.');
+        alert('SiO2 column must be mapped for plotting.');
         return;
     }
     
@@ -1251,7 +1259,7 @@ function importData() {
     });
     
     if (newSamples.length === 0) {
-        alert('No valid samples found. Make sure SiO₂ column contains numeric values.');
+        alert('No valid samples found. Make sure SiO2 column contains numeric values.');
         return;
     }
     
@@ -1637,7 +1645,7 @@ function downloadDiagramSVG() {
     attrEl.setAttribute('font-family', fontFamily);
     attrEl.setAttribute('font-size', attrFontSize);
     attrEl.setAttribute('fill', '#999');
-    attrEl.textContent = 'University of Arizona • Arizona Geological Survey • MMRI';
+    attrEl.textContent = 'University of Arizona | Arizona Geological Survey | MMRI';
     clonedSvg.appendChild(attrEl);
     
     // Serialize and download
@@ -1890,7 +1898,7 @@ async function downloadDiagramPNG() {
         ctx.fillStyle = '#999';
         ctx.font = `${attrFontSize}px ${fontFamily}`;
         ctx.textAlign = 'center';
-        ctx.fillText('University of Arizona • Arizona Geological Survey • MMRI', vbWidth / 2, totalHeight - 4);
+        ctx.fillText('University of Arizona | Arizona Geological Survey | MMRI', vbWidth / 2, totalHeight - 4);
         
         // Download PNG
         try {
@@ -1940,13 +1948,13 @@ function buildSeriesList() {
                 </svg>
                 <span class="series-name">${series}${isUploaded ? '<span class="uploaded-badge">uploaded</span>' : ''}</span>
                 <span class="series-count">${samples.length}</span>
-                ${isUploaded ? `<button class="delete-series-btn" onclick="event.stopPropagation(); deleteUploadedSeries('${series.replace(/'/g, "\\'")}')" title="Delete series">âœ•</button>` : ''}
+                ${isUploaded ? `<button class="delete-series-btn" onclick="event.stopPropagation(); deleteUploadedSeries('${series.replace(/'/g, "\\'")}')" title="Delete series">&times;</button>` : ''}
                 <div class="visibility-toggle">
                     <input type="checkbox" id="vis-${series.replace(/\s+/g, '-')}" 
                            ${visibleSeries[currentDiagram].has(series) ? 'checked' : ''} 
                            onclick="event.stopPropagation(); toggleSeriesVisibility('${series}', this.checked)">
                 </div>
-                <span class="series-toggle">▼</span>
+                <span class="series-toggle">&#9660;</span>
             </div>
             <div class="series-samples" id="samples-${series.replace(/\s+/g, '-')}">
                 <div class="sample-controls">
@@ -1969,7 +1977,7 @@ function buildSeriesList() {
                 const samplesDiv = item.querySelector('.series-samples');
                 const toggle = item.querySelector('.series-toggle');
                 samplesDiv.classList.toggle('expanded');
-                toggle.textContent = samplesDiv.classList.contains('expanded') ? '▲' : '▼';
+                toggle.textContent = samplesDiv.classList.contains('expanded') ? '&#9650;' : '&#9660;';
             }
         });
         
@@ -2079,7 +2087,7 @@ function renderDiagram() {
             area.innerHTML = renderAFM();
             break;
         case 'k2o-sio2':
-            title.textContent = 'K₂O vs SiO₂ Diagram';
+            title.textContent = 'K2O vs SiO2 Diagram';
             subtitle.textContent = 'Peccerillo & Taylor (1976)';
             area.innerHTML = renderK2OSiO2();
             break;
@@ -2261,8 +2269,8 @@ function renderTASVolcanic() {
     svg += `<line x1="${margin.left}" y1="${height-margin.bottom}" x2="${width-margin.right}" y2="${height-margin.bottom}" stroke="#333" stroke-width="1.5"/>`;
     svg += `<line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${height-margin.bottom}" stroke="#333" stroke-width="1.5"/>`;
     
-    svg += `<text class="axis-label" x="${width/2}" y="${height-10}" text-anchor="middle">SiO₂ (wt%)</text>`;
-    svg += `<text class="axis-label" x="15" y="${height/2}" text-anchor="middle" transform="rotate(-90,15,${height/2})">Na₂O + K₂O (wt%)</text>`;
+    svg += `<text class="axis-label" x="${width/2}" y="${height-10}" text-anchor="middle">SiO2 (wt%)</text>`;
+    svg += `<text class="axis-label" x="15" y="${height/2}" text-anchor="middle" transform="rotate(-90,15,${height/2})">Na2O + K2O (wt%)</text>`;
     
     for (let x = 35; x <= 80; x += 5) {
         svg += `<text x="${scaleX(x)}" y="${height-margin.bottom+15}" text-anchor="middle" font-size="10">${x}</text>`;
@@ -2376,8 +2384,8 @@ function renderTASPlutonic() {
     svg += `<line x1="${margin.left}" y1="${height-margin.bottom}" x2="${width-margin.right}" y2="${height-margin.bottom}" stroke="#333" stroke-width="1.5"/>`;
     svg += `<line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${height-margin.bottom}" stroke="#333" stroke-width="1.5"/>`;
     
-    svg += `<text class="axis-label" x="${width/2}" y="${height-10}" text-anchor="middle">SiO₂ (wt%)</text>`;
-    svg += `<text class="axis-label" x="15" y="${height/2}" text-anchor="middle" transform="rotate(-90,15,${height/2})">Na₂O + K₂O (wt%)</text>`;
+    svg += `<text class="axis-label" x="${width/2}" y="${height-10}" text-anchor="middle">SiO2 (wt%)</text>`;
+    svg += `<text class="axis-label" x="15" y="${height/2}" text-anchor="middle" transform="rotate(-90,15,${height/2})">Na2O + K2O (wt%)</text>`;
     
     for (let x = 40; x <= 85; x += 5) {
         svg += `<text x="${scaleX(x)}" y="${height-margin.bottom+15}" text-anchor="middle" font-size="10">${x}</text>`;
@@ -2531,7 +2539,7 @@ function renderAFM() {
     
     // Vertex labels
     svg += `<text class="axis-label" x="${A.x}" y="${A.y + 25}" text-anchor="middle" font-size="12">A</text>`;
-    svg += `<text class="axis-label" x="${A.x}" y="${A.y + 38}" text-anchor="middle" font-size="10">(Na₂O + K₂O)</text>`;
+    svg += `<text class="axis-label" x="${A.x}" y="${A.y + 38}" text-anchor="middle" font-size="10">(Na2O + K2O)</text>`;
     svg += `<text class="axis-label" x="${M.x}" y="${M.y + 25}" text-anchor="middle" font-size="12">M</text>`;
     svg += `<text class="axis-label" x="${M.x}" y="${M.y + 38}" text-anchor="middle" font-size="10">(MgO)</text>`;
     svg += `<text class="axis-label" x="${F.x}" y="${F.y - 15}" text-anchor="middle" font-size="12">F</text>`;
@@ -2798,8 +2806,8 @@ function renderK2OSiO2() {
     svg += `<line x1="${margin.left}" y1="${height-margin.bottom}" x2="${width-margin.right}" y2="${height-margin.bottom}" stroke="#333" stroke-width="1.5"/>`;
     svg += `<line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${height-margin.bottom}" stroke="#333" stroke-width="1.5"/>`;
     
-    svg += `<text class="axis-label" x="${width/2}" y="${height-10}" text-anchor="middle">SiO₂ (wt%)</text>`;
-    svg += `<text class="axis-label" x="15" y="${height/2}" text-anchor="middle" transform="rotate(-90,15,${height/2})">K₂O (wt%)</text>`;
+    svg += `<text class="axis-label" x="${width/2}" y="${height-10}" text-anchor="middle">SiO2 (wt%)</text>`;
+    svg += `<text class="axis-label" x="15" y="${height/2}" text-anchor="middle" transform="rotate(-90,15,${height/2})">K2O (wt%)</text>`;
     
     for (let x = 50; x <= 75; x += 5) {
         svg += `<text x="${scaleX(x)}" y="${height-margin.bottom+15}" text-anchor="middle" font-size="10">${x}</text>`;
@@ -2863,16 +2871,16 @@ function setupTooltips() {
                 <div class="tooltip-series">${sample.series}</div>
                 <div class="tooltip-rock"><span class="tooltip-rock-label">Classification:</span> ${rockName}</div>
                 <div class="tooltip-data">
-                    <span>SiO₂: ${sample.SiO2.toFixed(2)}</span>
-                    <span>TiO₂: ${sample.TiO2.toFixed(2)}</span>
-                    <span>Al₂Oâ‚ƒ: ${sample.Al2O3.toFixed(2)}</span>
-                    <span>Fe₂Oâ‚ƒ: ${sample.Fe2O3.toFixed(2)}</span>
+                    <span>SiO2: ${sample.SiO2.toFixed(2)}</span>
+                    <span>TiO2: ${sample.TiO2.toFixed(2)}</span>
+                    <span>Al2O3: ${sample.Al2O3.toFixed(2)}</span>
+                    <span>Fe2O3: ${sample.Fe2O3.toFixed(2)}</span>
                     <span>FeO: ${sample.FeO.toFixed(2)}</span>
                     <span>MnO: ${sample.MnO.toFixed(2)}</span>
                     <span>MgO: ${sample.MgO.toFixed(2)}</span>
                     <span>CaO: ${sample.CaO.toFixed(2)}</span>
-                    <span>Na₂O: ${sample.Na2O.toFixed(2)}</span>
-                    <span>K₂O: ${sample.K2O.toFixed(2)}</span>
+                    <span>Na2O: ${sample.Na2O.toFixed(2)}</span>
+                    <span>K2O: ${sample.K2O.toFixed(2)}</span>
                 </div>
             `;
             tooltip.style.display = 'block';

@@ -1,11 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-715WNJYBV9"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-715WNJYBV9');
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Generate stratigraphic column images from your data with geologic age colors and lithology patterns. Export to GIS-ready formats.">
     <meta name="keywords" content="stratigraphy, stratigraphic columns, geology, GIS, USGS patterns, lithology">
-    <title>Stratigraphic Column Generator - Example Data</title>
+    <title>Stratigraphic Column Generator v 1.0 - Example Data</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -42,7 +50,7 @@
     <div id="root"></div>
     <noscript>
         <div style="padding: 40px; text-align: center; font-family: sans-serif;">
-            <h1>Stratigraphic Column Generator</h1>
+            <h1>Stratigraphic Column Generator v 1.0</h1>
             <p>This application requires JavaScript to run. Please enable JavaScript in your browser settings.</p>
         </div>
     </noscript>
@@ -52,24 +60,24 @@
         const Download = ({ size = 24, style = {} }) => <svg aria-hidden="true" width={size} height={size} style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>;
         const Camera = ({ size = 24, style = {} }) => <svg aria-hidden="true" width={size} height={size} style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>;
 
-        // Built-in Geologic Ages Color Map from GeologicAgesColor.xlsx
-       
+        // Built-in Geologic Ages Color Map - ICS (International Chronostratigraphic Chart) colors
+        // from Geologic_Ages_Color_Key_v2.xlsx
 
 const DEFAULT_COLOR_MAP = {
-            'quaternary': '#FFFFB3',
-            'neogene': '#FEEBAC',
-            'paleogene': '#EAC672',
-            'cretaceous': '#B3DF7F',
-            'jurassic': '#CCEBC5',
-            'triassic': '#CCECE1',
-            'permian': '#B3E3EE',
-            'pennsylvanian': '#B3D6F1',
-            'mississippian': '#689FCA',
-            'devonian': '#9999C9',
-            'silurian': '#E9C7E2',
-            'ordovician': '#FBB4BD',
-            'cambrian': '#FDCDB8',
-            'precambrian': '#7FAD51',
+            'quaternary': '#F9F97F',
+            'neogene': '#FFE619',
+            'paleogene': '#FDC07A',
+            'cretaceous': '#A6D84A',
+            'jurassic': '#80CFD8',
+            'triassic': '#BD8CC3',
+            'permian': '#FB745C',
+            'pennsylvanian': '#99C2B5',
+            'mississippian': '#B3BE6C',
+            'devonian': '#CB8C37',
+            'silurian': '#B3E1B6',
+            'ordovician': '#4DB47E',
+            'cambrian': '#7FA056',
+            'precambrian': '#F881B5',
             'unknown': '#FFFFFF',
         };
 
@@ -6153,16 +6161,16 @@ const DEFAULT_COLOR_MAP = {
                     
                     {/* Header */}
                     <header style={{ textAlign: 'center', marginBottom: '25px' }}>
-                        <h1 style={{ fontSize: '32px', marginBottom: '8px', color: '#AB0520', fontWeight: 'bold' }}>Stratigraphic Column Generator</h1>
+                        <h1 style={{ fontSize: '32px', marginBottom: '8px', color: '#AB0520', fontWeight: 'bold' }}>Stratigraphic Column Generator v 1.0</h1>
                         {patternsLoaded && Object.keys(patternImages.current).length > 0 && (
-                            <p style={{ color: '#28a745', fontSize: '13px', marginTop: '8px' }} role="status">✓ {Object.keys(patternImages.current).length} patterns loaded</p>
+                            <p style={{ color: '#28a745', fontSize: '13px', marginTop: '8px' }} role="status">&#10003; {Object.keys(patternImages.current).length} patterns loaded</p>
                         )}
                     </header>
 
                     {/* Local Testing Banner */}
                     {USE_LOCAL_TESTING && (
                         <div role="alert" style={{ background: '#FFF3CD', border: '1px solid #FFECB5', borderRadius: '8px', padding: '10px 20px', marginBottom: '20px', textAlign: 'center', color: '#856404' }}>
-                            <strong>⚠️ LOCAL TESTING MODE</strong> - Patterns loading from: <code style={{ background: '#fff', padding: '2px 6px', borderRadius: '4px' }}>{PATTERN_BASE_PATH}</code>
+                            <strong>Warning: LOCAL TESTING MODE</strong> - Patterns loading from: <code style={{ background: '#fff', padding: '2px 6px', borderRadius: '4px' }}>{PATTERN_BASE_PATH}</code>
                         </div>
                     )}
 
@@ -6199,7 +6207,7 @@ const DEFAULT_COLOR_MAP = {
                                             ) : (
                                                 <span style={{ color: '#28a745', fontWeight: 'bold' }}>
                                                     <span style={{ background: '#28a745', color: 'white', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', marginRight: '8px' }}>YOUR DATA</span>
-                                                    ✓ {wellData.length} records loaded for {uniqueWells.length} columns
+                                                    &#10003; {wellData.length} records loaded for {uniqueWells.length} columns
                                                 </span>
                                             )
                                         ) : 'Excel file with stratigraphy data (.xlsx, .xls)'}
@@ -6207,7 +6215,7 @@ const DEFAULT_COLOR_MAP = {
                                 </div>
 
                                 <div style={{ textAlign: 'center', marginBottom: '15px' }}>
-                                    <span style={{ color: '#666', fontSize: '14px' }}>{wellData && !isExampleData ? '— or load sample data to explore —' : '— or try with sample data —'}</span>
+                                    <span style={{ color: '#666', fontSize: '14px' }}>{wellData && !isExampleData ? '-- or load sample data to explore --' : '-- or try with sample data --'}</span>
                                 </div>
 
                                 <div style={{ display: 'flex', gap: '10px' }}>
@@ -6220,7 +6228,7 @@ const DEFAULT_COLOR_MAP = {
                                             aria-label="Clear all loaded data"
                                             style={{ padding: '14px 20px', background: '#dc3545', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '15px', fontWeight: '500' }}
                                         >
-                                            ✕ Clear Data
+                                            &times; Clear Data
                                         </button>
                                     )}
                                 </div>
@@ -6313,7 +6321,7 @@ const DEFAULT_COLOR_MAP = {
 
                                     {!hasCoords && (
                                         <p style={{ color: '#AB0520', fontSize: '12px', marginTop: '10px', textAlign: 'center' }}>
-                                            ⚠️ Map Latitude and Longitude columns to enable download
+                                            Warning: Map Latitude and Longitude columns to enable download
                                         </p>
                                     )}
                                     
@@ -6327,7 +6335,7 @@ const DEFAULT_COLOR_MAP = {
                             {wellData && (
                                 <div style={{ background: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 4px rgba(0,0,0,0.08)' }}>
                                     <details style={{ fontSize: '14px' }}>
-                                        <summary style={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '16px', color: '#0C234B' }}>⚙️ Advanced Settings</summary>
+                                        <summary style={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '16px', color: '#0C234B' }}>Settings: Advanced Settings</summary>
                                         <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid #e2e8f0' }}>
                                             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', marginBottom: '10px' }}>
                                                 <input type="checkbox" checked={usePatterns} onChange={(e) => setUsePatterns(e.target.checked)} />
@@ -6366,7 +6374,7 @@ const DEFAULT_COLOR_MAP = {
                                             color: isExampleData ? '#0C234B' : '#166534',
                                             border: isExampleData ? '1px solid #0C234B' : '1px solid #22c55e'
                                         }}>
-                                            {isExampleData ? '📁 Example Arizona Data' : '📁 Your Uploaded Data'}
+                                            {isExampleData ? ' Example Arizona Data' : ' Your Uploaded Data'}
                                         </span>
                                     )}
                                 </div>
@@ -6396,7 +6404,7 @@ const DEFAULT_COLOR_MAP = {
                                                 disabled={!previewWell || uniqueWells.indexOf(previewWell) === 0}
                                                 style={{ flex: 1, padding: '8px', background: (!previewWell || uniqueWells.indexOf(previewWell) === 0) ? '#e5e7eb' : '#0C234B', color: (!previewWell || uniqueWells.indexOf(previewWell) === 0) ? '#999' : 'white', border: 'none', borderRadius: '4px', cursor: (!previewWell || uniqueWells.indexOf(previewWell) === 0) ? 'not-allowed' : 'pointer', fontWeight: '500', fontSize: '13px' }}
                                             >
-                                                ← Previous
+                                                &larr; Previous
                                             </button>
                                             <button 
                                                 onClick={() => {
@@ -6408,7 +6416,7 @@ const DEFAULT_COLOR_MAP = {
                                                 disabled={!previewWell || uniqueWells.indexOf(previewWell) === uniqueWells.length - 1}
                                                 style={{ flex: 1, padding: '8px', background: (!previewWell || uniqueWells.indexOf(previewWell) === uniqueWells.length - 1) ? '#e5e7eb' : '#0C234B', color: (!previewWell || uniqueWells.indexOf(previewWell) === uniqueWells.length - 1) ? '#999' : 'white', border: 'none', borderRadius: '4px', cursor: (!previewWell || uniqueWells.indexOf(previewWell) === uniqueWells.length - 1) ? 'not-allowed' : 'pointer', fontWeight: '500', fontSize: '13px' }}
                                             >
-                                                Next →
+                                                Next &rarr;
                                             </button>
                                         </div>
                                         
@@ -6435,12 +6443,12 @@ const DEFAULT_COLOR_MAP = {
                                         >
                                             <img src={previewImage} alt={`Stratigraphic column for ${previewWell}`} style={{ maxWidth: '100%' }} />
                                             <div style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(0,0,0,0.6)', color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', pointerEvents: 'none' }}>
-                                                📁 Click to enlarge
+                                                 Click to enlarge
                                             </div>
                                         </div>
                                         <div style={{ display: 'flex', gap: '8px' }}>
                                             <button onClick={() => setShowImageModal(true)} style={{ flex: 1, padding: '10px', background: '#0C234B', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500', fontSize: '13px' }}>
-                                                ⛶ Full View
+                                                 Full View
                                             </button>
                                             <button onClick={handleDownload} style={{ flex: 1, padding: '10px', background: '#AB0520', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500', fontSize: '13px' }}>
                                                 <Download size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
@@ -6450,7 +6458,7 @@ const DEFAULT_COLOR_MAP = {
                                     </div>
                                 ) : (
                                     <div style={{ background: '#f8f9fa', borderRadius: '8px', padding: '30px 20px', textAlign: 'center', border: '1px dashed #cbd5e0' }}>
-                                        <div style={{ fontSize: '40px', marginBottom: '10px', opacity: 0.3 }}>📊</div>
+                                        <div style={{ fontSize: '40px', marginBottom: '10px', opacity: 0.3 }}></div>
                                         <div style={{ color: '#666', fontSize: '13px', marginBottom: '15px' }}>
                                             {wellData ? 'Select a record from the dropdown above' : 'Loading example data...'}
                                         </div>
@@ -6569,7 +6577,7 @@ const DEFAULT_COLOR_MAP = {
                                         disabled={uniqueWells.indexOf(previewWell) === 0}
                                         style={{ padding: '8px 16px', background: uniqueWells.indexOf(previewWell) === 0 ? '#555' : '#0C234B', color: 'white', border: 'none', borderRadius: '4px', cursor: uniqueWells.indexOf(previewWell) === 0 ? 'not-allowed' : 'pointer', fontWeight: '500' }}
                                     >
-                                        ← Prev
+                                        &larr; Prev
                                     </button>
                                     <button 
                                         onClick={(e) => {
@@ -6582,7 +6590,7 @@ const DEFAULT_COLOR_MAP = {
                                         disabled={uniqueWells.indexOf(previewWell) === uniqueWells.length - 1}
                                         style={{ padding: '8px 16px', background: uniqueWells.indexOf(previewWell) === uniqueWells.length - 1 ? '#555' : '#0C234B', color: 'white', border: 'none', borderRadius: '4px', cursor: uniqueWells.indexOf(previewWell) === uniqueWells.length - 1 ? 'not-allowed' : 'pointer', fontWeight: '500' }}
                                     >
-                                        Next →
+                                        Next &rarr;
                                     </button>
                                     <div style={{ width: '1px', height: '30px', background: 'rgba(255,255,255,0.3)', margin: '0 5px' }}></div>
                                     <button 
@@ -6597,7 +6605,7 @@ const DEFAULT_COLOR_MAP = {
                                         aria-label="Close modal"
                                         style={{ padding: '8px 16px', background: '#666', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '500', marginLeft: '10px' }}
                                     >
-                                        ✕ Close
+                                        &times; Close
                                     </button>
                                 </div>
                             </div>
@@ -6626,7 +6634,7 @@ const DEFAULT_COLOR_MAP = {
                             
                             {/* Footer hint */}
                             <div style={{ position: 'absolute', bottom: '20px', color: 'rgba(255,255,255,0.5)', fontSize: '13px' }}>
-                                Click outside to close (or press Esc) • Use ← → arrow keys to navigate
+                                Click outside to close (or press Esc) - Use &larr; &rarr; arrow keys to navigate
                             </div>
                         </div>
                     )}
@@ -6637,20 +6645,20 @@ const DEFAULT_COLOR_MAP = {
                         <div style={{ padding: '20px', background: '#f8f9fa', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '15px' }}>
                             <details style={{ fontSize: '13px' }}>
                                 <summary style={{ cursor: 'pointer', fontWeight: '600', color: '#374151' }}>
-                                    📁 ArcGIS Pro Import Instructions
+                                     ArcGIS Pro Import Instructions
                                 </summary>
                                 <div style={{ marginTop: '12px', paddingLeft: '10px', color: '#555', lineHeight: '1.7' }}>
                                     <ol style={{ margin: 0, paddingLeft: '20px' }}>
                                         <li><strong>Extract ZIP</strong> to a folder on your computer</li>
-                                        <li><strong>XY Table To Point:</strong> In ArcGIS Pro, right-click data.csv → XY Table To Point
+                                        <li><strong>XY Table To Point:</strong> In ArcGIS Pro, right-click data.csv &rarr; XY Table To Point
                                             <ul style={{ marginTop: '4px', paddingLeft: '20px', fontSize: '12px' }}>
                                                 <li>X Field: Longitude</li>
                                                 <li>Y Field: Latitude</li>
                                                 <li>Coordinate System: WGS 1984</li>
                                             </ul>
                                         </li>
-                                        <li><strong>Enable Attachments:</strong> Right-click the new feature class → Manage → Enable Attachments</li>
-                                        <li><strong>Add Attachments:</strong> Data Management Tools → Attachments → Add Attachments
+                                        <li><strong>Enable Attachments:</strong> Right-click the new feature class &rarr; Manage &rarr; Enable Attachments</li>
+                                        <li><strong>Add Attachments:</strong> Data Management Tools &rarr; Attachments &rarr; Add Attachments
                                             <ul style={{ marginTop: '4px', paddingLeft: '20px', fontSize: '12px' }}>
                                                 <li>Input Join Field: API</li>
                                                 <li>Match Table: data.csv</li>
@@ -6665,6 +6673,16 @@ const DEFAULT_COLOR_MAP = {
 
                         {/* Pattern Credits */}
                         <div style={{ padding: '15px', background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px', color: '#666' }}>
+                            <strong style={{ color: '#374151' }}>Recommended Citation:</strong> Zaitlin, L.R., and Wilson, T.C., 2025, Stratigraphic Column Generator Web Tool v1.0.{' '}
+                            <a href="https://tools.azgs.arizona.edu/stratigraphy/stratigraphy.html" target="_blank" rel="noopener noreferrer" style={{ color: '#0C234B' }}>
+                                https://tools.azgs.arizona.edu/stratigraphy/stratigraphy.html
+                            </a>
+                            <br /><br />
+                            <strong style={{ color: '#374151' }}>Further Information:</strong> Additional documentation for this tool can be found at the{' '}
+                            <a href="https://library.azgs.arizona.edu/item/AOFR-1769555207187-852" target="_blank" rel="noopener noreferrer" style={{ color: '#0C234B' }}>
+                                AZGS Document Repository
+                            </a>.
+                            <br /><br />
                             <strong style={{ color: '#374151' }}>Pattern Credits:</strong> Lithology patterns based on the{' '}
                             <a href="https://ngmdb.usgs.gov/fgdc_gds/geolsymstd/download.php" target="_blank" rel="noopener noreferrer" style={{ color: '#0C234B' }}>
                                 FGDC Digital Cartographic Standard for Geologic Map Symbolization
@@ -6673,6 +6691,12 @@ const DEFAULT_COLOR_MAP = {
                             <a href="https://davenquinn.com/projects/geologic-patterns/" target="_blank" rel="noopener noreferrer" style={{ color: '#0C234B' }}>
                                 Daven Quinn
                             </a>.
+                            <br /><br />
+                            <strong style={{ color: '#374151' }}>Color Credits:</strong> Geologic age colors follow the{' '}
+                            <a href="https://stratigraphy.org/chart" target="_blank" rel="noopener noreferrer" style={{ color: '#0C234B' }}>
+                                International Chronostratigraphic Chart
+                            </a>{' '}
+                            (International Commission on Stratigraphy).
                         </div>
                     </footer>
                 </div>
