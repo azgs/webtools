@@ -1440,7 +1440,7 @@ const DEFAULT_COLOR_MAP = {
                             {wellData && (
                                 <div style={{ background: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 4px rgba(0,0,0,0.08)' }}>
                                     <details style={{ fontSize: '14px' }}>
-                                        <summary style={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '16px', color: '#0C234B' }}>Settings: Advanced Settings</summary>
+                                        <summary style={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '16px', color: '#0C234B' }}>Settings: Advanced Settings</summary>
                                         <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid #e2e8f0' }}>
                                             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', marginBottom: '10px' }}>
                                                 <input type="checkbox" checked={usePatterns} onChange={(e) => setUsePatterns(e.target.checked)} />
@@ -1479,7 +1479,7 @@ const DEFAULT_COLOR_MAP = {
                                             color: isExampleData ? '#0C234B' : '#166534',
                                             border: isExampleData ? '1px solid #0C234B' : '1px solid #22c55e'
                                         }}>
-                                            {isExampleData ? 'ðŸ“ Example Arizona Data' : 'ðŸ“ Your Uploaded Data'}
+                                            {isExampleData ? '📂 Example Arizona Data' : '📂 Your Uploaded Data'}
                                         </span>
                                     )}
                                 </div>
@@ -1509,7 +1509,7 @@ const DEFAULT_COLOR_MAP = {
                                                 disabled={!previewWell || uniqueWells.indexOf(previewWell) === 0}
                                                 style={{ flex: 1, padding: '8px', background: (!previewWell || uniqueWells.indexOf(previewWell) === 0) ? '#e5e7eb' : '#0C234B', color: (!previewWell || uniqueWells.indexOf(previewWell) === 0) ? '#999' : 'white', border: 'none', borderRadius: '4px', cursor: (!previewWell || uniqueWells.indexOf(previewWell) === 0) ? 'not-allowed' : 'pointer', fontWeight: '500', fontSize: '13px' }}
                                             >
-                                                &larr; Previous
+                                                &larr; Previous
                                             </button>
                                             <button 
                                                 onClick={() => {
@@ -1521,7 +1521,7 @@ const DEFAULT_COLOR_MAP = {
                                                 disabled={!previewWell || uniqueWells.indexOf(previewWell) === uniqueWells.length - 1}
                                                 style={{ flex: 1, padding: '8px', background: (!previewWell || uniqueWells.indexOf(previewWell) === uniqueWells.length - 1) ? '#e5e7eb' : '#0C234B', color: (!previewWell || uniqueWells.indexOf(previewWell) === uniqueWells.length - 1) ? '#999' : 'white', border: 'none', borderRadius: '4px', cursor: (!previewWell || uniqueWells.indexOf(previewWell) === uniqueWells.length - 1) ? 'not-allowed' : 'pointer', fontWeight: '500', fontSize: '13px' }}
                                             >
-                                                Next &larr;’
+                                                Next &rarr;
                                             </button>
                                         </div>
                                         
@@ -1548,7 +1548,7 @@ const DEFAULT_COLOR_MAP = {
                                         >
                                             <img src={previewImage} alt={`Stratigraphic column for ${previewWell}`} style={{ maxWidth: '100%' }} />
                                             <div style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(0,0,0,0.6)', color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', pointerEvents: 'none' }}>
-                                                ðŸ” Click to enlarge
+                                                🔍 Click to enlarge
                                             </div>
                                         </div>
                                         <div style={{ display: 'flex', gap: '8px' }}>
@@ -1563,7 +1563,7 @@ const DEFAULT_COLOR_MAP = {
                                     </div>
                                 ) : (
                                     <div style={{ background: '#f8f9fa', borderRadius: '8px', padding: '30px 20px', textAlign: 'center', border: '1px dashed #cbd5e0' }}>
-                                        <div style={{ fontSize: '40px', marginBottom: '10px', opacity: 0.3 }}>ðŸ“Š</div>
+                                        <div style={{ fontSize: '40px', marginBottom: '10px', opacity: 0.3 }}>✨</div>
                                         <div style={{ color: '#666', fontSize: '13px', marginBottom: '15px' }}>
                                             {wellData ? 'Select a record from the dropdown above' : 'Loading example data...'}
                                         </div>
@@ -1682,7 +1682,7 @@ const DEFAULT_COLOR_MAP = {
                                         disabled={uniqueWells.indexOf(previewWell) === 0}
                                         style={{ padding: '8px 16px', background: uniqueWells.indexOf(previewWell) === 0 ? '#555' : '#0C234B', color: 'white', border: 'none', borderRadius: '4px', cursor: uniqueWells.indexOf(previewWell) === 0 ? 'not-allowed' : 'pointer', fontWeight: '500' }}
                                     >
-                                        &larr; Prev
+                                        &larr; Prev
                                     </button>
                                     <button 
                                         onClick={(e) => {
@@ -1695,7 +1695,7 @@ const DEFAULT_COLOR_MAP = {
                                         disabled={uniqueWells.indexOf(previewWell) === uniqueWells.length - 1}
                                         style={{ padding: '8px 16px', background: uniqueWells.indexOf(previewWell) === uniqueWells.length - 1 ? '#555' : '#0C234B', color: 'white', border: 'none', borderRadius: '4px', cursor: uniqueWells.indexOf(previewWell) === uniqueWells.length - 1 ? 'not-allowed' : 'pointer', fontWeight: '500' }}
                                     >
-                                        Next &larr;’
+                                        Next &rarr;
                                     </button>
                                     <div style={{ width: '1px', height: '30px', background: 'rgba(255,255,255,0.3)', margin: '0 5px' }}></div>
                                     <button 
@@ -1739,7 +1739,7 @@ const DEFAULT_COLOR_MAP = {
                             
                             {/* Footer hint */}
                             <div style={{ position: 'absolute', bottom: '20px', color: 'rgba(255,255,255,0.5)', fontSize: '13px' }}>
-                                Click outside to close (or press Esc) - Use &larr; &larr;’ arrow keys to navigate
+                                Click outside to close (or press Esc) - Use &larr; &rarr; arrow keys to navigate
                             </div>
                         </div>
                     )}
@@ -1750,20 +1750,20 @@ const DEFAULT_COLOR_MAP = {
                         <div style={{ padding: '20px', background: '#f8f9fa', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '15px' }}>
                             <details style={{ fontSize: '13px' }}>
                                 <summary style={{ cursor: 'pointer', fontWeight: '600', color: '#374151' }}>
-                                    ðŸ“ ArcGIS Pro Import Instructions
+                                    📂 ArcGIS Pro Import Instructions
                                 </summary>
                                 <div style={{ marginTop: '12px', paddingLeft: '10px', color: '#555', lineHeight: '1.7' }}>
                                     <ol style={{ margin: 0, paddingLeft: '20px' }}>
                                         <li><strong>Extract ZIP</strong> to a folder on your computer</li>
-                                        <li><strong>XY Table To Point:</strong> In ArcGIS Pro, right-click data.csv &larr;’ XY Table To Point
+                                        <li><strong>XY Table To Point:</strong> In ArcGIS Pro, right-click data.csv &rarr; XY Table To Point
                                             <ul style={{ marginTop: '4px', paddingLeft: '20px', fontSize: '12px' }}>
                                                 <li>X Field: Longitude</li>
                                                 <li>Y Field: Latitude</li>
                                                 <li>Coordinate System: WGS 1984</li>
                                             </ul>
                                         </li>
-                                        <li><strong>Enable Attachments:</strong> Right-click the new feature class &larr;’ Manage &larr;’ Enable Attachments</li>
-                                        <li><strong>Add Attachments:</strong> Data Management Tools &larr;’ Attachments &larr;’ Add Attachments
+                                        <li><strong>Enable Attachments:</strong> Right-click the new feature class &rarr; Manage &rarr; Enable Attachments</li>
+                                        <li><strong>Add Attachments:</strong> Data Management Tools &rarr; Attachments &rarr; Add Attachments
                                             <ul style={{ marginTop: '4px', paddingLeft: '20px', fontSize: '12px' }}>
                                                 <li>Input Join Field: API</li>
                                                 <li>Match Table: data.csv</li>
