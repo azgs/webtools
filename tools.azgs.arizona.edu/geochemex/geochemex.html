@@ -2083,12 +2083,12 @@ function renderDiagram() {
             break;
         case 'afm':
             title.textContent = 'AFM Diagram';
-            subtitle.textContent = 'Irvine & Baragar (1971)';
+            subtitle.textContent = 'Rollinson, 1996, with trend lines from Irvine and Baragar, 1971, and Kuno, 1968';
             area.innerHTML = renderAFM();
             break;
         case 'k2o-sio2':
             title.textContent = 'K2O vs SiO2 Diagram';
-            subtitle.textContent = 'Peccerillo & Taylor (1976)';
+            subtitle.textContent = 'Ewart, 1982, and Rickwood, 1989';
             area.innerHTML = renderK2OSiO2();
             break;
     }
@@ -2624,7 +2624,7 @@ function renderK2OSiO2() {
     const plotWidth = width - margin.left - margin.right;
     const plotHeight = height - margin.top - margin.bottom;
     
-    const xMin = 45, xMax = 80, yMin = 0, yMax = 5;
+    const xMin = 48, xMax = 80, yMin = 0, yMax = 5;
     const scaleX = x => margin.left + (x - xMin) / (xMax - xMin) * plotWidth;
     const scaleY = y => margin.top + plotHeight - (y - yMin) / (yMax - yMin) * plotHeight;
     
