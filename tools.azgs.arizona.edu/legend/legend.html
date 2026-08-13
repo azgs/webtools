@@ -124,6 +124,8 @@ break;case"<bookViews":;case"<bookViews>":;case"</bookViews>":break;case"<workbo
   .field{margin-bottom:13px}
   .field:last-child{margin-bottom:0}
   .field > label{display:block;font-size:12px;font-weight:600;color:var(--slate);margin-bottom:5px}
+  .hs-grid{display:grid;grid-template-columns:auto 1fr;gap:6px 8px;align-items:center}
+  .hs-grid > span{font-size:11.5px;color:var(--slate)}
   .field .hint{font-weight:400;color:#94a0b0;font-size:11px}
   .slider-row{display:flex;align-items:center;gap:10px}
   input[type=range]{flex:1;accent-color:var(--az-red);height:4px}
@@ -359,6 +361,15 @@ break;case"<bookViews":;case"<bookViews>":;case"</bookViews>":break;case"<workbo
         </div>
       </div>
       <div class="field">
+        <label>Description text style</label>
+        <select id="descStyle">
+          <option value="bolditalic">Bold italic</option>
+          <option value="bold">Bold</option>
+          <option value="italic">Italic</option>
+          <option value="normal" selected>Standard</option>
+        </select>
+      </div>
+      <div class="field">
         <label>Font</label>
         <select id="fontFamily">
           <option value="Arial, Helvetica, sans-serif" selected>Arial (default)</option>
@@ -400,10 +411,29 @@ break;case"<bookViews":;case"<bookViews>":;case"</bookViews>":break;case"<workbo
         <div id="ageRefGrid" class="age-grid"></div>
       </details>
       <label class="check"><input type="checkbox" id="showLabels" checked> Show unit label inside box</label>
-      <label class="check" style="margin-top:9px"><input type="checkbox" id="outlineLabels"> Outline label fonts in SVG export</label>
-      <div style="font-size:11px;color:#94a0b0;margin-top:4px">
-        Converts FGDCGeoAge and embedded-font labels to vector paths, so age symbols look identical without the font installed. System-font labels stay as editable text.
+      <div class="field" style="margin-top:9px">
+        <label>Bold / italic in SVG export</label>
+        <select id="faceNaming">
+          <option value="face" selected>Name the face (ArcGIS Pro, Illustrator)</option>
+          <option value="weight">font-weight / font-style (standard SVG)</option>
+        </select>
       </div>
+      <div style="font-size:11px;color:#94a0b0;margin-top:4px">
+        Pro will not build a bold face out of font-weight, so bold is written into the font name instead ("Arial Bold"). Switch to the standard form if a reader wants it that way.
+      </div>
+      <div class="field" style="margin-top:9px">
+        <label>Outline text in SVG export</label>
+        <select id="outlineMode">
+          <option value="none" selected>Off (all text stays editable)</option>
+          <option value="labels">Unit labels only</option>
+          <option value="all">All text</option>
+        </select>
+      </div>
+      <div style="font-size:11px;color:#94a0b0;margin-top:4px">
+        Converts text to vector paths so it looks identical without the font installed, and so bold and italic survive readers that ignore font-weight (ArcGIS Pro). Only embedded fonts can be outlined: add the file under "Add a font". Embed the bold and italic files too (Arial-Bold.ttf, Arial-Italic.ttf) and they will be matched to the family automatically.
+      </div>
+      <button class="addfont-btn wide" id="embedLocalBtn" style="display:none;margin-top:7px">Embed the selected font from this computer</button>
+      <div class="status" id="outlineStatus"></div>
     </div>
 
     <div class="grp">
@@ -413,11 +443,55 @@ break;case"<bookViews":;case"<bookViews>":;case"</bookViews>":break;case"<workbo
         <input type="text" id="legendTitle" placeholder="DESCRIPTION OF MAP UNITS">
       </div>
       <div class="field">
+        <label>Title style</label>
+        <select id="titleStyle">
+          <option value="bolditalic">Bold italic</option>
+          <option value="bold" selected>Bold</option>
+          <option value="italic">Italic</option>
+          <option value="normal">Standard</option>
+        </select>
+      </div>
+      <div class="field">
         <label>Heading text size <span class="hint">pt</span></label>
         <div class="slider-row">
           <input type="range" id="headSize" min="8" max="20" step="0.5" value="11">
           <span class="val" id="headSizeV">11</span>
         </div>
+      </div>
+      <div class="field">
+        <label>Heading style <span class="hint">per level</span></label>
+        <div class="hs-grid">
+          <span>Level 1</span>
+          <select id="headStyle1">
+            <option value="bolditalic" selected>Bold italic</option>
+            <option value="bold">Bold</option>
+            <option value="italic">Italic</option>
+            <option value="normal">Standard</option>
+          </select>
+          <span>Level 2</span>
+          <select id="headStyle2">
+            <option value="bolditalic">Bold italic</option>
+            <option value="bold" selected>Bold</option>
+            <option value="italic">Italic</option>
+            <option value="normal">Standard</option>
+          </select>
+          <span>Level 3+</span>
+          <select id="headStyle3">
+            <option value="bolditalic">Bold italic</option>
+            <option value="bold">Bold</option>
+            <option value="italic">Italic</option>
+            <option value="normal" selected>Standard</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Headnote style</label>
+        <select id="headnoteStyle">
+          <option value="bolditalic">Bold italic</option>
+          <option value="bold">Bold</option>
+          <option value="italic" selected>Italic</option>
+          <option value="normal">Standard</option>
+        </select>
       </div>
       <div class="field">
         <label>Indent per level <span class="hint">px</span></label>
@@ -453,6 +527,23 @@ break;case"<bookViews":;case"<bookViews>":;case"</bookViews>":break;case"<workbo
         Click any box in the preview to flip that one (auto &rarr; white &rarr; black). Tip: set mode to All black, then click the dark units you want white.
       </div>
       <button class="addfont-btn wide" id="resetOverrides">Reset all unit overrides</button>
+    </div>
+
+    <div class="grp">
+      <h2>Label style</h2>
+      <div class="field">
+        <label>Unit label style <span class="hint">box symbols</span></label>
+        <select id="labelStyle">
+          <option value="auto" selected>Auto (bold, italic unless FGDCGeoAge)</option>
+          <option value="bolditalic">Bold italic</option>
+          <option value="bold">Bold</option>
+          <option value="italic">Italic</option>
+          <option value="normal">Standard</option>
+        </select>
+      </div>
+      <div style="font-size:11.5px;color:var(--slate);margin:2px 0 0">
+        FGDCGeoAge is a symbol font with one face, so bold and italic are faked by the renderer and will not survive outlining.
+      </div>
     </div>
 
     <div class="grp">
@@ -837,6 +928,12 @@ function wrap(text, maxW, px, family, weight="normal", style="normal"){
 /* ---------------------------------------------------------------
    SETTINGS
 --------------------------------------------------------------- */
+// "bolditalic" | "bold" | "italic" | "normal"  ->  { weight, style }
+function styleParts(v){
+  const t = String(v || "normal");
+  return { weight: t.indexOf("bold")   >= 0 ? "bold"   : "normal",
+           style:  t.indexOf("italic") >= 0 ? "italic" : "normal" };
+}
 function settings(){
   return {
     cols: +document.querySelector("#colsSeg .on").dataset.cols,
@@ -859,6 +956,11 @@ function settings(){
     shrinkAmount: +$("shrinkAmount").value,
     balance: $("balance").checked,
     keepHeadings: $("keepHeadings").checked,
+    headStyles: [$("headStyle1").value, $("headStyle2").value, $("headStyle3").value],
+    headnoteStyle: $("headnoteStyle").value,
+    descStyle: $("descStyle").value,
+    titleStyle: $("titleStyle").value,
+    labelStyle: $("labelStyle").value,
     title: $("legendTitle").value.trim()
   };
 }
@@ -870,8 +972,9 @@ function entryLayout(e, s){
   const indentX = (e.level - 1) * s.indent;
   if(e.kind === "heading"){
     const px = s.headSize * 1.05;
-    const weight = e.level === 1 ? "bold" : (e.level === 2 ? "bold" : "normal");
-    const style  = e.level === 1 ? "italic" : "normal";
+    const hs = s.headStyles[Math.min(Math.max(e.level || 1, 1), 3) - 1] || "normal";
+    const weight = hs.indexOf("bold")   >= 0 ? "bold"   : "normal";
+    const style  = hs.indexOf("italic") >= 0 ? "italic" : "normal";
     const avail = s.colWidth - indentX;
     const lines = wrap(e.name || e.label || e.mapUnit, avail, px, s.font, weight, style);
     return { type:"heading", e, indentX, px, weight, style, lines,
@@ -879,9 +982,11 @@ function entryLayout(e, s){
   }
   if(e.kind === "headnote"){
     const px = s.textSize;
+    const hn = styleParts(s.headnoteStyle);
     const avail = s.colWidth - indentX;
-    const lines = wrap(e.name || e.label, avail, px, s.font, "normal","italic");
+    const lines = wrap(e.name || e.label, avail, px, s.font, hn.weight, hn.style);
     return { type:"headnote", e, indentX, px, lines, lineH: px*1.25,
+             weight: hn.weight, style: hn.style,
              height: lines.length*px*1.25 + 2 };
   }
   // unit
@@ -891,9 +996,11 @@ function entryLayout(e, s){
   const descX = indentX + boxW + 9;
   const avail = s.colWidth - descX;
   const descText = e.name || e.label || e.mapUnit;
-  const lines = wrap(descText, Math.max(40, avail), px, s.font, "normal","normal");
+  const ds = styleParts(s.descStyle);
+  const lines = wrap(descText, Math.max(40, avail), px, s.font, ds.weight, ds.style);
   const textH = lines.length * px * 1.25;
   return { type:"unit", e, indentX, px, boxW, boxH, descX, lines,
+           weight: ds.weight, style: ds.style,
            lineH: px*1.25, height: Math.max(boxH, textH) + 2 };
 }
 
@@ -953,8 +1060,16 @@ function el(tag, attrs){
   for(const k in attrs) n.setAttribute(k, attrs[k]);
   return n;
 }
+// ArcGIS Pro's SVG reader does not resolve CSS font stacks (it looks for a font
+// literally named "Arial, Helvetica, sans-serif" and falls back to a default
+// regular face when it fails), so emit a single family name.
+function fam1(f){ return String(f || "").split(",")[0].replace(/['"]/g, "").trim(); }
 function txt(x,y,str,attrs){
-  const t = el("text", Object.assign({x,y}, attrs));
+  const a = Object.assign({x,y}, attrs);
+  if(a["font-family"]) a["font-family"] = fam1(a["font-family"]);
+  // numeric weights survive more SVG readers than the "bold" keyword
+  if(a["font-weight"] === "bold") a["font-weight"] = 700;
+  const t = el("text", a);
   t.textContent = str;
   return t;
 }
@@ -1005,7 +1120,9 @@ function render(){
   if(s.title){
     const tg = el("g", {id: makeId("title"), class:"legend-title"});
     tg.appendChild(txt(PADX, PADY + titlePx*0.8, s.title, {
-      "font-family":s.font, "font-size":titlePx, "font-weight":"bold",
+      "font-family":s.font, "font-size":titlePx,
+      "font-weight":styleParts(s.titleStyle).weight,
+      "font-style":styleParts(s.titleStyle).style,
       fill:"#000", "letter-spacing":"0.5"
     }));
     tg.appendChild(el("line", {
@@ -1139,7 +1256,8 @@ function drawEntry(parent, it, x0, yTop, s){
     let y = yTop + it.px*0.9;
     for(const line of it.lines){
       g.appendChild(txt(x0 + it.indentX, y, line, {
-        "font-family":s.font, "font-size":it.px, "font-style":"italic", fill:"#222"
+        "font-family":s.font, "font-size":it.px,
+        "font-weight":it.weight, "font-style":it.style, fill:"#222"
       }));
       y += it.lineH;
     }
@@ -1178,7 +1296,12 @@ function drawEntry(parent, it, x0, yTop, s){
     const label = String(e.label);
     const lf = s.labelFont || s.font;
     const isFGDC = s.labelFont === FGDC_FONT;
-    const lstyle = isFGDC ? "normal" : "italic";  // age symbols are not slanted
+    // auto keeps the historic behaviour: bold, and italic unless the label font
+    // is FGDCGeoAge (age symbols are not slanted)
+    const lsp = s.labelStyle === "auto"
+      ? { weight:"bold", style: isFGDC ? "normal" : "italic" }
+      : styleParts(s.labelStyle);
+    const lstyle = lsp.style, lweight = lsp.weight;
     let fs = Math.min(it.px+1, it.boxH*0.62);
     // optional reduction for labels with many characters
     if(s.shrinkLong && label.length > s.shrinkChars){
@@ -1190,10 +1313,10 @@ function drawEntry(parent, it, x0, yTop, s){
     const ov = labelOverrides[e._id];
     if(ov && ov.size) fs = Math.max(4, fs + ov.size);
     // shrink to fit width (safety floor)
-    while(fs > 4 && measure(label, fs, lf, "bold", lstyle) > it.boxW*0.86) fs -= 0.5;
+    while(fs > 4 && measure(label, fs, lf, lweight, lstyle) > it.boxW*0.86) fs -= 0.5;
     const lblText = txt(boxX + it.boxW/2, boxY + it.boxH/2 + fs*0.34, label, {
       id: makeId("sym_" + baseName),
-      "font-family":lf, "font-size":fs, "font-weight":"bold", "font-style":lstyle,
+      "font-family":lf, "font-size":fs, "font-weight":lweight, "font-style":lstyle,
       fill: resolveLabelColor(e, color, s), "text-anchor":"middle"
     });
     lblText.style.cursor = "pointer";
@@ -1206,7 +1329,8 @@ function drawEntry(parent, it, x0, yTop, s){
   let ty = yTop + (it.height - totalTextH)/2 + it.px*0.9;
   for(const line of it.lines){
     dg.appendChild(txt(it.descX + x0, ty, line, {
-      "font-family":s.font, "font-size":it.px, fill:"#000"
+      "font-family":s.font, "font-size":it.px,
+      "font-weight":it.weight, "font-style":it.style, fill:"#000"
     }));
     ty += it.lineH;
   }
@@ -1379,35 +1503,75 @@ function setStatus(kind, msg){
 /* ---------------------------------------------------------------
    EXPORT
 --------------------------------------------------------------- */
-// Convert label text (box symbols) drawn in an embedded font into vector
-// paths, so age symbols / uploaded fonts look identical without the font
-// installed. Only affects embedded fonts; system-font labels stay as text.
-function outlineLabelText(svg){
-  const labels = [...svg.querySelectorAll('text[id^="sym_"]')];
+// Which embedded family supplies <fam> in the requested weight/style? Embedding
+// a family's bold or italic file (Arial-Bold.ttf registers as "Arial-Bold")
+// lets outlining use the real face instead of the regular one.
+function normFam(x){ return String(x).toLowerCase().replace(/[^a-z0-9]/g, ""); }
+function findFace(fam, bold, italic){
+  if(!fam) return null;
+  const want = normFam(fam) + (bold ? "bold" : "") + (italic ? "italic" : "");
+  for(const k in fontRegistry){
+    if(!fontRegistry[k].bytes) continue;
+    if(normFam(k) === want) return k;
+  }
+  return null;
+}
+// Convert text drawn in an embedded font into vector paths, so it looks
+// identical without the font installed and so bold/italic survive readers that
+// ignore font-weight. all=false restricts this to the unit-label box symbols.
+// Text in a system font cannot be outlined and is left editable.
+function outlineText(svg, all){
+  const nodes = [...svg.querySelectorAll("text")];
+  const skipped = new Set(), approx = new Set();
   let converted = 0;
-  for(const t of labels){
-    const fam = (t.getAttribute("font-family") || "").trim();
-    const reg = fontRegistry[fam];
-    if(!reg || !reg.embedded) continue;          // system fonts: leave editable
-    const font = getParsedFont(fam);
-    if(!font) continue;
+  for(const t of nodes){
+    if(!all && !/^sym_/.test(t.id || "")) continue;
+    const fam = fam1(t.getAttribute("font-family") || "");
+    const wt = t.getAttribute("font-weight") || "";
+    const bold = wt === "bold" || parseInt(wt, 10) >= 600;
+    const italic = (t.getAttribute("font-style") || "") === "italic";
+    let key = findFace(fam, bold, italic), approximate = false;
+    if(!key){
+      // fall back to whatever face of this family is embedded
+      if(fontRegistry[fam] && fontRegistry[fam].bytes){
+        key = fam;
+        approximate = bold || italic;
+      }else{
+        skipped.add(fam || "(unnamed)");
+        continue;
+      }
+    }
+    const font = getParsedFont(key);
+    if(!font){ skipped.add(fam); continue; }
     const size = parseFloat(t.getAttribute("font-size")) || 10;
     const x = parseFloat(t.getAttribute("x")) || 0;
     const y = parseFloat(t.getAttribute("y")) || 0;
     const anchor = t.getAttribute("text-anchor") || "start";
     const fill = t.getAttribute("fill") || "#000";
+    const ls = parseFloat(t.getAttribute("letter-spacing")) || 0;
+    const opts = ls ? { letterSpacing: ls / size } : undefined;
     const str = t.textContent || "";
     let xLeft = x;
-    const w = font.getAdvanceWidth(str, size);
+    const w = font.getAdvanceWidth(str, size, opts);
     if(anchor === "middle") xLeft = x - w/2;
     else if(anchor === "end") xLeft = x - w;
-    const d = font.getPath(str, xLeft, y, size).toPathData(2);
+    const d = font.getPath(str, xLeft, y, size, opts).toPathData(2);
     const path = el("path", { d, fill });
     if(t.id) path.setAttribute("id", t.id);
     t.parentNode.replaceChild(path, t);
     converted++;
+    if(approximate) approx.add(fam + (bold ? " bold" : "") + (italic ? " italic" : ""));
   }
-  return converted;
+  return { converted, skipped:[...skipped], approx:[...approx] };
+}
+function reportOutline(r){
+  const box = $("outlineStatus"); if(!box) return;
+  const notes = [];
+  if(r.skipped.length) notes.push("not outlined (font not embedded): " + r.skipped.join(", "));
+  if(r.approx.length)  notes.push("drawn from the regular face: " + r.approx.join(", "));
+  box.className = "status show " + (notes.length ? "warn" : "ok");
+  box.textContent = `Outlined ${r.converted} text object${r.converted === 1 ? "" : "s"}.` +
+    (notes.length ? " " + notes.join("; ") + "." : "");
 }
 // embedded font faces still referenced by remaining <text> after outlining
 function embeddedFacesInUse(svg){
@@ -1445,8 +1609,42 @@ function svgString(){
   }
   svg.removeAttribute("data-content-w");
   svg.removeAttribute("data-content-h");
-  // optionally convert embedded-font label text to vector paths
-  if($("outlineLabels") && $("outlineLabels").checked) outlineLabelText(svg);
+  // optionally convert text to vector paths
+  const outMode = $("outlineMode") ? $("outlineMode").value : "none";
+  if(outMode !== "none") reportOutline(outlineText(svg, outMode === "all"));
+  // name the actual face in font-family. ArcGIS Pro matches an SVG font by name
+  // and will not synthesize bold or italic from font-weight/font-style, so
+  // "Arial" + bold arrives as plain Arial. Illustrator's own SVG output names
+  // the face this way too, so the file still opens correctly there.
+  if(!$("faceNaming") || $("faceNaming").value === "face"){
+    svg.querySelectorAll("text").forEach(t => {
+      const fam = fam1(t.getAttribute("font-family") || "");
+      if(!fam) return;
+      const wt = t.getAttribute("font-weight") || "";
+      const bold = wt === "bold" || parseInt(wt, 10) >= 600;
+      const italic = (t.getAttribute("font-style") || "") === "italic";
+      if(!bold && !italic) return;
+      t.setAttribute("font-family", fam + (bold ? " Bold" : "") + (italic ? " Italic" : ""));
+      // drop the synthesis hints so a reader that does honour them cannot
+      // double-apply slant or weight on top of the real face
+      t.removeAttribute("font-weight");
+      t.removeAttribute("font-style");
+    });
+  }
+  // mirror typography onto a style attribute: some SVG readers honour CSS
+  // properties but ignore the equivalent presentation attributes
+  svg.querySelectorAll("text").forEach(t => {
+    const decl = [];
+    const fam = t.getAttribute("font-family");
+    const wt  = t.getAttribute("font-weight");
+    const sty = t.getAttribute("font-style");
+    const sz  = t.getAttribute("font-size");
+    if(fam) decl.push("font-family:" + fam);
+    if(sz)  decl.push("font-size:" + sz + "px");
+    if(wt && wt !== "normal" && wt !== "400") decl.push("font-weight:" + wt);
+    if(sty && sty !== "normal") decl.push("font-style:" + sty);
+    if(decl.length) t.setAttribute("style", decl.join(";"));
+  });
   // embed any embedded fonts still referenced by remaining <text> (e.g. an
   // uploaded body font, or labels left as text) so they render everywhere
   const faces = embeddedFacesInUse(svg);
@@ -1558,7 +1756,9 @@ function bindSlider(id){
 ["colWidth","rowGap","colGap","boxW","boxAlpha","textSize","headSize","indent","darkThreshold","shrinkChars","shrinkAmount"].forEach(bindSlider);
 ["fontFamily"].forEach(id => $(id).addEventListener("change", ()=> RAW.length && render()));
 $("labelFont").addEventListener("change", ()=> { if(RAW.length) render(); buildUnitList(); });
-["showLabels","balance","keepHeadings"].forEach(id => $(id).addEventListener("change", ()=> RAW.length && render()));
+["showLabels","balance","keepHeadings","headStyle1","headStyle2","headStyle3",
+ "headnoteStyle","descStyle","titleStyle","labelStyle"]
+  .forEach(id => $(id).addEventListener("change", ()=> RAW.length && render()));
 
 // build the FGDCGeoAge age-symbol reference (click a key to copy)
 (function buildAgeRef(){
@@ -1690,6 +1890,58 @@ $("fontFileInput").addEventListener("change", e => {
   r.onerror = () => setFontStatus("err","Could not read that font file.");
   r.readAsArrayBuffer(file);
 });
+// Outlining needs real glyph data, which a merely installed font does not give
+// us. Where the browser exposes local fonts we can read the file itself, so the
+// body font (and its bold / italic faces) can be embedded without hunting for
+// .ttf files. Faces register as "Arial", "Arial Bold", ... which is exactly the
+// naming findFace() looks for.
+let localFontList = null;
+async function localFonts(){
+  if(!localFontList) localFontList = await window.queryLocalFonts();
+  return localFontList;
+}
+async function embedLocalFamily(fam){
+  const all = await localFonts();
+  const hits = all.filter(f => normFam(f.family) === normFam(fam));
+  if(!hits.length) throw new Error(`No installed font family named "${fam}".`);
+  const added = [];
+  for(const f of hits){
+    const sty = String(f.style || "Regular").trim();
+    const key = /^regular$/i.test(sty) ? fam : fam + " " + sty;
+    if(fontRegistry[key] && fontRegistry[key].bytes) continue;
+    const buf = await (await f.blob()).arrayBuffer();
+    let bin = "", bytes = new Uint8Array(buf);
+    for(let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    const css = "@font-face{font-family:'" + key + "';font-style:normal;font-weight:normal;" +
+                "src:url(data:font/ttf;base64," + btoa(bin) + ") format('truetype');}";
+    fontRegistry[key] = { css, label:key, embedded:true, bytes: buf };
+    delete parsedFontCache[key];
+    added.push(sty);
+  }
+  return added;
+}
+if(window.queryLocalFonts){
+  const eb = $("embedLocalBtn");
+  eb.style.display = "block";
+  eb.addEventListener("click", async () => {
+    const fam = fam1($("fontFamily").value);
+    eb.disabled = true;
+    const box = $("outlineStatus");
+    box.className = "status show ok"; box.textContent = `Reading ${fam} from this computer...`;
+    try{
+      const added = await embedLocalFamily(fam);
+      box.className = "status show ok";
+      box.textContent = added.length
+        ? `Embedded ${fam}: ${added.join(", ")}. Outlining can now use the real faces.`
+        : `${fam} was already embedded.`;
+    }catch(err){
+      box.className = "status show warn";
+      box.textContent = "Could not read that font here: " + err.message +
+        " Embed the font file under \"Add a font\" instead.";
+    }
+    eb.disabled = false;
+  });
+}
 // optional: one-click browse of installed fonts where the browser supports it
 if(window.queryLocalFonts){
   const btn = $("browseFontsBtn"); btn.style.display = "block";
